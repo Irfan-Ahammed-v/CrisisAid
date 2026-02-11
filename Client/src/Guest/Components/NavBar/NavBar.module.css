@@ -1,0 +1,128 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 12px 60px;
+
+  /* GLASS EFFECT */
+  background: linear-gradient(
+    180deg,
+    rgba(252, 252, 252, 0.75),
+    rgba(247, 247, 247, 0.65)
+  );
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+}
+
+/* ================= LOGO ================= */
+.logoBlock {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logoCircle {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+.logoText {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* ================= LINKS ================= */
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.navLink {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+  text-decoration: none;
+  opacity: 0.8;
+  position: relative;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.navLink:hover {
+  opacity: 1;
+  color: #0f172a;
+}
+
+/* subtle underline on hover */
+.navLink::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 0;
+  height: 2px;
+  background: #ef4444;
+  transition: width 0.2s ease;
+}
+
+.navLink:hover::after {
+  width: 100%;
+}
+
+/* ================= BUTTON ================= */
+.primaryBtn {
+  padding: 8px 18px;
+  border-radius: 999px;
+
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.primaryBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.45);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 840px) {
+  .navbar {
+    padding: 10px 18px;
+  }
+
+  .navLinks {
+    display: none;
+  }
+}

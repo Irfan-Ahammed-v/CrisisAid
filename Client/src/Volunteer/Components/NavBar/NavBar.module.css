@@ -1,0 +1,80 @@
+.navbar {
+  height: 70px;
+  width: 100%;
+  background: linear-gradient(180deg, #122536 0%, #0b1722 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  color: #f8fafc;
+}
+
+.right {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rawIcon {
+  cursor: pointer;
+}
+
+
+/* PROFILE DROPDOWN */
+.dropdown {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background: #0b1722;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  width: 160px;
+  padding: 6px 0;
+  z-index: 200;
+}
+
+/* NOTIFICATION DROPDOWN */
+.dropdownNotif {
+  position: absolute;
+  top: 60px;
+  right: 50px; /* appears under bell icon */
+  background: #0b1722;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  width: 200px;
+  padding: 6px 0;
+  z-index: 200;
+}
+
+/* Notification item */
+.notifItem {
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #e2e8f0;
+  margin: 0;
+  cursor: default;
+}
+
+/* Dropdown items (profile menu) */
+.dropItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  text-decoration: none;
+  font-size: 14px;
+  color: #e2e8f0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.dropItem:hover {
+  background: #ef4444;
+}

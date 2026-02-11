@@ -1,0 +1,167 @@
+.sidebar {
+  color: #f9fafb;
+  background: linear-gradient(180deg, #122536 0%, #0b1722 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px 14px;
+  width: 80px;                /*  collapsed width */
+  height: 100vh;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 8px 0 20px rgba(0, 0, 0, 0.35);
+  transition: width 0.25s ease;
+  overflow: hidden;
+}
+
+/* Expanded on hover */
+.sidebar:hover {
+  width: 280px;
+}
+
+/* LOGO */
+.logoSection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 9px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 10px;
+}
+
+
+/* hide logo text when collapsed */
+.logoTextGroup {
+  overflow: hidden;
+}
+
+.logoTitle,
+.logoSubtitle {
+  margin: 0;
+  opacity: 0;
+  transform: translateX(-6px);
+  white-space: nowrap;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* show logo text on hover */
+.sidebar:hover .logoTitle,
+.sidebar:hover .logoSubtitle {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.logoTitle {
+  font-size: 18px;
+}
+
+.logoSubtitle {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* LINKS */
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  flex: 1;
+}
+
+/* section labels: hidden when collapsed */
+.sectionLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 10px 4px 4px;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* these have same behavior as other collapsed text */
+.collapsedText {
+  white-space: nowrap;
+}
+
+.sidebar:hover .sectionLabel {
+  opacity: 0.6;
+  transform: translateX(0);
+}
+
+/* NAV LINKS */
+.navlinks {
+  text-decoration: none;
+  color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  margin: 2px 0;
+  position: relative;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  justify-content: center;              /* icons centered when collapsed */
+}
+
+/* when sidebar expanded, left-align content */
+.sidebar:hover .navlinks {
+  justify-content: flex-start;
+}
+
+.navlinks::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+  border-radius: 999px;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+
+/* LABEL TEXT: hidden by default, visible on hover of sidebar */
+.navText {
+  opacity: 0;
+  transform: translateX(-6px);
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.sidebar:hover .navText {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* hover effect */
+.navlinks:hover {
+  background: rgba(148, 163, 184, 0.14);
+  transform: translateX(3px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.65);
+}
+
+.navlinks:hover::before {
+  background: #38bdf8;
+}
+
+.icon {
+  font-size: 20px !important;
+  opacity: 0.9;
+}
+
+/* ACTIVE LINK (from NavLink) */
+.active {
+  background: rgba(148, 163, 184, 0.18);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.8);
+}
+
+.active::before {
+  background: #38bdf8;
+}
+
+.active .icon {
+  opacity: 1;
+}
