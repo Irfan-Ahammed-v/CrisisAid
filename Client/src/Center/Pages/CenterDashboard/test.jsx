@@ -16,211 +16,8 @@ const CenterDashboard = () => {
   });
 
   useEffect(() => {
-    // fetchDashboard();
-    loadSampleData();
+    fetchDashboard();
   }, []);
-
-  const loadSampleData = () => {
-    // Sample data for demonstration
-    const sampleData = {
-      center: {
-        center_name: "Central Relief Coordination Center"
-      },
-      stats: {
-        totalCamps: 45,
-        totalVolunteers: 128,
-        pendingCamps: 8,
-        pendingVolunteers: 12,
-        pendingDisasters: 5,
-        pendingRequests: 15
-      },
-      pendingCamps: [
-        {
-          _id: "1",
-          camp_name: "Sunrise Relief Camp",
-          place: "North District, Kerala",
-          createdAt: new Date("2024-02-08")
-        },
-        {
-          _id: "2",
-          camp_name: "Hope Valley Camp",
-          place: "Ernakulam, Kerala",
-          createdAt: new Date("2024-02-09")
-        },
-        {
-          _id: "3",
-          camp_name: "Green Meadows Shelter",
-          place: "Thrissur, Kerala",
-          createdAt: new Date("2024-02-10")
-        },
-        {
-          _id: "4",
-          camp_name: "Safe Haven Camp",
-          place: "Kottayam, Kerala",
-          createdAt: new Date("2024-02-11")
-        }
-      ],
-      pendingVolunteers: [
-        {
-          _id: "v1",
-          volunteer_name: "Rajesh Kumar",
-          volunteer_email: "rajesh.k@email.com",
-          createdAt: new Date("2024-02-09")
-        },
-        {
-          _id: "v2",
-          volunteer_name: "Priya Menon",
-          volunteer_email: "priya.menon@email.com",
-          createdAt: new Date("2024-02-10")
-        },
-        {
-          _id: "v3",
-          volunteer_name: "Arun Nair",
-          volunteer_email: "arun.nair@email.com",
-          createdAt: new Date("2024-02-10")
-        },
-        {
-          _id: "v4",
-          volunteer_name: "Lakshmi Pillai",
-          volunteer_email: "lakshmi.p@email.com",
-          createdAt: new Date("2024-02-11")
-        }
-      ],
-      disasters: [
-        {
-          _id: "d1",
-          camp_name: "Riverside Camp",
-          disaster_severity: "critical",
-          disaster_type: "Flood",
-          disaster_status: "active",
-          createdAt: new Date("2024-02-11")
-        },
-        {
-          _id: "d2",
-          camp_name: "Mountain View Camp",
-          disaster_severity: "high",
-          disaster_type: "Landslide",
-          disaster_status: "active",
-          createdAt: new Date("2024-02-10")
-        },
-        {
-          _id: "d3",
-          camp_name: "Coastal Relief Center",
-          disaster_severity: "medium",
-          disaster_type: "Storm Damage",
-          disaster_status: "active",
-          createdAt: new Date("2024-02-09")
-        },
-        {
-          _id: "d4",
-          camp_name: "Valley Shelter",
-          disaster_severity: "low",
-          disaster_type: "Power Outage",
-          disaster_status: "resolved",
-          createdAt: new Date("2024-02-08")
-        }
-      ],
-      requests: [
-        {
-          _id: "r1",
-          camp_name: "Sunrise Relief Camp",
-          request_details: "Urgent need for medical supplies and clean drinking water for 200 people",
-          items: [
-            { itemName: "Medical Kits", qty: 50 },
-            { itemName: "Water Bottles", qty: 300 },
-            { itemName: "Blankets", qty: 100 }
-          ],
-          request_priority: "high",
-          request_status: "pending",
-          createdAt: new Date("2024-02-11")
-        },
-        {
-          _id: "r2",
-          camp_name: "Green Meadows Shelter",
-          request_details: "Food supplies needed for 150 displaced families",
-          items: [
-            { itemName: "Rice", qty: 200 },
-            { itemName: "Cooking Oil", qty: 50 },
-            { itemName: "Vegetables", qty: 100 },
-            { itemName: "Dal", qty: 80 }
-          ],
-          request_priority: "medium",
-          request_status: "pending",
-          createdAt: new Date("2024-02-10")
-        },
-        {
-          _id: "r3",
-          camp_name: "Hope Valley Camp",
-          request_details: "Clothing and hygiene products for children and elderly",
-          items: [
-            { itemName: "Clothes", qty: 200 },
-            { itemName: "Soap", qty: 150 }
-          ],
-          request_priority: "medium",
-          request_status: "pending",
-          createdAt: new Date("2024-02-09")
-        },
-        {
-          _id: "r4",
-          camp_name: "Coastal Relief Center",
-          request_details: "Tents and sleeping bags for additional shelter capacity",
-          items: [
-            { itemName: "Tents", qty: 20 },
-            { itemName: "Sleeping Bags", qty: 50 }
-          ],
-          request_priority: "low",
-          request_status: "pending",
-          createdAt: new Date("2024-02-08")
-        }
-      ],
-      volunteers: [
-        {
-          _id: "vol1",
-          volunteer_name: "Anitha Thomas",
-          availability: "available",
-          assigned_task: "Medical Support"
-        },
-        {
-          _id: "vol2",
-          volunteer_name: "Suresh Babu",
-          availability: "available",
-          assigned_task: null
-        },
-        {
-          _id: "vol3",
-          volunteer_name: "Maya Krishnan",
-          availability: "busy",
-          assigned_task: "Food Distribution"
-        },
-        {
-          _id: "vol4",
-          volunteer_name: "Deepak Menon",
-          availability: "available",
-          assigned_task: "Logistics"
-        },
-        {
-          _id: "vol5",
-          volunteer_name: "Kavya Nair",
-          availability: "available",
-          assigned_task: null
-        },
-        {
-          _id: "vol6",
-          volunteer_name: "Ravi Kumar",
-          availability: "busy",
-          assigned_task: "Emergency Response"
-        }
-      ],
-      tasks: {
-        active: 12,
-        completed: 45,
-        ongoing: 8
-      }
-    };
-
-    setDashboard(sampleData);
-    setLoading(false);
-  };
 
   const fetchDashboard = async () => {
     try {
@@ -244,45 +41,12 @@ const CenterDashboard = () => {
   };
 
   const handleApproval = async (type, id, action) => {
-    // Simulated approval - remove the item from the list
-    setNotification({
-      show: true,
-      type: "success",
-      message: `${type.charAt(0).toUpperCase() + type.slice(1)} ${action}d successfully`
-    });
-
-    // Update dashboard data by removing the approved/rejected item
-    setDashboard(prev => {
-      if (type === "camp") {
-        return {
-          ...prev,
-          pendingCamps: prev.pendingCamps.filter(camp => camp._id !== id),
-          stats: {
-            ...prev.stats,
-            pendingCamps: prev.stats.pendingCamps - 1
-          }
-        };
-      } else {
-        return {
-          ...prev,
-          pendingVolunteers: prev.pendingVolunteers.filter(vol => vol._id !== id),
-          stats: {
-            ...prev.stats,
-            pendingVolunteers: prev.stats.pendingVolunteers - 1
-          }
-        };
-      }
-    });
-
-    setTimeout(() => setNotification({ show: false, type: "", message: "" }), 3000);
-
-    /* Uncomment for real API integration:
     try {
       const endpoint = type === "camp" 
         ? `http://localhost:5000/center/approve-camp/${id}`
         : `http://localhost:5000/center/approve-volunteer/${id}`;
       
-      const res = await axios.put(endpoint, { action });
+      const res = await axios.put(endpoint, { action }); // action: "approve" or "reject"
 
       setNotification({
         show: true,
@@ -290,6 +54,7 @@ const CenterDashboard = () => {
         message: res.data.message || `${type} ${action}d successfully`
       });
 
+      // Refresh dashboard
       fetchDashboard();
       setTimeout(() => setNotification({ show: false, type: "", message: "" }), 3000);
     } catch (err) {
@@ -300,34 +65,13 @@ const CenterDashboard = () => {
       });
       setTimeout(() => setNotification({ show: false, type: "", message: "" }), 3000);
     }
-    */
   };
 
   const handleRequestAction = async (requestId, action) => {
-    // Simulated request action
-    setNotification({
-      show: true,
-      type: "success",
-      message: `Request ${action}d successfully`
-    });
-
-    // Remove the request from the list
-    setDashboard(prev => ({
-      ...prev,
-      requests: prev.requests.filter(req => req._id !== requestId),
-      stats: {
-        ...prev.stats,
-        pendingRequests: prev.stats.pendingRequests - 1
-      }
-    }));
-
-    setTimeout(() => setNotification({ show: false, type: "", message: "" }), 3000);
-
-    /* Uncomment for real API integration:
     try {
       const res = await axios.put(`http://localhost:5000/center/request/${requestId}`, { 
-        action,
-        request_reply: ""
+        action, // "approve" or "reject"
+        request_reply: "" // Optional reply message
       });
 
       setNotification({
@@ -346,19 +90,10 @@ const CenterDashboard = () => {
       });
       setTimeout(() => setNotification({ show: false, type: "", message: "" }), 3000);
     }
-    */
   };
 
   const handleDisasterAction = async (disasterId) => {
-    // Simulated navigation
-    setNotification({
-      show: true,
-      type: "success",
-      message: "Opening disaster details..."
-    });
-    setTimeout(() => setNotification({ show: false, type: "", message: "" }), 2000);
-    
-    // navigate(`/center/disaster/${disasterId}`);
+    navigate(`/center/disaster/${disasterId}`);
   };
 
   const getSeverityColor = (severity) => {
@@ -644,15 +379,7 @@ const CenterDashboard = () => {
                   name={volunteer.volunteer_name}
                   availability={volunteer.availability}
                   assignedTask={volunteer.assigned_task}
-                  onAssign={() => {
-                    setNotification({
-                      show: true,
-                      type: "success",
-                      message: `Opening assignment page for ${volunteer.volunteer_name}...`
-                    });
-                    setTimeout(() => setNotification({ show: false, type: "", message: "" }), 2000);
-                    // navigate(`/center/assign-volunteer/${volunteer._id}`);
-                  }}
+                  onAssign={() => navigate(`/center/assign-volunteer/${volunteer._id}`)}
                 />
               ))
             ) : (
@@ -897,14 +624,9 @@ const VolunteerCard = ({ name, availability, assignedTask, onAssign }) => (
     </p>
     <button
       onClick={onAssign}
-      disabled={availability !== "available"}
-      className={`w-full px-3 py-2 rounded-lg font-medium transition-colors ${
-        availability === "available"
-          ? "bg-indigo-600 hover:bg-indigo-700 text-white"
-          : "bg-gray-300 text-gray-500 cursor-not-allowed"
-      }`}
+      className="w-full px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
     >
-      {availability === "available" ? "Assign Task" : "Unavailable"}
+      Assign Task
     </button>
   </div>
 );
