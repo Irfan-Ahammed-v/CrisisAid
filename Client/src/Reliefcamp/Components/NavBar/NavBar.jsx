@@ -1,10 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../../context/AuthContext";
+import axios from "axios";
+
+axios.defaults.withCredentials = true;
 
 const NavBar = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth(); //BACKEND
+  const { user, logout, loading } = useAuth();
+
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef(null);
 
@@ -15,17 +19,26 @@ const NavBar = () => {
         setIsProfileOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // If user not loaded yet, don't render navbar
-  if (!user) return null;
+  // Wait until auth finishes checking
+  if (loading) return null;
 
   const handleLogout = async () => {
     await logout();
     navigate("/guest/login");
   };
+
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+    : "";
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -35,7 +48,7 @@ const NavBar = () => {
           {/* Logo */}
           <div
             className="flex items-center gap-3 cursor-pointer"
-            // onClick={() => navigate("/camp")}
+            onClick={() => navigate("/camp")}
           >
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-lg">CA</span>
@@ -49,7 +62,7 @@ const NavBar = () => {
           <div className="flex items-center gap-4">
 
             {/* Role-based action */}
-            {user.role === "camp" && (
+            {user?.role === "camp" && (
               <button
                 onClick={() => navigate("/camp/new-request")}
                 className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
@@ -66,11 +79,7 @@ const NavBar = () => {
               >
                 <div className="w-9 h-9 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center border-2 border-slate-300">
                   <span className="text-white font-semibold text-sm">
-                    {user.name
-                      .split(" ")
-                      .map(n => n[0])
-                      .join("")
-                      .toUpperCase()}
+                    {initials}
                   </span>
                 </div>
 
@@ -95,15 +104,21 @@ const NavBar = () => {
               {isProfileOpen && (
                 <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border overflow-hidden animate-fadeIn">
                   <div className="px-4 py-3 bg-blue-50 border-b">
-                    <p className="text-sm font-bold">{user.name}</p>
+                    <p className="text-sm font-bold">{user?.name}</p>
                     <span className="inline-block mt-1 px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">
-                      {user.role.toUpperCase()}
+                      {user?.role?.toUpperCase()}
                     </span>
                   </div>
 
                   <div className="py-2">
-                    <MenuItem label="My Profile" onClick={() => navigate("/camp/profile")} />
-                    <MenuItem label="My Requests" onClick={() => navigate("/camp/requests")} />
+                    <MenuItem
+                      label="My Profile"
+                      onClick={() => navigate("/camp/profile")}
+                    />
+                    <MenuItem
+                      label="My Requests"
+                      onClick={() => navigate("/camp/requests")}
+                    />
                   </div>
 
                   <div className="border-t">

@@ -6,6 +6,7 @@ import ReportDisaster from "../Reliefcamp/Pages/ReportDisaster/ReportDisaster";
 import RequestView from "../Reliefcamp/Pages/RequestView/RequestView";
 import RequestList from "../Reliefcamp/Pages/RequestList/RequestList";
 import CampProfile from "../Reliefcamp/Pages/CampProfile/CampProfile";
+import NavBar from "../Reliefcamp/Components/NavBar/NavBar";
 
 const CampRouter  = () =>{
     return(

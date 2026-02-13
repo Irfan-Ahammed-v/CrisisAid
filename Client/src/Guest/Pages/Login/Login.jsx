@@ -1,6 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import { useAuth } from "../../../context/AuthContext";
+
+axios.defaults.withCredentials = true;
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -8,7 +11,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-
+ const { fetchMe } = useAuth();
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -19,6 +22,7 @@ export default function Login() {
         { email, password },
         { withCredentials: true } // JWT cookie
       );
+      await fetchMe(); // Update auth context with user info
 
       alert(res.data.message);
       if (res.data.role === "admin") navigate("/Admin");

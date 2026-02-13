@@ -11,10 +11,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // fetch /me
-  const fetchMe = async () => {
-    const res = await axios.get("http://localhost:5000/auth/me");
+const fetchMe = async () => {
+  try {
+    const res = await axios.get("http://localhost:5000/auth/me", {
+      withCredentials: true,
+    });
     setUser(res.data);
-  };
+  } catch (err) {
+    setUser(null);
+  }
+};
+
 
   // run once on app load
   useEffect(() => {
@@ -36,11 +43,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, loading, logout, fetchMe }}
-    >
-      {children}
-    </AuthContext.Provider>
+<AuthContext.Provider value={{ user, loading, logout, fetchMe }}>
+    {!loading && children}
+  </AuthContext.Provider>
   );
 };
 
