@@ -22,7 +22,7 @@ router.post(
 router.get("/requests", campAuth, getRequests);
 router.get("/profile", campAuth, getCampProfile);
 router.patch("/update-occupancy", campAuth, updateOccupancy);
-router.patch("/update-profile/:campId", campAuth, updateProfile);
+router.patch("/update-profile", campAuth, updateProfile);
 router.post(
   "/upload-proof",
   campAuth,
