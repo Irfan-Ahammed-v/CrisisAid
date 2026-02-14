@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-import axios from "axios";
-
-axios.defaults.withCredentials = true;
 
 const DisasterReports = () => {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [disasters, setDisasters] = useState([]);
   const [filterSeverity, setFilterSeverity] = useState("all");
@@ -185,12 +180,10 @@ const DisasterReports = () => {
 
   const handleAlertVolunteers = (disaster) => {
     showNotification("success", `Alert sent to all available volunteers for ${disaster.camp_name}`);
-    // In real implementation, this would send notifications to volunteers
-    // navigate('/center/assign-volunteers', { state: { disaster } });
   };
 
   const handleStatusChange = (disasterId, newStatus) => {
-    setDisasters(prev => prev.map(d => 
+    setDisasters(prev => prev.map(d =>
       d._id === disasterId ? { ...d, disaster_status: newStatus } : d
     ));
     showNotification("success", `Disaster status updated to ${newStatus}`);
@@ -198,475 +191,441 @@ const DisasterReports = () => {
 
   const showNotification = (type, message) => {
     setNotification({ show: true, type, message });
-    setTimeout(() => setNotification({ show: false, type: "", message: "" }), 3000);
+    setTimeout(() => setNotification({ show: false, type: "", message: "" }), 3500);
   };
 
-  const getSeverityColor = (severity) => {
-    const colors = {
-      low: "bg-green-100 text-green-800 border-green-300",
-      medium: "bg-yellow-100 text-yellow-800 border-yellow-300",
-      high: "bg-orange-100 text-orange-800 border-orange-300",
-      critical: "bg-red-100 text-red-800 border-red-300",
-    };
-    return colors[severity?.toLowerCase()] || "bg-gray-100 text-gray-800 border-gray-300";
+  // ── Badge configs matching Camp Management style ──
+  const SEV_BADGE = {
+    critical: { label: "Critical", dot: "bg-red-400",     text: "text-red-400",     bg: "bg-red-400/10",     ring: "ring-red-400/20",     bar: "bg-red-500" },
+    high:     { label: "High",     dot: "bg-orange-400",  text: "text-orange-400",  bg: "bg-orange-400/10",  ring: "ring-orange-400/20",  bar: "bg-orange-500" },
+    medium:   { label: "Medium",   dot: "bg-amber-400",   text: "text-amber-400",   bg: "bg-amber-400/10",   ring: "ring-amber-400/20",   bar: "bg-amber-400" },
+    low:      { label: "Low",      dot: "bg-emerald-400", text: "text-emerald-400", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20", bar: "bg-emerald-500" },
+  };
+  const STAT_BADGE = {
+    active:    { label: "Active",    dot: "bg-red-400",     text: "text-red-400",     bg: "bg-red-400/10",     ring: "ring-red-400/20" },
+    contained: { label: "Contained", dot: "bg-amber-400",   text: "text-amber-400",   bg: "bg-amber-400/10",   ring: "ring-amber-400/20" },
+    resolved:  { label: "Resolved",  dot: "bg-emerald-400", text: "text-emerald-400", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20" },
   };
 
-  const getStatusColor = (status) => {
-    const colors = {
-      active: "bg-red-100 text-red-800",
-      contained: "bg-yellow-100 text-yellow-800",
-      resolved: "bg-green-100 text-green-800",
-    };
-    return colors[status?.toLowerCase()] || "bg-gray-100 text-gray-800";
-  };
+  function SevBadge({ s }) {
+    const c = SEV_BADGE[s] || SEV_BADGE.low;
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ring-1 ${c.bg} ${c.text} ${c.ring}`}>
+        <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
+        {c.label}
+      </span>
+    );
+  }
+  function StatBadge({ s }) {
+    const c = STAT_BADGE[s] || STAT_BADGE.active;
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ring-1 ${c.bg} ${c.text} ${c.ring}`}>
+        <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
+        {c.label}
+      </span>
+    );
+  }
 
   const getDisasterIcon = (type) => {
     const icons = {
-      "Flood": "🌊",
-      "Landslide": "⛰️",
-      "Storm Damage": "🌪️",
-      "Fire Outbreak": "🔥",
-      "Disease Outbreak": "🦠",
-      "Structural Damage": "🏗️",
-      "Power Outage": "⚡",
-      "Water Contamination": "💧"
+      "Flood": "🌊", "Landslide": "⛰️", "Storm Damage": "🌪️",
+      "Fire Outbreak": "🔥", "Disease Outbreak": "🦠", "Structural Damage": "🏗️",
+      "Power Outage": "⚡", "Water Contamination": "💧"
     };
     return icons[type] || "⚠️";
   };
 
   const disasterTypes = [...new Set(disasters.map(d => d.disaster_type))];
 
+  const severityBar = (s) => SEV_BADGE[s]?.bar || "bg-slate-500";
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-red-600 mb-4"></div>
-          <p className="text-slate-600 text-lg font-medium">Loading disaster reports...</p>
+      <>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+          body { margin: 0; background: #0d1117; }
+        `}</style>
+        <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-12 h-12 rounded-full border-2 border-[#30363d] border-t-amber-400 animate-spin mx-auto mb-4" />
+            <p className="text-slate-500 text-sm font-medium" style={{ fontFamily: "'DM Sans',sans-serif" }}>
+              Loading disaster reports…
+            </p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <button
-                onClick={() => navigate(-1)}
-                className="text-red-600 hover:text-red-700 font-medium mb-2 flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back to Dashboard
-              </button>
-              <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-                <div className="text-4xl">🚨</div>
-                Disaster Reports Management
-              </h1>
-              <p className="text-slate-600 mt-1">Monitor and respond to emergency situations</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{filteredDisasters.length}</div>
-                <div className="text-sm text-slate-600">Active Reports</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">
-                  {filteredDisasters.filter(d => d.disaster_severity === "critical").length}
-                </div>
-                <div className="text-sm text-slate-600">Critical</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+        *, *::before, *::after { box-sizing: border-box; }
+        body { margin: 0; background: #0d1117; font-family: 'DM Sans', sans-serif; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+        @keyframes toastIn  { from{opacity:0;transform:translateX(28px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes scaleIn  { from{opacity:0;transform:scale(0.94) translateY(8px)} to{opacity:1;transform:scale(1) translateY(0)} }
+        @keyframes fadeUp   { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+        .fu  { animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+        .fu1 { animation-delay: 0ms; }
+        .fu2 { animation-delay: 50ms; }
+        .fu3 { animation-delay: 100ms; }
+        .card-hover:hover { background: rgba(255,255,255,0.022); }
+        select option { background: #161b22; }
+      `}</style>
 
-      {/* Filters and Search */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {/* Search */}
-            <div className="lg:col-span-2">
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Search Reports
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search by camp, type, or description..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                />
-                <svg className="w-5 h-5 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </div>
+      <div className="min-h-screen bg-[#0d1117] text-slate-300">
 
-            {/* Severity Filter */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Severity
-              </label>
-              <select
-                value={filterSeverity}
-                onChange={(e) => setFilterSeverity(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              >
-                <option value="all">All Severities</option>
-                <option value="critical">Critical</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
-              </select>
-            </div>
+        {/* Subtle amber grid texture */}
+        <div className="fixed inset-0 pointer-events-none" style={{
+          backgroundImage: "linear-gradient(rgba(232,162,62,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(232,162,62,0.025) 1px,transparent 1px)",
+          backgroundSize: "44px 44px",
+        }} />
 
-            {/* Type Filter */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Disaster Type
-              </label>
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              >
-                <option value="all">All Types</option>
-                {disasterTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
+        <div className="relative z-10 max-w-[1380px] mx-auto px-6 py-10">
 
-            {/* Status Filter */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Status
-              </label>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="contained">Contained</option>
-                <option value="resolved">Resolved</option>
-              </select>
-            </div>
+          {/* ── Page Title ── */}
+          <div className="fu fu1 mb-8">
+            <h1 className="text-[2rem] font-bold text-slate-100 leading-none flex items-center gap-3"
+              style={{ fontFamily: "'Playfair Display',serif" }}>
+              <span>🚨</span> Disaster Reports
+            </h1>
+            <p className="text-slate-500 text-sm mt-1.5">Monitor and respond to emergency situations</p>
           </div>
 
-          {/* Filter Summary */}
-          <div className="mt-4 flex items-center gap-2 text-sm text-slate-600">
-            <span className="font-semibold">Showing {filteredDisasters.length} of {disasters.length} reports</span>
-            {(filterSeverity !== "all" || filterStatus !== "all" || filterType !== "all" || searchTerm) && (
-              <button
-                onClick={() => {
-                  setFilterSeverity("all");
-                  setFilterStatus("all");
-                  setFilterType("all");
-                  setSearchTerm("");
-                }}
-                className="text-red-600 hover:text-red-700 font-medium ml-2"
-              >
-                Clear Filters
-              </button>
-            )}
-          </div>
-        </div>
+          {/* ── Toolbar ── */}
+          <div className="fu fu2 bg-[#161b22] border border-[#30363d] rounded-2xl p-5 mb-5 shadow-xl">
+            <div className="flex flex-wrap items-end gap-4">
 
-        {/* Disaster Reports Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredDisasters.length > 0 ? (
-            filteredDisasters.map((disaster) => (
-              <div
-                key={disaster._id}
-                className="bg-white rounded-xl shadow-sm border-2 border-slate-200 hover:shadow-lg transition-all overflow-hidden"
-              >
-                {/* Disaster Header */}
-                <div className={`p-5 border-b-4 ${
-                  disaster.disaster_severity === "critical" ? "border-red-500 bg-red-50" :
-                  disaster.disaster_severity === "high" ? "border-orange-500 bg-orange-50" :
-                  disaster.disaster_severity === "medium" ? "border-yellow-500 bg-yellow-50" :
-                  "border-green-500 bg-green-50"
-                }`}>
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className="text-4xl">{getDisasterIcon(disaster.disaster_type)}</div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-bold text-slate-900 mb-1">
-                          {disaster.disaster_type}
-                        </h3>
-                        <p className="text-sm text-slate-700 font-semibold">{disaster.camp_name}</p>
-                        <p className="text-xs text-slate-600 flex items-center gap-1 mt-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          </svg>
-                          {disaster.camp_location}
-                        </p>
-                      </div>
-                    </div>
-                    <span className={`px-3 py-1 rounded-lg text-xs font-bold border-2 ${getSeverityColor(disaster.disaster_severity)}`}>
-                      {disaster.disaster_severity?.toUpperCase()}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className={`px-3 py-1 rounded-lg text-xs font-bold ${getStatusColor(disaster.disaster_status)}`}>
-                      {disaster.disaster_status?.toUpperCase()}
-                    </span>
-                    <span className="px-3 py-1 bg-white text-slate-700 rounded-lg text-xs font-semibold border border-slate-300">
-                      👥 {disaster.estimated_people_affected} affected
-                    </span>
-                    <span className="px-3 py-1 bg-white text-slate-600 rounded-lg text-xs">
-                      ⏰ {new Date(disaster.reported_at).toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Disaster Details */}
-                <div className="p-5">
-                  <p className="text-sm text-slate-700 leading-relaxed mb-4 line-clamp-3">
-                    {disaster.disaster_description}
-                  </p>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <button
-                      onClick={() => openDetailModal(disaster)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-semibold transition-colors text-sm"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                      View Details
-                    </button>
-                    <button
-                      onClick={() => handleAlertVolunteers(disaster)}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold transition-colors text-sm"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                      </svg>
-                      Alert Volunteers
-                    </button>
-                  </div>
-
-                  {/* Status Change Buttons */}
-                  {disaster.disaster_status !== "resolved" && (
-                    <div className="mt-3 pt-3 border-t border-slate-200">
-                      <p className="text-xs font-semibold text-slate-600 mb-2">Update Status:</p>
-                      <div className="flex gap-2">
-                        {disaster.disaster_status !== "contained" && (
-                          <button
-                            onClick={() => handleStatusChange(disaster._id, "contained")}
-                            className="flex-1 px-3 py-1.5 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-lg font-semibold transition-colors text-xs"
-                          >
-                            Mark Contained
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleStatusChange(disaster._id, "resolved")}
-                          className="flex-1 px-3 py-1.5 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg font-semibold transition-colors text-xs"
-                        >
-                          Mark Resolved
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
-              <div className="text-6xl mb-4">📋</div>
-              <h3 className="text-xl font-bold text-slate-900 mb-2">No Disaster Reports Found</h3>
-              <p className="text-slate-600">Try adjusting your filters or search criteria</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Detail Modal */}
-      {detailModalOpen && selectedDisaster && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full my-8">
-            {/* Modal Header */}
-            <div className={`sticky top-0 p-6 rounded-t-2xl border-b-4 ${
-              selectedDisaster.disaster_severity === "critical" ? "bg-red-600 border-red-700" :
-              selectedDisaster.disaster_severity === "high" ? "bg-orange-600 border-orange-700" :
-              selectedDisaster.disaster_severity === "medium" ? "bg-yellow-600 border-yellow-700" :
-              "bg-green-600 border-green-700"
-            }`}>
-              <div className="flex items-start justify-between text-white">
-                <div className="flex items-start gap-4">
-                  <div className="text-5xl">{getDisasterIcon(selectedDisaster.disaster_type)}</div>
-                  <div>
-                    <h2 className="text-2xl font-bold mb-1">{selectedDisaster.disaster_type}</h2>
-                    <p className="text-lg opacity-90">{selectedDisaster.camp_name}</p>
-                    <p className="text-sm opacity-75 flex items-center gap-1 mt-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      </svg>
-                      {selectedDisaster.camp_location}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setDetailModalOpen(false)}
-                  className="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              {/* Search */}
+              <div className="flex-1 min-w-[200px]">
+                <p className="text-xs uppercase tracking-widest text-slate-600 mb-2">Search</p>
+                <div className="relative flex items-center">
+                  <svg className="w-3.5 h-3.5 text-slate-500 absolute left-3 pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" strokeLinecap="round" />
                   </svg>
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2 mt-4">
-                <span className="px-3 py-1 bg-white bg-opacity-20 rounded-lg text-sm font-bold">
-                  {selectedDisaster.disaster_severity?.toUpperCase()} SEVERITY
-                </span>
-                <span className="px-3 py-1 bg-white bg-opacity-20 rounded-lg text-sm font-bold">
-                  {selectedDisaster.disaster_status?.toUpperCase()}
-                </span>
-                <span className="px-3 py-1 bg-white bg-opacity-20 rounded-lg text-sm font-semibold">
-                  👥 {selectedDisaster.estimated_people_affected} People Affected
-                </span>
-              </div>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 max-h-[70vh] overflow-y-auto">
-              {/* Photo */}
-              {selectedDisaster.disaster_photo && (
-                <div className="mb-6">
-                  <img
-                    src={selectedDisaster.disaster_photo}
-                    alt="Disaster scene"
-                    className="w-full h-64 object-cover rounded-xl border-2 border-slate-200"
+                  <input
+                    type="text"
+                    placeholder="Search by camp, type, or description…"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full bg-[#0d1117] border border-[#30363d] hover:border-[#484f58] focus:border-amber-400/50 focus:shadow-[0_0_0_3px_rgba(232,162,62,0.07)] rounded-xl pl-9 pr-4 py-2.5 text-sm text-slate-200 placeholder-slate-600 outline-none transition-all"
+                    style={{ fontFamily: "'DM Sans',sans-serif" }}
                   />
                 </div>
+              </div>
+
+              {/* Severity */}
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-600 mb-2">Severity</p>
+                <select
+                  value={filterSeverity}
+                  onChange={(e) => setFilterSeverity(e.target.value)}
+                  className="bg-[#0d1117] border border-[#30363d] hover:border-[#484f58] rounded-xl px-3 py-2.5 text-sm text-slate-400 outline-none cursor-pointer transition-all"
+                  style={{ fontFamily: "'DM Sans',sans-serif" }}>
+                  <option value="all">All Severities</option>
+                  <option value="critical">Critical</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+
+              {/* Type */}
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-600 mb-2">Disaster Type</p>
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className="bg-[#0d1117] border border-[#30363d] hover:border-[#484f58] rounded-xl px-3 py-2.5 text-sm text-slate-400 outline-none cursor-pointer transition-all"
+                  style={{ fontFamily: "'DM Sans',sans-serif" }}>
+                  <option value="all">All Types</option>
+                  {disasterTypes.map(type => <option key={type} value={type}>{type}</option>)}
+                </select>
+              </div>
+
+              {/* Status */}
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-600 mb-2">Status</p>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="bg-[#0d1117] border border-[#30363d] hover:border-[#484f58] rounded-xl px-3 py-2.5 text-sm text-slate-400 outline-none cursor-pointer transition-all"
+                  style={{ fontFamily: "'DM Sans',sans-serif" }}>
+                  <option value="all">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="contained">Contained</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+              </div>
+
+              {/* Clear */}
+              {(filterSeverity !== "all" || filterStatus !== "all" || filterType !== "all" || searchTerm) && (
+                <button
+                  onClick={() => { setFilterSeverity("all"); setFilterStatus("all"); setFilterType("all"); setSearchTerm(""); }}
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-[#21262d] text-slate-400 border border-[#30363d] hover:text-slate-200 hover:border-[#484f58] transition-all">
+                  Clear Filters
+                </button>
               )}
-
-              {/* Description */}
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2">
-                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                  </svg>
-                  Situation Description
-                </h3>
-                <p className="text-slate-700 leading-relaxed">{selectedDisaster.disaster_description}</p>
-              </div>
-
-              {/* Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                  <p className="text-sm font-bold text-slate-600 mb-2">Affected Areas</p>
-                  <p className="text-slate-800">{selectedDisaster.affected_areas}</p>
-                </div>
-                <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-                  <p className="text-sm font-bold text-red-700 mb-2">Immediate Needs</p>
-                  <p className="text-red-900 font-semibold">{selectedDisaster.immediate_needs}</p>
-                </div>
-              </div>
-
-              {/* Contact Info */}
-              <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200">
-                <h3 className="text-sm font-bold text-blue-900 mb-3">Contact Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <p className="text-xs text-blue-700 mb-1">Contact Person</p>
-                    <p className="text-blue-900 font-semibold">{selectedDisaster.contact_person}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-blue-700 mb-1">Phone Number</p>
-                    <p className="text-blue-900 font-semibold">{selectedDisaster.contact_phone}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-blue-700 mb-1">Reported At</p>
-                    <p className="text-blue-900 font-semibold">
-                      {new Date(selectedDisaster.reported_at).toLocaleString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-blue-700 mb-1">People Affected</p>
-                    <p className="text-blue-900 font-semibold">{selectedDisaster.estimated_people_affected} individuals</p>
-                  </div>
-                </div>
-              </div>
             </div>
 
-            {/* Modal Footer */}
-            <div className="p-6 bg-slate-50 rounded-b-2xl border-t border-slate-200">
-              <div className="flex gap-3">
-                <button
-                  onClick={() => handleAlertVolunteers(selectedDisaster)}
-                  className="flex-1 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-bold transition-colors flex items-center justify-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                  Alert Volunteers
-                </button>
-                <button
-                  onClick={() => setDetailModalOpen(false)}
-                  className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-bold transition-colors"
-                >
-                  Close
-                </button>
+            {/* Summary row */}
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-[#21262d]">
+              <span className="text-xs font-mono text-slate-600">
+                Showing {filteredDisasters.length} of {disasters.length} reports
+              </span>
+              <div className="flex items-center gap-4">
+                <div className="text-center">
+                  <span className="text-lg font-bold text-red-400 font-mono">{filteredDisasters.filter(d => d.disaster_severity === "critical").length}</span>
+                  <span className="text-xs text-slate-600 ml-1.5">Critical</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-lg font-bold text-slate-300 font-mono">{filteredDisasters.length}</span>
+                  <span className="text-xs text-slate-600 ml-1.5">Total</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Notification Toast */}
-      {notification.show && (
-        <div className="fixed top-4 right-4 z-50 animate-slide-in">
-          <div className={`bg-white rounded-xl shadow-2xl border-l-4 ${
-            notification.type === "success" ? "border-green-500" : "border-red-500"
-          } p-4 min-w-[350px] max-w-md`}>
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  notification.type === "success" ? "bg-green-100" : "bg-red-100"
-                }`}>
-                  {notification.type === "success" ? (
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : (
-                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  )}
+          {/* ── Cards Grid ── */}
+          <div className="fu fu3 grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {filteredDisasters.length > 0 ? (
+              filteredDisasters.map((disaster, i) => {
+                const sev = SEV_BADGE[disaster.disaster_severity] || SEV_BADGE.low;
+                const date = new Date(disaster.reported_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+                return (
+                  <div key={disaster._id}
+                    className="bg-[#161b22] border border-[#30363d] rounded-2xl overflow-hidden shadow-2xl transition-all hover:border-[#484f58]"
+                    style={{ animation: `fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) ${i * 40}ms both` }}>
+
+                    {/* Severity accent bar */}
+                    <div className={`h-0.5 w-full ${sev.bar}`} />
+
+                    {/* Card Header */}
+                    <div className="flex items-start gap-4 p-5 border-b border-[#21262d]">
+                      <div className="w-11 h-11 rounded-xl bg-[#21262d] border border-[#30363d] flex items-center justify-center text-xl flex-shrink-0">
+                        {getDisasterIcon(disaster.disaster_type)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <h3 className="text-sm font-bold text-slate-100" style={{ fontFamily: "'Playfair Display',serif" }}>
+                              {disaster.disaster_type}
+                            </h3>
+                            <p className="text-xs font-semibold text-slate-400 mt-0.5">{disaster.camp_name}</p>
+                            <p className="text-xs text-slate-600 font-mono mt-0.5 flex items-center gap-1">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                              </svg>
+                              {disaster.camp_location}
+                            </p>
+                          </div>
+                          <SevBadge s={disaster.disaster_severity} />
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 mt-2.5">
+                          <StatBadge s={disaster.disaster_status} />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono text-slate-500 bg-[#21262d] ring-1 ring-[#30363d]">
+                            👥 {disaster.estimated_people_affected}
+                          </span>
+                          <span className="text-xs font-mono text-slate-600">{date}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="p-5">
+                      <div className="bg-[#0d1117] border border-[#21262d] rounded-xl p-3.5 text-xs text-slate-500 leading-relaxed mb-4 line-clamp-3">
+                        {disaster.disaster_description}
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2 mb-3">
+                        <button
+                          onClick={() => openDetailModal(disaster)}
+                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-[#21262d] text-slate-400 border border-[#30363d] hover:text-slate-200 hover:border-[#484f58] transition-all">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          View Details
+                        </button>
+                        <button
+                          onClick={() => handleAlertVolunteers(disaster)}
+                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-amber-400/10 text-amber-400 ring-1 ring-amber-400/20 hover:bg-amber-400 hover:text-black hover:ring-amber-400 transition-all">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                          </svg>
+                          Alert Volunteers
+                        </button>
+                      </div>
+
+                      {/* Status Change */}
+                      {disaster.disaster_status !== "resolved" && (
+                        <div className="pt-3 border-t border-[#21262d]">
+                          <p className="text-xs uppercase tracking-widest text-slate-600 mb-2">Update Status</p>
+                          <div className="flex gap-2">
+                            {disaster.disaster_status !== "contained" && (
+                              <button
+                                onClick={() => handleStatusChange(disaster._id, "contained")}
+                                className="flex-1 px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-400/10 text-amber-400 ring-1 ring-amber-400/20 hover:bg-amber-400 hover:text-black hover:ring-amber-400 transition-all">
+                                Mark Contained
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleStatusChange(disaster._id, "resolved")}
+                              className="flex-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-400/10 text-emerald-400 ring-1 ring-emerald-400/20 hover:bg-emerald-500 hover:text-black hover:ring-emerald-500 transition-all">
+                              Mark Resolved
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="col-span-2 bg-[#161b22] border border-[#30363d] rounded-2xl p-16 text-center">
+                <div className="text-4xl mb-3 opacity-30">📋</div>
+                <div className="text-slate-400 font-semibold text-sm">No disaster reports found</div>
+                <div className="text-slate-600 text-xs mt-1">Try adjusting your filters or search query</div>
+              </div>
+            )}
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── Detail Modal ── */}
+      {detailModalOpen && selectedDisaster && (
+        <div className="fixed inset-0 bg-black/65 backdrop-blur-md z-50 flex items-center justify-center p-6"
+          onClick={() => setDetailModalOpen(false)}>
+          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl w-full max-w-2xl max-h-[88vh] overflow-y-auto shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+            style={{ animation: "scaleIn 0.25s cubic-bezier(0.16,1,0.3,1)" }}>
+
+            {/* Severity bar */}
+            <div className={`h-0.5 w-full rounded-t-2xl ${SEV_BADGE[selectedDisaster.disaster_severity]?.bar || "bg-slate-500"}`} />
+
+            {/* Header */}
+            <div className="flex items-start gap-4 p-6 border-b border-[#21262d]">
+              <div className="w-11 h-11 rounded-xl bg-[#21262d] border border-[#30363d] flex items-center justify-center text-xl flex-shrink-0">
+                {getDisasterIcon(selectedDisaster.disaster_type)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-xl font-bold text-slate-100 truncate" style={{ fontFamily: "'Playfair Display',serif" }}>
+                  {selectedDisaster.disaster_type}
+                </h2>
+                <p className="text-xs text-slate-400 font-semibold mt-0.5">{selectedDisaster.camp_name}</p>
+                <p className="text-xs text-slate-600 font-mono mt-0.5">{selectedDisaster.camp_location}</p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <SevBadge s={selectedDisaster.disaster_severity} />
+                <button onClick={() => setDetailModalOpen(false)}
+                  className="w-8 h-8 rounded-lg bg-[#21262d] border border-[#30363d] flex items-center justify-center text-slate-500 hover:text-red-400 hover:border-red-400/30 hover:bg-red-400/10 transition-all text-sm">
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Photo */}
+            {selectedDisaster.disaster_photo && (
+              <div className="px-6 pt-5">
+                <img
+                  src={selectedDisaster.disaster_photo}
+                  alt="Disaster scene"
+                  className="w-full h-52 object-cover rounded-xl border border-[#30363d]"
+                />
+              </div>
+            )}
+
+            {/* Body */}
+            <div className="p-6 grid grid-cols-2 gap-5">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Severity</p>
+                <SevBadge s={selectedDisaster.disaster_severity} />
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Status</p>
+                <StatBadge s={selectedDisaster.disaster_status} />
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Contact Person</p>
+                <p className="text-sm text-slate-200">{selectedDisaster.contact_person}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Phone</p>
+                <p className="text-sm text-slate-300 font-mono">{selectedDisaster.contact_phone}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Reported At</p>
+                <p className="text-sm text-slate-300 font-mono">{new Date(selectedDisaster.reported_at).toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">People Affected</p>
+                <p className="text-sm text-slate-200 font-mono">{selectedDisaster.estimated_people_affected}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Affected Areas</p>
+                <p className="text-sm text-slate-300">{selectedDisaster.affected_areas}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Immediate Needs</p>
+                <p className="text-sm text-red-400 font-semibold">{selectedDisaster.immediate_needs}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs uppercase tracking-widest text-slate-500 mb-2">Situation Description</p>
+                <div className="bg-[#0d1117] border border-[#21262d] rounded-xl p-4 text-sm text-slate-400 leading-relaxed">
+                  {selectedDisaster.disaster_description}
                 </div>
               </div>
-              <div className="flex-1">
-                <h3 className="text-sm font-bold text-slate-900 mb-1">
-                  {notification.type === "success" ? "Success!" : "Error"}
-                </h3>
-                <p className="text-sm text-slate-600">{notification.message}</p>
-              </div>
+              {selectedDisaster.admin_response && (
+                <div className="col-span-2">
+                  <p className="text-xs uppercase tracking-widest text-slate-500 mb-2">Admin Response</p>
+                  <div className="bg-emerald-400/5 border border-emerald-400/20 rounded-xl p-4 text-sm text-emerald-400 leading-relaxed">
+                    {selectedDisaster.admin_response}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#21262d]">
+              <button onClick={() => setDetailModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-sm font-medium bg-[#21262d] text-slate-400 hover:text-slate-200 border border-[#30363d] hover:bg-[#2d333b] transition-all">
+                Close
+              </button>
               <button
-                onClick={() => setNotification({ show: false, type: "", message: "" })}
-                className="flex-shrink-0 text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                onClick={() => handleAlertVolunteers(selectedDisaster)}
+                className="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5 bg-amber-400/10 text-amber-400 ring-1 ring-amber-400/20 hover:bg-amber-400 hover:text-black hover:ring-amber-400 transition-all">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
+                Alert Volunteers
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+
+      {/* ── Toast ── */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">
+        {notification.show && (
+          <div
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl border backdrop-blur-sm pointer-events-auto
+              ${notification.type === "success"
+                ? "bg-emerald-950/90 border-emerald-700/40 text-emerald-300"
+                : "bg-red-950/90 border-red-700/40 text-red-300"}`}
+            style={{ animation: "toastIn 0.3s cubic-bezier(0.16,1,0.3,1)" }}>
+            <span className="text-base flex-shrink-0">{notification.type === "success" ? "✅" : "❌"}</span>
+            {notification.message}
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
