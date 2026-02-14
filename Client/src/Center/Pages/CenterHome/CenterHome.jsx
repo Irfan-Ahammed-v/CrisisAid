@@ -1,5 +1,6 @@
 import React from 'react'
 import CenterRouter from '../../../Router/CenterRouter'
+import NavBar from '../../../Center/Components/NavBar/NavBar'
 
 
 
@@ -8,7 +9,7 @@ import CenterRouter from '../../../Router/CenterRouter'
 const CenterHome = () => {
   return (
     <div>
-       {/* <div><NavBar/></div> */}
+       <div><NavBar/></div>
        <div><CenterRouter/></div>
     </div>
   )
