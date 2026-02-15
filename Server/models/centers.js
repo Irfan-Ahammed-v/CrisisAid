@@ -35,10 +35,10 @@ const centersSchema = new mongoose.Schema(
       default: "OPEN",
     },
     // NEW FIELD (for profile completeion tracking)
-    profileCompleted: {
-      type: Boolean,
-      default: false,
-    },
+    // profileCompleted: {
+    //   type: Boolean,
+    //   default: false,
+    // },
   },
   { timestamps: true }
 );
