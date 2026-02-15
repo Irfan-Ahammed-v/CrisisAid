@@ -3,7 +3,8 @@ const {
   centerReg,
   completeCenterProfile,
   centerLogout,
-  home
+  home,
+  getOverview
 } = require("../controllers/centers.controller");
 
 const { centerAuth } = require("../middlewares/centerAuth");
@@ -15,6 +16,7 @@ const router = express.Router();
 router.post("/register", centerReg);
 
 /* ---------- PROTECTED ROUTES ---------- */
+router.get("/overview",centerAuth,getOverview);
 router.put("/complete-profile", centerAuth, completeCenterProfile);
  
 router.get("/home", centerAuth,home);
