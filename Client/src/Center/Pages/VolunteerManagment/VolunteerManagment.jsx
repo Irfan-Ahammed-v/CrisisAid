@@ -194,114 +194,101 @@ const VolunteerManagement = () => {
           backgroundSize: "44px 44px",
         }} />
 
-        {/* Header */}
-        <div className="relative z-10 bg-[#161b22] border-b border-[#30363d] shadow-2xl sticky top-0">
-          <div className="max-w-7xl mx-auto px-6 py-6">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div className="fu" style={{ animationDelay: "0ms" }}>
-                <button
-                  onClick={() => navigate(-1)}
-                  className="text-indigo-400 hover:text-indigo-300 font-medium mb-3 flex items-center gap-2 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  Back to Dashboard
-                </button>
-                <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3" style={{ fontFamily: "'Playfair Display',serif" }}>
-                  <div className="text-4xl">👥</div>
-                  Volunteer Management
-                </h1>
-                <p className="text-slate-500 mt-1">Manage volunteer registrations and assignments</p>
-              </div>
-              
-              {/* Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div className="text-center bg-indigo-400/10 rounded-xl p-3 border border-indigo-400/20">
-                  <div className="text-2xl font-bold text-indigo-400">{stats.total}</div>
-                  <div className="text-xs text-indigo-400 font-semibold">Total</div>
-                </div>
-                <div className="text-center bg-amber-400/10 rounded-xl p-3 border border-amber-400/20">
-                  <div className="text-2xl font-bold text-amber-400">{stats.pending}</div>
-                  <div className="text-xs text-amber-400 font-semibold">Pending</div>
-                </div>
-                <div className="text-center bg-emerald-400/10 rounded-xl p-3 border border-emerald-400/20">
-                  <div className="text-2xl font-bold text-emerald-400">{stats.approved}</div>
-                  <div className="text-xs text-emerald-400 font-semibold">Approved</div>
-                </div>
-                <div className="text-center bg-blue-400/10 rounded-xl p-3 border border-blue-400/20">
-                  <div className="text-2xl font-bold text-blue-400">{stats.available}</div>
-                  <div className="text-xs text-blue-400 font-semibold">Available</div>
-                </div>
-              </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-10">
+          
+          {/* ── Page Title ── */}
+          <div className="fu mb-8" style={{ animationDelay: "0ms" }}>
+            <h1 className="text-[2rem] font-bold text-slate-100 leading-none" style={{ fontFamily: "'Playfair Display',serif" }}>
+              Volunteer Management
+            </h1>
+            <p className="text-slate-500 text-sm mt-1.5">Manage volunteer registrations and assignments</p>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 flex flex-col items-center justify-center text-center">
+              <div className="text-2xl font-bold text-indigo-400 leading-none mb-1">{stats.total}</div>
+              <div className="text-xs uppercase tracking-widest text-slate-500 font-semibold">Total</div>
+            </div>
+            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 flex flex-col items-center justify-center text-center">
+              <div className="text-2xl font-bold text-amber-400 leading-none mb-1">{stats.pending}</div>
+              <div className="text-xs uppercase tracking-widest text-slate-500 font-semibold">Pending</div>
+            </div>
+            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 flex flex-col items-center justify-center text-center">
+              <div className="text-2xl font-bold text-emerald-400 leading-none mb-1">{stats.approved}</div>
+              <div className="text-xs uppercase tracking-widest text-slate-500 font-semibold">Approved</div>
+            </div>
+            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 flex flex-col items-center justify-center text-center">
+              <div className="text-2xl font-bold text-blue-400 leading-none mb-1">{stats.available}</div>
+              <div className="text-xs uppercase tracking-widest text-slate-500 font-semibold">Available</div>
             </div>
           </div>
-        </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 space-y-6">
-          {/* Pending Approvals - Professional Compact Section */}
-          {pendingVolunteers.length > 0 && (
-            <div className="fu bg-[#161b22] rounded-2xl shadow-2xl border-l-4 border-amber-400" style={{ animationDelay: "50ms" }}>
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-amber-400/10 rounded-lg flex items-center justify-center">
-                      <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-bold text-slate-100">Pending Approvals</h2>
-                      <p className="text-sm text-slate-500">{pendingVolunteers.length} volunteer{pendingVolunteers.length !== 1 ? 's' : ''} awaiting verification</p>
+          <div className="space-y-6">
+            {/* Pending Approvals - Professional Compact Section */}
+            {pendingVolunteers.length > 0 && (
+              <div className="fu bg-[#161b22] rounded-2xl shadow-2xl border-l-4 border-amber-400" style={{ animationDelay: "50ms" }}>
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-amber-400/10 rounded-lg flex items-center justify-center">
+                        <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold text-slate-100">Pending Approvals</h2>
+                        <p className="text-sm text-slate-500">{pendingVolunteers.length} volunteer{pendingVolunteers.length !== 1 ? 's' : ''} awaiting verification</p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="space-y-3">
-                  {pendingVolunteers.slice(0, 3).map((volunteer) => (
-                    <div
-                      key={volunteer._id}
-                      onClick={() => openDetailModal(volunteer)}
-                      className="flex items-center gap-4 p-4 bg-amber-400/5 border border-amber-400/20 rounded-xl hover:border-amber-400/40 transition-colors cursor-pointer rh"
-                    >
-                      <div className="w-14 h-14 rounded-full border-2 border-amber-400 overflow-hidden flex-shrink-0">
-                        <img src={volunteer.volunteer_photo} alt={volunteer.volunteer_name} className="w-full h-full object-cover" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-slate-200">{volunteer.volunteer_name}</h3>
-                        <p className="text-sm text-slate-500 font-mono">{volunteer.volunteer_email}</p>
-                        <div className="flex items-center gap-4 mt-1">
-                          <span className="text-xs text-slate-600">
-                            <span className="font-semibold">District:</span> {volunteer.district_id?.name}
-                          </span>
-                          <span className="text-xs text-slate-600 font-mono">
-                            <span className="font-semibold">Registered:</span> {new Date(volunteer.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                      <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  ))}
-                  
-                  {pendingVolunteers.length > 3 && (
-                    <div className="text-center pt-2">
-                      <button 
-                        onClick={() => navigate('/center/pending-approvals')}
-                        className="text-amber-400 hover:text-amber-300 font-semibold text-sm flex items-center gap-1 mx-auto transition-colors"
+                  <div className="space-y-3">
+                    {pendingVolunteers.slice(0, 3).map((volunteer) => (
+                      <div
+                        key={volunteer._id}
+                        onClick={() => openDetailModal(volunteer)}
+                        className="flex items-center gap-4 p-4 bg-amber-400/5 border border-amber-400/20 rounded-xl hover:border-amber-400/40 transition-colors cursor-pointer rh"
                       >
-                        <span>View All {pendingVolunteers.length} Pending Volunteers</span>
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-14 h-14 rounded-full border-2 border-amber-400 overflow-hidden flex-shrink-0">
+                          <img src={volunteer.volunteer_photo} alt={volunteer.volunteer_name} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-slate-200">{volunteer.volunteer_name}</h3>
+                          <p className="text-sm text-slate-500 font-mono">{volunteer.volunteer_email}</p>
+                          <div className="flex items-center gap-4 mt-1">
+                            <span className="text-xs text-slate-600">
+                              <span className="font-semibold">District:</span> {volunteer.district_id?.name}
+                            </span>
+                            <span className="text-xs text-slate-600 font-mono">
+                              <span className="font-semibold">Registered:</span> {new Date(volunteer.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
-                      </button>
-                    </div>
-                  )}
+                      </div>
+                    ))}
+                    
+                    {pendingVolunteers.length > 3 && (
+                      <div className="text-center pt-2">
+                        <button 
+                          onClick={() => navigate('/center/pending-approvals')}
+                          className="text-amber-400 hover:text-amber-300 font-semibold text-sm flex items-center gap-1 mx-auto transition-colors"
+                        >
+                          <span>View All {pendingVolunteers.length} Pending Volunteers</span>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* All Volunteers Table */}
           <div className="fu bg-[#161b22] rounded-2xl shadow-2xl border border-[#30363d]" style={{ animationDelay: "100ms" }}>

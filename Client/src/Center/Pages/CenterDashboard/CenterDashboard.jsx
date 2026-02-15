@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import axios from "axios";
 
@@ -24,16 +24,21 @@ const CenterDashboard = () => {
     }
   };
 
-  const handleLogout = async () => {
-    try { await axios.post("http://localhost:5000/auth/logout"); } catch {}
-    navigate("/guest/login");
-  };
+
+
+  const toastTimeoutRef = useRef(null);
 
   const toast = (msg, type = "info") => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setNotification({ show: true, type, message: msg });
-    setTimeout(() => setNotification({ show: false, type: "", message: "" }), 2500);
+    toastTimeoutRef.current = setTimeout(() => setNotification({ show: false, type: "", message: "" }), 2500);
   };
 
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    };
+  }, []);
   const getSeverityColor = (severity) => ({
     low:      "bg-emerald-400/10 text-emerald-400 ring-emerald-400/20",
     medium:   "bg-amber-400/10 text-amber-400 ring-amber-400/20",
@@ -75,29 +80,7 @@ const CenterDashboard = () => {
           backgroundSize: "44px 44px",
         }} />
 
-        {/* Header */}
-        <div className="relative z-10 bg-[#161b22] border-b border-[#30363d] shadow-2xl sticky top-0">
-          <div className="max-w-7xl mx-auto px-6 py-5">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div className="fu" style={{ animationDelay: "0ms" }}>
-                <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3" style={{ fontFamily: "'Playfair Display',serif" }}>
-                  <span className="text-4xl">🏛️</span>
-                  {center?.center_name || "Relief Center"}
-                </h1>
-                <p className="text-slate-500 text-sm mt-0.5">Control &amp; Coordination Dashboard</p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#21262d] hover:bg-red-400/10 border border-[#30363d] hover:border-red-400/30 text-slate-400 hover:text-red-400 rounded-xl font-medium transition-all"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
+
 
         {/* Main Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-10 space-y-6">
@@ -304,8 +287,7 @@ const CenterDashboard = () => {
                     <div key={v._id} className="flex items-center justify-between bg-[#0d1117]/50 rounded-xl px-4 py-3 border border-[#21262d]">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-amber-400/20 rounded-full flex items-center justify-center text-amber-400 font-bold text-sm">
-                          {v.volunteer_name.charAt(0)}
-                        </div>
+                          {v.volunteer_name?.charAt(0) || "?"}                        </div>
                         <div>
                           <p className="font-semibold text-slate-200 text-sm">{v.volunteer_name}</p>
                           <p className="text-xs text-slate-500 font-mono">{v.volunteer_email}</p>

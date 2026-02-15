@@ -4,7 +4,7 @@ import AdminHome from "../Admin/Pages/AdminHome/AdminHome";
 import GuestHome from "../Guest/Pages/GuestHome/GuestHome";
 import VolunteerHome from "../Volunteer/Pages/VolunteerHome/VolunteerHome";
 import CampHome from "../Reliefcamp/Pages/CampHome/CampHome";
-import CenterHome from "../Center/Pages/CenterHome/CenterHome";
+import CenterRouter from "./CenterRouter";
 
 
 
@@ -17,9 +17,8 @@ const MainRouter  = () =>{
       <Route path="Guest/*" element={<GuestHome/>} />
       <Route path="Admin/*" element={<AdminHome/>} />
       <Route path="Volunteer/*" element={<VolunteerHome/>} />
-      <Route path="camp/*" element={<CampHome/>} />
-      <Route path="Center/*" element={<CenterHome/>} />
-    </Routes>
+      <Route path="Camp/*" element={<CampHome/>} />
+      <Route path="Center/*" element={<CenterRouter/>} />    </Routes>
         </div>
     );
 }

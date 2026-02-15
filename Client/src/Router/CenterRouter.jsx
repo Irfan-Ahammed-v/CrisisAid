@@ -7,27 +7,26 @@ import VolunteerManagement from "../Center/Pages/VolunteerManagment/VolunteerMan
 import CampManagment from "../Center/Pages/CampManagment/CampManagment";
 import PendingApprovals from "../Center/Pages/PendingApprovals/PendingApprovals";
 import CenterProfile from "../Center/Pages/CenterProfile/CenterProfile";
+import CenterLayout from "../Center/Components/CenterLayout";
 
 
 
 
 
-
-const CenterRouter  = () =>{
-    return(
-        <div>
-            
+const CenterRouter = () => {
+  return (
     <Routes>
-    <Route path="/" element={<CenterDashboard/>}/>
-    <Route path="/requests" element={<Requests/>}/>
-    <Route path="/disaster-reports" element={<DisasterReports/>}/>
-    <Route path="/volunteer-management" element={<VolunteerManagement/>}/>
-    <Route path="/camp-management" element={<CampManagment/>}/>
-    <Route path="/pending-approvals" element={<PendingApprovals/>}/>
-    <Route path="/profile" element={<CenterProfile/>}/>
-    <Route path="*" element={<div className="text-center py-10">Page Not Found</div>} />
+      <Route element={<CenterLayout />}>
+        <Route path="/" element={<CenterDashboard />} />
+        <Route path="/requests" element={<Requests />} />
+        <Route path="/disaster-reports" element={<DisasterReports />} />
+        <Route path="/volunteer-management" element={<VolunteerManagement />} />
+        <Route path="/camp-management" element={<CampManagment />} />
+        <Route path="/pending-approvals" element={<PendingApprovals />} />
+        <Route path="/profile" element={<CenterProfile />} />
+        <Route path="*" element={<div className="text-center py-10 text-slate-400">Page Not Found</div>} />
+      </Route>
     </Routes>
-        </div>
-    );
-}
+  );
+};
 export default CenterRouter;

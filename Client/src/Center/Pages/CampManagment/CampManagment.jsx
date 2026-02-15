@@ -135,8 +135,8 @@ function SearchBar({ value, onChange, resultCount, total }) {
   return (
     <div className={`relative flex items-center rounded-xl border transition-all duration-200 bg-[#161b22]
       ${focused
-        ? "border-amber-400/50 shadow-[0_0_0_3px_rgba(232,162,62,0.07)] w-80"
-        : "border-[#30363d] hover:border-[#484f58] w-64"}`}>
+        ? "border-amber-400/50 shadow-[0_0_0_3px_rgba(232,162,62,0.07)] w-96"
+        : "border-[#30363d] hover:border-[#484f58] w-80"}`}>
 
       {/* Search icon */}
       <div className="absolute left-3.5 pointer-events-none">
@@ -154,7 +154,7 @@ function SearchBar({ value, onChange, resultCount, total }) {
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        placeholder="Search by name, district, place…"
+        placeholder="Search name, district..."
         className="w-full bg-transparent pl-9 pr-24 py-2.5 text-sm text-slate-200 placeholder-slate-600 outline-none"
         style={{ fontFamily: "'DM Sans',sans-serif" }}
       />

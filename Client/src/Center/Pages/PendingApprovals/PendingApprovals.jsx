@@ -124,11 +124,25 @@ const PendingApprovals = () => {
     setDetailModalOpen(false);
   };
 
+  const notificationTimeoutRef = React.useRef(null);
+
   const showNotification = (type, message) => {
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current);
+    }
     setNotification({ show: true, type, message });
-    setTimeout(() => setNotification({ show: false, type: "", message: "" }), 3000);
+    notificationTimeoutRef.current = setTimeout(() => {
+      setNotification({ show: false, type: "", message: "" });
+    }, 3000);
   };
 
+  useEffect(() => {
+    return () => {
+      if (notificationTimeoutRef.current) {
+        clearTimeout(notificationTimeoutRef.current);
+      }
+    };
+  }, []);
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
@@ -163,41 +177,30 @@ const PendingApprovals = () => {
           backgroundSize: "44px 44px",
         }} />
 
-        {/* Header */}
-        <div className="relative z-10 bg-[#161b22] border-b border-[#30363d] shadow-2xl sticky top-0">
-          <div className="max-w-7xl mx-auto px-6 py-6">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div className="fu" style={{ animationDelay: "0ms" }}>
-                <button
-                  onClick={() => navigate(-1)}
-                  className="text-amber-400 hover:text-amber-300 font-medium mb-3 flex items-center gap-2 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                  Back to Volunteer Management
-                </button>
-                <h1 className="text-3xl font-bold text-slate-100 flex items-center gap-3" style={{ fontFamily: "'Playfair Display',serif" }}>
-                  <div className="w-12 h-12 bg-amber-400/10 rounded-xl flex items-center justify-center">
-                    <svg className="w-7 h-7 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  Pending Volunteer Approvals
-                </h1>
-                <p className="text-slate-500 mt-1">Review and verify volunteer registrations</p>
-              </div>
-              
-              {/* Stats */}
-              <div className="text-center bg-amber-400/10 rounded-xl p-4 border border-amber-400/20">
-                <div className="text-3xl font-bold text-amber-400">{filteredVolunteers.length}</div>
-                <div className="text-sm text-amber-400 font-semibold">Pending Approval{filteredVolunteers.length !== 1 ? 's' : ''}</div>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-10">
+          
+          {/* ── Page Title ── */}
+          <div className="fu mb-8" style={{ animationDelay: "0ms" }}>
+            <h1 className="text-[2rem] font-bold text-slate-100 leading-none" style={{ fontFamily: "'Playfair Display',serif" }}>
+              Pending Volunteer Approvals
+            </h1>
+            <p className="text-slate-500 text-sm mt-1.5">Review and verify volunteer registrations</p>
+          </div>
+
+          {/* Stats Bar */}
+          <div className="fu bg-[#161b22] border border-[#30363d] rounded-xl p-4 mb-8 flex items-center justify-between" style={{ animationDelay: "50ms" }}>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-amber-400/10 rounded-lg flex items-center justify-center text-xl">⏳</div>
+              <div>
+                <div className="text-sm font-bold text-slate-200">Pending Actions</div>
+                <div className="text-xs text-slate-500">Items requiring your attention</div>
               </div>
             </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-amber-400 leading-none">{filteredVolunteers.length}</div>
+              <div className="text-xs text-slate-500 font-mono">requests</div>
+            </div>
           </div>
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6 py-8">
           {/* Search Bar */}
           <div className="fu bg-[#161b22] rounded-2xl shadow-2xl border border-[#30363d] p-6 mb-6" style={{ animationDelay: "50ms" }}>
             <div className="max-w-2xl">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { useNavigate } from "react-router";
 import axios from "axios";
 
@@ -242,11 +242,25 @@ const Requests = () => {
     );
   };
 
+  const notificationTimeoutRef = useRef(null);
+
   const showNotification = (type, message) => {
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current);
+    }
     setNotification({ show: true, type, message });
-    setTimeout(() => setNotification({ show: false, type: "", message: "" }), 3500);
+    notificationTimeoutRef.current = setTimeout(() => {
+      setNotification({ show: false, type: "", message: "" });
+    }, 3500);
   };
 
+  useEffect(() => {
+    return () => {
+      if (notificationTimeoutRef.current) {
+        clearTimeout(notificationTimeoutRef.current);
+      }
+    };
+  }, []);
   // ── Badge configs ──
   const PRI_BADGE = {
     critical: { label: "Critical", dot: "bg-red-400",     text: "text-red-400",     bg: "bg-red-400/10",     ring: "ring-red-400/20",     bar: "bg-red-500" },
@@ -332,14 +346,6 @@ const Requests = () => {
 
           {/* ── Page Title ── */}
           <div className="fu mb-8" style={{ animationDelay: "0ms" }}>
-            <button
-              onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-amber-400 font-mono mb-3 transition-colors">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Dashboard
-            </button>
             <h1 className="text-[2rem] font-bold text-slate-100 leading-none flex items-center gap-3"
               style={{ fontFamily: "'Playfair Display',serif" }}>
               <span>📋</span> Requests Management
