@@ -1,6 +1,12 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Centers = require("../models/centers");
+const Volunteer = require("../models/Volunteer");
+const Camp = require("../models/reliefcamp");
+const Disaster = require("../models/disaster");
+const Request = require("../models/request");
+const dashboardService = require("../services/centerDashboard.service");
+
 exports.centerReg = async (req, res) => {
   try {
     const { district_id, center_email, center_password } = req.body;
@@ -45,18 +51,34 @@ exports.home = async (req, res) => {
     res.json({
       message: "Welcome Center",
       centerId: req.centerId,
-      profileCompleted: center.profileCompleted, 
+      profileCompleted: center.profileCompleted,
       center,
     });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
-}
+};
 
+exports.getOverview = async (req, res) => {
+  try {
+    const overview = await dashboardService.getCenterOverview(
+      req.centerId
+    );
+    const center = await Centers.findById(req.centerId).select("center_name");
+    res.json({
+      center: {
+        center_name: center.center_name,
+      },
+      ...overview,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 exports.completeCenterProfile = async (req, res) => {
   try {
-    const centerId = req.centerId; 
+    const centerId = req.centerId;
     const { name, address, capacity } = req.body;
 
     await Centers.findByIdAndUpdate(centerId, {
