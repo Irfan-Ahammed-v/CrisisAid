@@ -26,8 +26,9 @@ const volunteerSchema = new mongoose.Schema(
       default: false,
     },
     availability: {
-  type: Boolean,
-  default: true
+      type: Boolean,
+  enum: [true, false],
+  default: true,
 }
 ,
     district_id: {
