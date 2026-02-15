@@ -76,20 +76,29 @@ exports.newdisaster = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized context" });
     }
 
+    // Fetch the actual camp document
+    const camp = await Camp.findById(req.campId).select("center_id");
+    console.log(camp);
+    
+    if (!camp) {
+      return res.status(404).json({ message: "Camp not found" });
+    }
+
     const newDisaster = new Disaster({
       disaster_details: details,
       place_id: placeId,
       disaster_photo: req.file.filename,
       reliefcamp_id: req.campId,
       district_id: req.district_id,
-      disaster_status: "active"
+      disaster_status: "active",
+      center_id: camp.center_id,
     });
 
     await newDisaster.save();
 
     res.status(201).json({
       message: "Disaster reported successfully",
-      disaster_id: newDisaster._id
+      disaster_id: newDisaster._id,
     });
 
   } catch (err) {
@@ -97,6 +106,7 @@ exports.newdisaster = async (req, res) => {
     res.status(500).json({ message: "Server Error" });
   }
 };
+
 
 //Camp Registration
 exports.campRegister = async (req, res) => {
@@ -159,7 +169,7 @@ exports.newRequest = async (req, res) => {
     // Find active disaster for this camp
     const disaster = await Disaster.findOne({
       reliefcamp_id: req.campId,
-      disaster_status: "active"
+      disaster_status: "active",
     });
 
     if (!disaster) {
@@ -167,13 +177,15 @@ exports.newRequest = async (req, res) => {
         message: "No active disaster found. Please report a disaster first."
       });
     }
-
+    console.log(disaster);
+    
     //Create request
     const request = await Request.create({
       camp_id: req.campId,
       disaster_id: disaster._id,
       request_details,
-      request_status: "pending"
+      request_status: "pending",
+      center_id: disaster.center_id,
     });
 
     //Create request items
