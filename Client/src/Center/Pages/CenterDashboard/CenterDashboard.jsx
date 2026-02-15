@@ -11,67 +11,22 @@ const CenterDashboard = () => {
   const [activeTab, setActiveTab] = useState("camps");
   const [notification, setNotification] = useState({ show: false, type: "", message: "" });
 
-  useEffect(() => { loadSampleData(); }, []);
-
-  const loadSampleData = () => {
-    setDashboard({
-      center: { center_name: "Central Relief Coordination Center" },
-      stats: {
-        totalCamps: 45, totalVolunteers: 128,
-        pendingCamps: 8, pendingVolunteers: 12,
-        pendingDisasters: 5, pendingRequests: 15,
-      },
-      pendingCamps: [
-        { _id: "1", camp_name: "Sunrise Relief Camp",   place: "North District, Kerala", createdAt: new Date("2024-02-08") },
-        { _id: "2", camp_name: "Hope Valley Camp",      place: "Ernakulam, Kerala",      createdAt: new Date("2024-02-09") },
-        { _id: "3", camp_name: "Green Meadows Shelter", place: "Thrissur, Kerala",       createdAt: new Date("2024-02-10") },
-        { _id: "4", camp_name: "Safe Haven Camp",       place: "Kottayam, Kerala",       createdAt: new Date("2024-02-11") },
-      ],
-      pendingVolunteers: [
-        { _id: "v1", volunteer_name: "Rajesh Kumar",   volunteer_email: "rajesh.k@email.com",    createdAt: new Date("2024-02-09") },
-        { _id: "v2", volunteer_name: "Priya Menon",    volunteer_email: "priya.menon@email.com", createdAt: new Date("2024-02-10") },
-        { _id: "v3", volunteer_name: "Arun Nair",      volunteer_email: "arun.nair@email.com",   createdAt: new Date("2024-02-10") },
-        { _id: "v4", volunteer_name: "Lakshmi Pillai", volunteer_email: "lakshmi.p@email.com",   createdAt: new Date("2024-02-11") },
-      ],
-      disasters: [
-        { _id: "d1", camp_name: "Riverside Camp",        disaster_severity: "critical", disaster_type: "Flood",        disaster_status: "active",   createdAt: new Date("2024-02-11") },
-        { _id: "d2", camp_name: "Mountain View Camp",    disaster_severity: "high",     disaster_type: "Landslide",    disaster_status: "active",   createdAt: new Date("2024-02-10") },
-        { _id: "d3", camp_name: "Coastal Relief Center", disaster_severity: "medium",   disaster_type: "Storm Damage", disaster_status: "active",   createdAt: new Date("2024-02-09") },
-        { _id: "d4", camp_name: "Valley Shelter",        disaster_severity: "low",      disaster_type: "Power Outage", disaster_status: "resolved", createdAt: new Date("2024-02-08") },
-      ],
-      requests: [
-        { _id: "r1", camp_name: "Sunrise Relief Camp",   request_details: "Urgent need for medical supplies and clean drinking water for 200 people", items: [{ itemName: "Medical Kits", qty: 50 }, { itemName: "Water Bottles", qty: 300 }, { itemName: "Blankets", qty: 100 }],                               request_priority: "high",   request_status: "pending", createdAt: new Date("2024-02-11") },
-        { _id: "r2", camp_name: "Green Meadows Shelter", request_details: "Food supplies needed for 150 displaced families",                          items: [{ itemName: "Rice", qty: 200 }, { itemName: "Cooking Oil", qty: 50 }, { itemName: "Vegetables", qty: 100 }, { itemName: "Dal", qty: 80 }], request_priority: "medium", request_status: "pending", createdAt: new Date("2024-02-10") },
-        { _id: "r3", camp_name: "Hope Valley Camp",      request_details: "Clothing and hygiene products for children and elderly",                   items: [{ itemName: "Clothes", qty: 200 }, { itemName: "Soap", qty: 150 }],                                                                              request_priority: "medium", request_status: "pending", createdAt: new Date("2024-02-09") },
-        { _id: "r4", camp_name: "Coastal Relief Center", request_details: "Tents and sleeping bags for additional shelter capacity",                  items: [{ itemName: "Tents", qty: 20 }, { itemName: "Sleeping Bags", qty: 50 }],                                                                        request_priority: "low",    request_status: "pending", createdAt: new Date("2024-02-08") },
-      ],
-      volunteers: [
-        { _id: "vol1", volunteer_name: "Anitha Thomas", availability: "available", assigned_task: "Medical Support"    },
-        { _id: "vol2", volunteer_name: "Suresh Babu",   availability: "available", assigned_task: null                 },
-        { _id: "vol3", volunteer_name: "Maya Krishnan", availability: "busy",      assigned_task: "Food Distribution"  },
-        { _id: "vol4", volunteer_name: "Deepak Menon",  availability: "available", assigned_task: "Logistics"          },
-        { _id: "vol5", volunteer_name: "Kavya Nair",    availability: "available", assigned_task: null                 },
-        { _id: "vol6", volunteer_name: "Ravi Kumar",    availability: "busy",      assigned_task: "Emergency Response" },
-      ],
-      tasks: { active: 12, completed: 45, ongoing: 8 },
-    });
-    setLoading(false);
-  };
+  useEffect(() => { fetchDashboard(); }, []);
 
   const fetchDashboard = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/center/dashboard");
+      const res = await axios.get("http://localhost:5000/center/overview");
       setDashboard(res.data);
       setLoading(false);
     } catch (err) {
-      if (err.response?.status === 401) navigate("/center/login");
+      if (err.response?.status === 401) navigate("/guest/login");
       setLoading(false);
     }
   };
 
   const handleLogout = async () => {
     try { await axios.post("http://localhost:5000/auth/logout"); } catch {}
-    navigate("/center/login");
+    navigate("/guest/login");
   };
 
   const toast = (msg, type = "info") => {
@@ -153,7 +108,7 @@ const CenterDashboard = () => {
             <OverviewCard title="Total Volunteers"    value={stats?.totalVolunteers   || 0} icon="👥" color="emerald"  />
             <OverviewCard title="Camp Approvals"      value={stats?.pendingCamps      || 0} icon="⏳" color="amber" badge="pending" />
             <OverviewCard title="Volunteer Approvals" value={stats?.pendingVolunteers || 0} icon="✋" color="orange" badge="pending" />
-            <OverviewCard title="Disaster Reports"    value={stats?.pendingDisasters  || 0} icon="🚨" color="red"    badge="new"     />
+            <OverviewCard title="Disaster Reports"    value={stats?.activeDisasters  || 0} icon="🚨" color="red"    badge="new"     />
             <OverviewCard title="Pending Requests"    value={stats?.pendingRequests   || 0} icon="📋" color="purple" badge="review"  />
           </div>
 
