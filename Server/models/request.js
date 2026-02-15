@@ -7,6 +7,11 @@ const requestSchema = new mongoose.Schema(
       ref: "tbl_reliefcamp",
       required: true,
     },
+    center_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "tbl_centers",
+      required: true,
+    },
     request_details: {
       type: String,
       required: true,
