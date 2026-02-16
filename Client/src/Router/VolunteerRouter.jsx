@@ -1,18 +1,27 @@
-import React from "react";
+import DisasterGallery from "../Volunteer/Pages/DisasterGallery/DisasterGallery";
+import VolunteerFeedback from "../Volunteer/Pages/VolunteerFeedback/VolunteerFeedback";
+import { VolunteerThemeProvider } from "../context/VolunteerThemeContext";
+import VolunteerLayout from "../Volunteer/Layout/VolunteerLayout";
 import { Route, Routes } from "react-router";
-import MyProfile from "../Volunteer/Pages/MyProfile/MyProfile";
-import EditProfile from "../Volunteer/Pages/EditProfile/EditProfile";
-import VolunteerDashBoard from "../Volunteer/Pages/VolunteerDashBoard/VolunteerDashBoard";
-
+import VolunteerDashboard from "../Volunteer/Pages/VolunteerDashBoard/VolunteerDashBoard";
+import VolunteerProfile from "../Volunteer/Pages/VolunteerProfile/VolunteerProfile";
+import VolunteerAssignments from "../Volunteer/Pages/VolunteerAssignments/VolunteerAssignments";
 
 const VolunteerRouter = () => {
   return (
-    <Routes>
-      <Route path="*" element={<VolunteerDashBoard/>}/>
-      <Route path="home" element={<VolunteerDashBoard />} />
-      <Route path="Profile" element={<MyProfile />} />
-      <Route path="Profile/Edit" element={<EditProfile/>} />
-    </Routes>
+    <VolunteerThemeProvider>
+      <Routes>
+        <Route element={<VolunteerLayout />}>
+          <Route path="/" element={<VolunteerDashboard />} />
+          <Route path="home" element={<VolunteerDashboard />} />
+          <Route path="profile" element={<VolunteerProfile />} />
+          <Route path="assignments" element={<VolunteerAssignments />} />
+          <Route path="disasters" element={<DisasterGallery />} />
+          <Route path="feedback" element={<VolunteerFeedback />} />
+          <Route path="*" element={<VolunteerDashboard />} />
+        </Route>
+      </Routes>
+    </VolunteerThemeProvider>
   );
 };
 
