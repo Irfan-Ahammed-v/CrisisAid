@@ -1,5 +1,7 @@
 const Volunteer = require("../models/Volunteer");
-const District = require("../models/disaster");
+const District = require("../models/district");
+const Disaster = require("../models/disaster");
+const Feedback = require("../models/feedback");
 const Centers = require("../models/centers");
 const bcrypt = require("bcrypt");
 
@@ -197,6 +199,42 @@ exports.addTaskRemark = async (req, res) => {
 
     res.json({ message: "Remark saved successfully" });
   } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getAllActiveDisasters = async (req, res) => {
+  try {
+    const disasters = await Disaster.find({ disaster_status: "active" })
+      .populate("district_id", "district_name")
+      .populate("place_id", "place_name")
+      .sort({ createdAt: -1 });
+
+    res.json(disasters);
+  } catch (err) {
+    console.error("Get Disasters Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.submitFeedback = async (req, res) => {
+  try {
+    const { feedback_content } = req.body;
+
+    if (!feedback_content) {
+      return res.status(400).json({ message: "Feedback content is required" });
+    }
+
+    const feedback = new Feedback({
+      feedback_content,
+      volunteer_id: req.volunteerId,
+    });
+
+    await feedback.save();
+
+    res.status(201).json({ message: "Feedback submitted successfully" });
+  } catch (err) {
+    console.error("Submit Feedback Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

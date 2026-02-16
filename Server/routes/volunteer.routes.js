@@ -1,7 +1,5 @@
 const express = require("express");
-const { volunteerRegister,home,completeProfile,toggleAvailability,getAssignedTasks,acceptTask,completeTask,addTaskRemark
-    
- } = require("../controllers/volunteer.controller");
+const { volunteerRegister,home,completeProfile,toggleAvailability,getAssignedTasks,acceptTask,completeTask,addTaskRemark, getAllActiveDisasters, submitFeedback } = require("../controllers/volunteer.controller");
 const { volunteerAuth } = require("../middlewares/volunteerAuth");
 const uploadVolunteerDocs = require("../middlewares/volunteerUpload");
 const upload = require("../middlewares/taskProofUpload");
@@ -41,5 +39,8 @@ router.patch(
   volunteerAuth,
   addTaskRemark
 );
+
+router.get("/disasters", volunteerAuth, getAllActiveDisasters);
+router.post("/feedback", volunteerAuth, submitFeedback);
 
 module.exports = router;
