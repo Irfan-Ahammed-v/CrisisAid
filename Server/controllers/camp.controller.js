@@ -1,6 +1,6 @@
 const Camp = require("../models/reliefcamp");
 const Center = require("../models/centers");
-const RequestItems = require("../models/type");
+const RequestItems = require("../models/items");
 const bcrypt = require("bcrypt");
 const place = require("../models/place");
 const Disaster = require("../models/disaster");

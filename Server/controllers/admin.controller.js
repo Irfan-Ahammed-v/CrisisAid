@@ -1,7 +1,7 @@
 const District = require("../models/district");
 const Camp = require("../models/reliefcamp");
 const Center = require("../models/centers");
-const Type = require("../models/type");
+const Items = require("../models/items");
 const Place = require("../models/place");
 
 {
@@ -27,45 +27,63 @@ exports.addDistrict = async (req, res) => {
   }
 };
 
-exports.addType = async (req, res) => {
+exports.addItem = async (req, res) => {
   try {
-    let { type_name } = req.body;
+    let { item_name, unit, category } = req.body;
 
-    //  Validate
-    if (!type_name || !type_name.trim()) {
+    // 🔹 Validate
+    if (!item_name || !item_name.trim()) {
       return res.status(400).json({
-        message: "Type name is required",
+        message: "Item name is required",
       });
     }
 
-    // Normalize capitalize first letter
-    type_name = type_name.trim().toLowerCase();
-    const formattedType =
-      type_name.charAt(0).toUpperCase() + type_name.slice(1);
+    if (!unit) {
+      return res.status(400).json({
+        message: "Unit is required",
+      });
+    }
 
-    const exists = await Type.findOne({ type_name: formattedType });
+    if (!category) {
+      return res.status(400).json({
+        message: "Category is required",
+      });
+    }
+
+    // 🔹 Normalize name (First letter capital)
+    item_name = item_name.trim().toLowerCase();
+    const formattedItem =
+      item_name.charAt(0).toUpperCase() + item_name.slice(1);
+
+    // 🔹 Check duplicate
+    const exists = await Items.findOne({ item_name: formattedItem });
+
     if (exists) {
       return res.status(400).json({
-        message: "Type already exists!",
+        message: "Item already exists!",
       });
     }
 
-    const type = new Type({
-      type_name: formattedType,
+    const newItem = new Items({
+      item_name: formattedItem,
+      unit,
+      category,
+      is_active: true,
     });
 
-    await type.save();
+    await newItem.save();
 
-    res.status(200).json({
-      message: "Type added successfully!",
+    res.status(201).json({
+      message: "Item added successfully!",
+      item: newItem,
     });
+
   } catch (err) {
     console.error(err);
 
-    // Mongo unique safety
     if (err.code === 11000) {
       return res.status(400).json({
-        message: "Type already exists!",
+        message: "Item already exists!",
       });
     }
 
@@ -74,6 +92,7 @@ exports.addType = async (req, res) => {
     });
   }
 };
+
 
 exports.addPlace = async (req, res) => {
   try {
@@ -217,15 +236,30 @@ exports.getCentersByDistrict = async (req, res) => {
   }
 };
 
-exports.fetchTypes = async (req, res) => {
+exports.fetchItems = async (req, res) => {
   try {
-    const types = await Type.find().sort({ createdAt: -1 });
-    res.status(200).json({ types });
+    const items = await Items.find({ is_active: true })
+      .select("item_name unit category")
+      .sort({ item_name: 1 })
+      .lean();
+
+    const unitEnum = Items.schema.path("unit").enumValues;
+    const categoryEnum = Items.schema.path("category").enumValues;
+
+    res.status(200).json({
+      items,
+      meta: {
+        units: unitEnum,
+        categories: categoryEnum
+      }
+    });
+
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 exports.fetchPlaces  = async(req,res) =>{
   try{
@@ -263,53 +297,74 @@ exports.updateDistrict = async (req, res) => {
   }
 };
 
-exports.updateType = async (req, res) => {
+exports.updateItem = async (req, res) => {
   try {
-    const { type_name } = req.body;
+    let { item_name, unit, category, is_active } = req.body;
     const { id } = req.params;
 
-    if (!type_name || !type_name.trim()) {
+    if (!item_name || !item_name.trim()) {
       return res.status(400).json({
-        message: "Type name is required",
+        message: "Item name is required",
       });
     }
 
-    const cleanType = type_name.trim().toLowerCase();
+    if (!unit) {
+      return res.status(400).json({
+        message: "Unit is required",
+      });
+    }
 
-    const exists = await Type.findOne({
-      type_name: cleanType,
+    if (!category) {
+      return res.status(400).json({
+        message: "Category is required",
+      });
+    }
+
+    // 🔹 Normalize (Capitalize properly)
+    item_name = item_name.trim().toLowerCase();
+    const formattedItem =
+      item_name.charAt(0).toUpperCase() + item_name.slice(1);
+
+    // 🔹 Check duplicate (excluding current item)
+    const exists = await Items.findOne({
+      item_name: formattedItem,
       _id: { $ne: id },
     });
 
     if (exists) {
       return res.status(400).json({
-        message: "Type already exists",
+        message: "Item already exists",
       });
     }
 
-    const updated = await Type.findByIdAndUpdate(
+    const updated = await Items.findByIdAndUpdate(
       id,
-      { type_name: cleanType },
+      {
+        item_name: formattedItem,
+        unit,
+        category,
+        is_active: typeof is_active === "boolean" ? is_active : true,
+      },
       { new: true }
     );
 
     if (!updated) {
       return res.status(404).json({
-        message: "Type not found",
+        message: "Item not found",
       });
     }
 
     res.status(200).json({
       message: "Successfully updated",
-      type: updated,
+      item: updated,
     });
+
   } catch (err) {
     console.error(err);
 
-    // Mongo duplicate key safety
     if (err.code === 11000) {
       return res.status(400).json({
-        message: "Type already exists",
+        message: "Item already exists",
       });
     }
 
@@ -318,6 +373,7 @@ exports.updateType = async (req, res) => {
     });
   }
 };
+
 
 exports.updatePlace = async (req, res) => {
   try {
@@ -388,18 +444,28 @@ exports.deleteDistrict = async (req, res) => {
   }
 };
 
-exports.deleteType = async (req, res) => {
+exports.deleteItem = async (req, res) => {
   try {
-    const deleted = await Type.findByIdAndDelete(req.params.id);
+    const deleted = await Items.findByIdAndUpdate(
+      req.params.id,
+      { is_active: false },
+      { new: true }
+    );
+
     if (!deleted) {
-      return res.status(500).json({ message: "Deletion Failed" });
+      return res.status(404).json({ message: "Item not found" });
     }
-    res.status(200).json({ message: "Type Deleted Succesfully" });
+
+    res.status(200).json({
+      message: "Item disabled successfully",
+    });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 exports.deletePlace = async (req, res) => {
   try {
