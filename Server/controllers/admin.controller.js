@@ -243,16 +243,15 @@ exports.fetchItems = async (req, res) => {
       .sort({ item_name: 1 })
       .lean();
 
-    const unitEnum = Items.schema.path("unit").enumValues;
-    const categoryEnum = Items.schema.path("category").enumValues;
+    const unitEnum = Items.schema.path("unit")?.enumValues || [];
+    const categoryEnum = Items.schema.path("category")?.enumValues || [];
 
     res.status(200).json({
       items,
       meta: {
         units: unitEnum,
         categories: categoryEnum
-      }
-    });
+      }    });
 
   } catch (err) {
     res.status(500).json({ message: "Server error" });

@@ -1,6 +1,5 @@
 const express = require("express");
-const { addDistrict,getDistricts,updateDistrict,deleteDistrict, getCentersByDistrict, addType, addPlace, fetchPlaces, updatePlace, deletePlace, fetchItems, deleteItem, updateItem, addItem } = require("../controllers/admin.controller");
-
+const { addDistrict, getDistricts, updateDistrict, deleteDistrict, getCentersByDistrict, addPlace, fetchPlaces, updatePlace, deletePlace, fetchItems, deleteItem, updateItem, addItem } = require("../controllers/admin.controller");
 const router = express.Router();
 
 router.post("/addDistrict", addDistrict);
