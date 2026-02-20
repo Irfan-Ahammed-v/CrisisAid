@@ -271,9 +271,9 @@ exports.getCentersByDistrict = async (req, res) => {
 //fetch Request Items
 exports.getRequestitems = async (req, res) => {
   try {
-    const requestitems = await RequestItems.find().select("type_name -_id");
+    const requestitems = await RequestItems.find().select("item_name -_id");
 
-    const itemNames = requestitems.map(item => item.type_name);
+    const itemNames = requestitems.map(item => item.item_name);
 
     res.status(200).json(itemNames);
   } catch (err) {
