@@ -28,5 +28,8 @@ app.use("/camp", campRoutes);
 app.use("/center",centerRoutes);
 app.use("/volunteer", volunteerRoutes);
 app.use("/auth",authRoutes);
-app.use("/uploads", express.static("uploads"));
+const path = require("path");
+
+// Add this line — points exactly to D:/CrisisAid/Server/uploads
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));// serves files from your /uploads directory
 module.exports = app;
