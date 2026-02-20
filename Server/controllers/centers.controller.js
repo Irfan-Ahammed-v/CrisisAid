@@ -7,6 +7,9 @@ const Disaster = require("../models/disaster");
 const Request = require("../models/request");
 const dashboardService = require("../services/centerDashboard.service");
 
+{
+  /*======================================================POST=================================================*/
+}
 exports.centerReg = async (req, res) => {
   try {
     const { district_id, center_email, center_password } = req.body;
@@ -44,6 +47,10 @@ exports.centerReg = async (req, res) => {
   }
 };
 
+
+{
+  /*======================================================GET=================================================*/
+}
 exports.home = async (req, res) => {
   try {
     const center = await Centers.findById(req.centerId);
@@ -103,4 +110,41 @@ exports.centerLogout = (req, res) => {
   });
 
   res.json({ message: "Logged out successfully" });
+};
+
+exports.getCamps = async (req, res) => {
+  try{
+    const centerId = req.centerId;
+    const camps = await Camp.find({ center_id: centerId }).select("-center_id -__v");
+    res.status(200).json(camps);
+  }catch(err){
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+exports.updateCampStatus = async (req, res) => {
+  try {
+    const { campId } = req.params;
+    const { verification_status } = req.body;
+
+    // validate so random values can't be passed in
+    const allowed = ["approved", "rejected"];
+    if (!allowed.includes(verification_status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const camp_status = verification_status === "approved" ? "active" : "inactive";
+
+    const camp = await Camp.findByIdAndUpdate(
+      campId,
+      { verification_status, camp_status },
+      { new: true }
+    );
+
+    if (!camp) return res.status(404).json({ message: "Camp not found" });
+
+    res.status(200).json({ message: `Camp ${verification_status}`, camp });
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
 };
