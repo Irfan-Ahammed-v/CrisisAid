@@ -1,91 +1,8 @@
 import { useState, useMemo, useRef, useEffect } from "react";
+import axios from "axios";
+axios.defaults.withCredentials = true;
 
-const initialCamps = [
-  {
-    _id: "6642a3f1e4b09c1a4fd2b001",
-    camp_name: "Sunrise Relief Camp",
-    camp_details: "A fully equipped relief camp with medical facilities, clean water supply, and emergency supplies for displaced families. Capacity for 250 individuals with separate dormitories.",
-    camp_address: "Near St. Mary's Church, MG Road, Ernakulam",
-    camp_email: "sunrise.camp@relief.in",
-    district: "Ernakulam",
-    place: "MG Road",
-    verification_status: "pending",
-    camp_status: "inactive",
-    current_occupancy: 0,
-    camp_proof: "proof_sunrise.pdf",
-    createdAt: "2025-03-10T08:22:00Z",
-  },
-  {
-    _id: "6642a3f1e4b09c1a4fd2b002",
-    camp_name: "Blue Shield Camp",
-    camp_details: "Operated by local NGO. Provides shelter, food distribution, and first aid. Staffed 24/7 with trained volunteers and medical professionals.",
-    camp_address: "Vadakkechira, Thrissur District",
-    camp_email: "blueshield@ngo.org",
-    district: "Thrissur",
-    place: "Vadakkechira",
-    verification_status: "approved",
-    camp_status: "active",
-    current_occupancy: 87,
-    camp_proof: "proof_blue.pdf",
-    createdAt: "2025-02-28T14:10:00Z",
-  },
-  {
-    _id: "6642a3f1e4b09c1a4fd2b003",
-    camp_name: "Haven Community Center",
-    camp_details: "Multi-purpose community center adapted as relief camp. Has kitchen facility, sleeping areas for 150 persons, and sanitation blocks.",
-    camp_address: "Beypore Road, Kozhikode",
-    camp_email: "haven.cc@gmail.com",
-    district: "Kozhikode",
-    place: "Beypore Road",
-    verification_status: "pending",
-    camp_status: "inactive",
-    current_occupancy: 0,
-    camp_proof: null,
-    createdAt: "2025-03-15T09:45:00Z",
-  },
-  {
-    _id: "6642a3f1e4b09c1a4fd2b004",
-    camp_name: "Green Valley Shelter",
-    camp_details: "Government-aided camp with coordinated disaster response team. Includes a triage unit and dedicated children's zone.",
-    camp_address: "Revenue Colony, Thrissur",
-    camp_email: "greenvalley.shelter@gov.in",
-    district: "Thrissur",
-    place: "Revenue Colony",
-    verification_status: "rejected",
-    camp_status: "inactive",
-    current_occupancy: 0,
-    camp_proof: "proof_green.pdf",
-    createdAt: "2025-01-20T11:00:00Z",
-  },
-  {
-    _id: "6642a3f1e4b09c1a4fd2b005",
-    camp_name: "Coastal Aid Point",
-    camp_details: "Strategically located near coastal area for rapid deployment during floods and cyclones. Mobile medical unit on-site.",
-    camp_address: "Chellanam, Ernakulam",
-    camp_email: "coastalaid@rescue.in",
-    district: "Ernakulam",
-    place: "Chellanam",
-    verification_status: "approved",
-    camp_status: "active",
-    current_occupancy: 145,
-    camp_proof: "proof_coastal.pdf",
-    createdAt: "2025-02-05T07:30:00Z",
-  },
-  {
-    _id: "6642a3f1e4b09c1a4fd2b006",
-    camp_name: "Mountview Aid Station",
-    camp_details: "Camp established in a school building during flood relief. Accommodates 200 persons. Registration under review by district collector.",
-    camp_address: "Munnar Road, Idukki",
-    camp_email: "mountview.aid@camp.in",
-    district: "Idukki",
-    place: "Munnar Road",
-    verification_status: "pending",
-    camp_status: "inactive",
-    current_occupancy: 0,
-    camp_proof: "proof_mount.pdf",
-    createdAt: "2025-03-18T16:20:00Z",
-  },
-];
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 // ── Badges ─────────────────────────────────────────────────────
 const V_BADGE = {
@@ -118,7 +35,44 @@ function SBadge({ status }) {
   );
 }
 
-// ── Professional Search Bar ────────────────────────────────────
+// ── Proof Link ────────────────────────────────────────────────
+function ProofLink({ filename, compact = false }) {
+  if (!filename) {
+    return compact
+      ? <span className="text-xs text-slate-600 italic">No file</span>
+      : <span className="text-xs text-slate-500 italic">No proof uploaded</span>;
+  }
+
+  const url = `${API_BASE}/uploads/campProofs/${filename}`;
+
+  if (compact) {
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noreferrer"
+        className="text-xs text-blue-400 inline-flex items-center gap-1 bg-blue-400/10 ring-1 ring-blue-400/20 px-2.5 py-1 rounded-lg hover:bg-blue-400/20 transition-colors">
+        📄 View
+      </a>
+    );
+  }
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-1.5 text-xs text-blue-400 bg-blue-400/10 ring-1 ring-blue-400/20 px-2.5 py-1.5 rounded-lg hover:bg-blue-400/20 transition-colors">
+      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" strokeLinecap="round" strokeLinejoin="round" />
+        <polyline points="14 2 14 8 20 8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      {filename}
+    </a>
+  );
+}
+
+// ── Search Bar ────────────────────────────────────────────────
 function SearchBar({ value, onChange, resultCount, total }) {
   const inputRef = useRef(null);
   const [focused, setFocused] = useState(false);
@@ -135,10 +89,8 @@ function SearchBar({ value, onChange, resultCount, total }) {
   return (
     <div className={`relative flex items-center rounded-xl border transition-all duration-200 bg-[#161b22]
       ${focused
-        ? "border-amber-400/50 shadow-[0_0_0_3px_rgba(232,162,62,0.07)] w-96"
-        : "border-[#30363d] hover:border-[#484f58] w-80"}`}>
-
-      {/* Search icon */}
+        ? "border-amber-400/50 shadow-[0_0_0_3px_rgba(232,162,62,0.07)] w-80"
+        : "border-[#30363d] hover:border-[#484f58] w-64"}`}>
       <div className="absolute left-3.5 pointer-events-none">
         <svg className={`w-3.5 h-3.5 transition-colors duration-150 ${focused ? "text-amber-400" : "text-slate-500"}`}
           fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
@@ -146,20 +98,16 @@ function SearchBar({ value, onChange, resultCount, total }) {
           <path d="m21 21-4.35-4.35" strokeLinecap="round" />
         </svg>
       </div>
-
-      {/* Input */}
       <input
         ref={inputRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        placeholder="Search name, district..."
+        placeholder="Search by name, place…"
         className="w-full bg-transparent pl-9 pr-24 py-2.5 text-sm text-slate-200 placeholder-slate-600 outline-none"
         style={{ fontFamily: "'DM Sans',sans-serif" }}
       />
-
-      {/* Right slot */}
       <div className="absolute right-3 flex items-center gap-1.5">
         {value ? (
           <>
@@ -185,20 +133,22 @@ function SearchBar({ value, onChange, resultCount, total }) {
   );
 }
 
-// ── Occupancy Bar ──────────────────────────────────────────────
-function OccupancyBar({ value, max = 250 }) {
-  const pct = Math.min((value / max) * 100, 100);
+// ── Occupancy Bar ─────────────────────────────────────────────
+function OccupancyBar({ value = 0, max = 1 }) {
+  const safeMax = max > 0 ? max : 1;
+  const pct = Math.min((value / safeMax) * 100, 100);
+  const color = pct >= 90 ? "bg-red-500" : pct >= 70 ? "bg-amber-400" : "bg-emerald-400";
   return (
     <div className="flex items-center gap-2">
-      <div className="w-14 h-1.5 bg-[#21262d] rounded-full overflow-hidden">
-        <div className="h-full bg-blue-400 rounded-full" style={{ width: `${pct}%` }} />
+      <div className="w-20 h-1.5 bg-[#21262d] rounded-full overflow-hidden">
+        <div className={`h-full ${color} rounded-full transition-all`} style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-xs font-mono text-slate-500">{value}</span>
+      <span className="text-xs font-mono text-slate-500">{value}/{max}</span>
     </div>
   );
 }
 
-// ── Toast ──────────────────────────────────────────────────────
+// ── Toast ─────────────────────────────────────────────────────
 function Toast({ toasts }) {
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">
@@ -286,10 +236,6 @@ function DetailModal({ camp, open, onClose, onApprove, onReject }) {
         {/* Body */}
         <div className="p-6 grid grid-cols-2 gap-5">
           <div>
-            <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">District</p>
-            <p className="text-sm text-slate-200">{camp.district}</p>
-          </div>
-          <div>
             <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Place</p>
             <p className="text-sm text-slate-200">{camp.place || "—"}</p>
           </div>
@@ -307,20 +253,11 @@ function DetailModal({ camp, open, onClose, onApprove, onReject }) {
           </div>
           <div>
             <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Occupancy</p>
-            <p className="text-sm text-slate-200">{camp.current_occupancy} persons</p>
+            <p className="text-sm text-slate-200">{camp.current_occupancy} / {camp.capacity} persons</p>
           </div>
           <div>
             <p className="text-xs uppercase tracking-widest text-slate-500 mb-1">Proof Document</p>
-            {camp.camp_proof
-              ? <a href="#" onClick={(e) => e.preventDefault()}
-                  className="inline-flex items-center gap-1.5 text-xs text-blue-400 bg-blue-400/10 ring-1 ring-blue-400/20 px-2.5 py-1.5 rounded-lg hover:bg-blue-400/20 transition-colors">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" strokeLinecap="round" strokeLinejoin="round" />
-                    <polyline points="14 2 14 8 20 8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  {camp.camp_proof}
-                </a>
-              : <span className="text-xs text-slate-500 italic">No proof uploaded</span>}
+            <ProofLink filename={camp.camp_proof} />
           </div>
           <div>
             <p className="text-xs uppercase tracking-widest text-slate-500 mb-1.5">Verification</p>
@@ -333,7 +270,7 @@ function DetailModal({ camp, open, onClose, onApprove, onReject }) {
           <div className="col-span-2">
             <p className="text-xs uppercase tracking-widest text-slate-500 mb-2">Camp Details</p>
             <div className="bg-[#0d1117] border border-[#21262d] rounded-xl p-4 text-sm text-slate-400 leading-relaxed">
-              {camp.camp_details}
+              {camp.camp_details || "—"}
             </div>
           </div>
         </div>
@@ -378,31 +315,42 @@ const TABS = [
 
 const TH = ["Camp", "Location", "Occupancy", "Verification", "Camp Status", "Proof", "Registered", "Actions"];
 
-export default function CampManagment() {
-  const [camps, setCamps]           = useState(initialCamps);
+export default function CampManagement() {
+  const [camps, setCamps]           = useState([]);
   const [tab, setTab]               = useState("all");
   const [search, setSearch]         = useState("");
-  const [district, setDistrict]     = useState("all");
   const [detailCamp, setDetailCamp] = useState(null);
   const [confirm, setConfirm]       = useState({ open: false, type: null, campId: null });
   const [toasts, setToasts]         = useState([]);
+  const [loading, setLoading]       = useState(true);
 
-  const districts = useMemo(() => [...new Set(camps.map((c) => c.district))].sort(), [camps]);
+  useEffect(() => {
+    getCamps();
+  }, []);
+
+  const getCamps = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/center/getCamps`);
+      setCamps(response.data);
+    } catch (error) {
+      console.error("Error fetching camps:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filtered = useMemo(() => camps.filter((c) => {
     if (tab !== "all" && c.verification_status !== tab) return false;
-    if (district !== "all" && c.district !== district) return false;
     if (search) {
       const q = search.toLowerCase();
       return (
-        c.camp_name.toLowerCase().includes(q) ||
-        c.camp_email.toLowerCase().includes(q) ||
-        c.district.toLowerCase().includes(q) ||
-        (c.place || "").toLowerCase().includes(q)
+        (c.camp_name  || "").toLowerCase().includes(q) ||
+        (c.camp_email || "").toLowerCase().includes(q) ||
+        (c.place      || "").toLowerCase().includes(q)
       );
     }
     return true;
-  }), [camps, tab, district, search]);
+  }), [camps, tab, search]);
 
   const counts = useMemo(() => ({
     all:      camps.length,
@@ -422,21 +370,49 @@ export default function CampManagment() {
     setTimeout(() => setConfirm({ open: true, type, campId }), 150);
   }
 
-  function executeAction() {
+  async function executeAction() {
     const { campId, type } = confirm;
     const camp = camps.find((c) => c._id === campId);
-    setCamps((prev) => prev.map((c) =>
-      c._id === campId
-        ? { ...c, verification_status: type === "approve" ? "approved" : "rejected", camp_status: type === "approve" ? "active" : c.camp_status }
-        : c
-    ));
-    addToast(
-      type === "approve" ? "success" : "error",
-      type === "approve"
-        ? `"${camp.camp_name}" approved successfully.`
-        : `"${camp.camp_name}" has been rejected.`
-    );
+    const verification_status = type === "approve" ? "approved" : "rejected";
+
+    try {
+      // FIX: only send verification_status — backend derives camp_status automatically
+      await axios.put(`${API_BASE}/center/updateCamp/${campId}`, {
+        verification_status,
+      });
+
+      // FIX: mirror what the backend does — approved → active, rejected → inactive
+      const camp_status = verification_status === "approved" ? "active" : "inactive";
+
+      setCamps((prev) => prev.map((c) =>
+        c._id === campId
+          ? { ...c, verification_status, camp_status }
+          : c
+      ));
+
+      addToast(
+        type === "approve" ? "success" : "error",
+        type === "approve"
+          ? `"${camp.camp_name}" approved successfully.`
+          : `"${camp.camp_name}" has been rejected.`
+      );
+    } catch (error) {
+      console.error("Error updating camp:", error);
+      addToast("error", "Failed to update camp status. Please try again.");
+    }
+
     setConfirm({ open: false, type: null, campId: null });
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-amber-400 mb-4" />
+          <p className="text-slate-400 text-lg font-medium">Loading camps...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -456,7 +432,6 @@ export default function CampManagment() {
       `}</style>
 
       <div className="min-h-screen bg-[#0d1117] text-slate-300">
-        {/* Subtle grid texture */}
         <div className="fixed inset-0 pointer-events-none" style={{
           backgroundImage: "linear-gradient(rgba(232,162,62,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(232,162,62,0.025) 1px,transparent 1px)",
           backgroundSize: "44px 44px",
@@ -474,7 +449,6 @@ export default function CampManagment() {
 
           {/* ── Toolbar ── */}
           <div className="fu flex flex-wrap items-center justify-between gap-4 mb-5" style={{ animationDelay: "50ms" }}>
-            {/* Filter tabs */}
             <div className="flex bg-[#161b22] border border-[#30363d] rounded-xl p-1 gap-0.5">
               {TABS.map((t) => (
                 <button key={t.key} onClick={() => setTab(t.key)}
@@ -491,7 +465,6 @@ export default function CampManagment() {
               ))}
             </div>
 
-            {/* Right: Search + District */}
             <div className="flex items-center gap-2.5">
               <SearchBar
                 value={search}
@@ -499,14 +472,6 @@ export default function CampManagment() {
                 resultCount={filtered.length}
                 total={camps.length}
               />
-              <select
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
-                className="bg-[#161b22] border border-[#30363d] hover:border-[#484f58] rounded-xl px-3 py-2.5 text-sm text-slate-400 outline-none cursor-pointer transition-all"
-                style={{ fontFamily: "'DM Sans',sans-serif" }}>
-                <option value="all">All Districts</option>
-                {districts.map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
             </div>
           </div>
 
@@ -514,7 +479,6 @@ export default function CampManagment() {
           <div className="fu" style={{ animationDelay: "100ms" }}>
             <div className="bg-[#161b22] border border-[#30363d] rounded-2xl overflow-hidden shadow-2xl">
 
-              {/* Table bar */}
               <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#21262d]">
                 <div className="flex items-center gap-2.5 text-sm font-semibold text-slate-300">
                   Registration Requests
@@ -545,8 +509,11 @@ export default function CampManagment() {
                         </td>
                       </tr>
                     ) : filtered.map((camp) => {
-                      const initials = camp.camp_name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
-                      const date = new Date(camp.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+                      const initials = (camp.camp_name || "?")
+                        .split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+                      const date = new Date(camp.createdAt).toLocaleDateString("en-IN", {
+                        day: "2-digit", month: "short", year: "numeric",
+                      });
                       return (
                         <tr key={camp._id} className="rh border-b border-[#21262d]/60 last:border-0 transition-colors">
 
@@ -565,13 +532,12 @@ export default function CampManagment() {
 
                           {/* Location */}
                           <td className="px-4 py-3.5">
-                            <div className="text-sm text-slate-300">{camp.district}</div>
-                            <div className="text-xs text-slate-500 mt-0.5">{camp.place || "—"}</div>
+                            <div className="text-xs text-slate-400">{camp.place || "—"}</div>
                           </td>
 
                           {/* Occupancy */}
                           <td className="px-4 py-3.5">
-                            <OccupancyBar value={camp.current_occupancy} />
+                            <OccupancyBar value={camp.current_occupancy} max={camp.capacity} />
                           </td>
 
                           {/* Verification */}
@@ -582,12 +548,7 @@ export default function CampManagment() {
 
                           {/* Proof */}
                           <td className="px-4 py-3.5">
-                            {camp.camp_proof
-                              ? <a href="#" onClick={(e) => e.preventDefault()}
-                                  className="text-xs text-blue-400 inline-flex items-center gap-1 bg-blue-400/10 ring-1 ring-blue-400/20 px-2.5 py-1 rounded-lg hover:bg-blue-400/20 transition-colors">
-                                  📄 View
-                                </a>
-                              : <span className="text-xs text-slate-600 italic">No file</span>}
+                            <ProofLink filename={camp.camp_proof} compact />
                           </td>
 
                           {/* Date */}
