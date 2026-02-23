@@ -28,11 +28,25 @@ const requestSchema = new mongoose.Schema(
       enum: ["low", "medium", "high", "critical"],
       default: "medium",
     },
+    isAiGenerated: {
+      type: Boolean,
+      default: false,
+    },
     request_status: {
       type: String,
-      enum: ["pending", "approved", "denied"],
+      enum: ["pending", "accepted", "rejected", "assigned"],
       default: "pending",
     },
+    estimated_people_affected: {
+      type: Number,
+      default: 0,
+    },
+    assigned_volunteers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "tbl_volunteer",
+      },
+    ],
   },
   {
     timestamps: true,

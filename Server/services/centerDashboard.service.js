@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Camp = require("../models/reliefcamp");
-const Volunteer = require("../models/Volunteer");
+const Volunteer = require("../models/volunteer");
 const Disaster = require("../models/disaster");
 const Request = require("../models/request");
 

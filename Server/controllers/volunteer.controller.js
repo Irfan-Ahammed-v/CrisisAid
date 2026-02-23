@@ -1,4 +1,4 @@
-const Volunteer = require("../models/Volunteer");
+const Volunteer = require("../models/volunteer");
 const District = require("../models/district");
 const Disaster = require("../models/disaster");
 const Feedback = require("../models/feedback");

@@ -6,6 +6,7 @@ const place = require("../models/place");
 const Disaster = require("../models/disaster");
 const Request = require("../models/request");
 const RequestItem = require("../models/requestitem");
+const aiService = require("../services/ai.service");
 
 // Used to verify authenticated camp session and fetch camp context
 // for frontend initialization and navigation control
@@ -179,12 +180,17 @@ exports.newRequest = async (req, res) => {
     }
     console.log(disaster);
     
+    // Predict priority using AI
+    const priority = await aiService.predictPriority(request_details, items);
+
     //Create request
     const request = await Request.create({
       camp_id: req.campId,
       disaster_id: disaster._id,
       request_details,
       request_status: "pending",
+      request_priority: priority,
+      isAiGenerated: true,
       center_id: disaster.center_id,
     });
 

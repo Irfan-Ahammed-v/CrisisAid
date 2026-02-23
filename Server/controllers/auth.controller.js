@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Centers = require("../models/centers");
 const Admin = require("../models/admin");
-const Volunteer = require("../models/Volunteer");
+const Volunteer = require("../models/volunteer");
 const Camp = require("../models/reliefcamp");
 const Center = require("../models/centers");
 
