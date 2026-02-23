@@ -37,8 +37,8 @@ const RequestView = () => {
   const getStatusTimeline = (currentStatus) => {
     const statuses = [
       { key: "pending", label: "Pending", icon: <HourglassTopTwoToneIcon sx={{ width: 24, height: 24, color: "#5d2626" }} /> },
-      { key: "in_review", label: "In Review", icon: <VisibilityIcon sx={{ width: 24, height: 24, color: "#303992" }} /> },
-      { key: "approved", label: "Approved", icon: <CheckCircleOutlineTwoToneIcon sx={{ width: 24, height: 24, color: "#169925" }} /> },
+      { key: "accepted", label: "Accepted", icon: <CheckCircleOutlineTwoToneIcon sx={{ width: 24, height: 24, color: "#169925" }} /> },
+      { key: "assigned", label: "Assigned", icon: <VisibilityIcon sx={{ width: 24, height: 24, color: "#303992" }} /> },
       { key: "fulfilled", label: "Fulfilled", icon: <LocalShippingIcon sx={{ width: 24, height: 24, color: "#169925" }} /> },
     ];
 
@@ -65,9 +65,9 @@ const RequestView = () => {
   const getStatusColor = (status) => {
     const colors = {
       pending: "bg-yellow-100 text-yellow-800",
-      in_review: "bg-blue-100 text-blue-800",
-      approved: "bg-green-100 text-green-800",
-      fulfilled: "bg-emerald-100 text-emerald-800",
+      accepted: "bg-emerald-100 text-emerald-800",
+      assigned: "bg-blue-100 text-blue-800",
+      fulfilled: "bg-green-100 text-green-800",
       rejected: "bg-red-100 text-red-800",
     };
     return colors[status?.toLowerCase()] || "bg-gray-100 text-gray-800";
@@ -182,9 +182,14 @@ const RequestView = () => {
               <span
                 className={`px-4 py-2 rounded-lg font-semibold text-sm border-2 ${getPriorityColor(
                   request.request_priority
-                )}`}
+                )} flex items-center gap-2`}
               >
                 {request.request_priority.toUpperCase()} PRIORITY
+                {request.isAiGenerated && (
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-100 text-amber-600 border border-amber-200 font-bold uppercase animate-pulse">
+                    AI Predicted
+                  </span>
+                )}
               </span>
             </div>
           </div>

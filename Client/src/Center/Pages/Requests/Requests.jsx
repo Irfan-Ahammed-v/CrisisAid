@@ -25,141 +25,34 @@ const Requests = () => {
   });
 
   useEffect(() => {
-    loadSampleData();
+    const fetchRequests = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/center/getrequests");
+        
+        setRequests(res.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to load requests:", err);
+        showNotification("error", "Failed to load requests");
+        setLoading(false);
+      }
+    };
+
+    const fetchVolunteers = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/center/volunteers");
+        setVolunteers(res.data);
+      } catch (err) {
+        console.error("Failed to load volunteers:", err);
+      }
+    };
+
+    fetchRequests();
+    fetchVolunteers();
   }, []);
 
   const loadSampleData = () => {
-    const sampleRequests = [
-      {
-        _id: "r1",
-        camp_name: "Sunrise Relief Camp",
-        camp_location: "North District, Kerala",
-        request_details: "Urgent need for medical supplies and clean drinking water for 200 people. Several cases of dehydration reported.",
-        items: [
-          { itemName: "Medical Kits", qty: 50, unit: "boxes" },
-          { itemName: "Water Bottles (1L)", qty: 300, unit: "bottles" },
-          { itemName: "Blankets", qty: 100, unit: "pieces" },
-          { itemName: "ORS Packets", qty: 500, unit: "packets" }
-        ],
-        request_priority: "high",
-        request_status: "pending",
-        createdAt: new Date("2024-02-11T08:30:00"),
-        estimated_people_affected: 200
-      },
-      {
-        _id: "r2",
-        camp_name: "Green Meadows Shelter",
-        camp_location: "Thrissur, Kerala",
-        request_details: "Food supplies needed for 150 displaced families. Current stock will last only 2 more days.",
-        items: [
-          { itemName: "Rice", qty: 200, unit: "kg" },
-          { itemName: "Cooking Oil", qty: 50, unit: "liters" },
-          { itemName: "Vegetables", qty: 100, unit: "kg" },
-          { itemName: "Dal", qty: 80, unit: "kg" },
-          { itemName: "Salt", qty: 20, unit: "kg" }
-        ],
-        request_priority: "high",
-        request_status: "pending",
-        createdAt: new Date("2024-02-10T14:20:00"),
-        estimated_people_affected: 150
-      },
-      {
-        _id: "r3",
-        camp_name: "Hope Valley Camp",
-        camp_location: "Ernakulam, Kerala",
-        request_details: "Clothing and hygiene products for children and elderly residents",
-        items: [
-          { itemName: "Children's Clothes", qty: 100, unit: "sets" },
-          { itemName: "Adult Clothes", qty: 100, unit: "sets" },
-          { itemName: "Soap", qty: 150, unit: "bars" },
-          { itemName: "Toothpaste", qty: 100, unit: "tubes" },
-          { itemName: "Sanitary Napkins", qty: 200, unit: "packs" }
-        ],
-        request_priority: "medium",
-        request_status: "pending",
-        createdAt: new Date("2024-02-09T10:15:00"),
-        estimated_people_affected: 120
-      },
-      {
-        _id: "r4",
-        camp_name: "Coastal Relief Center",
-        camp_location: "Alappuzha, Kerala",
-        request_details: "Tents and sleeping bags for additional shelter capacity due to incoming storm",
-        items: [
-          { itemName: "Tents (6-person)", qty: 20, unit: "tents" },
-          { itemName: "Sleeping Bags", qty: 50, unit: "bags" },
-          { itemName: "Tarpaulin Sheets", qty: 30, unit: "sheets" }
-        ],
-        request_priority: "medium",
-        request_status: "pending",
-        createdAt: new Date("2024-02-08T16:45:00"),
-        contact_person: "Lakshmi Nair",
-        estimated_people_affected: 80
-      },
-      {
-        _id: "r5",
-        camp_name: "Mountain View Shelter",
-        camp_location: "Idukki, Kerala",
-        request_details: "Emergency generator and fuel supply needed. Power outage for 3 days affecting medical equipment.",
-        items: [
-          { itemName: "Diesel Generator (10KVA)", qty: 2, unit: "units" },
-          { itemName: "Diesel Fuel", qty: 200, unit: "liters" },
-          { itemName: "Extension Cords", qty: 10, unit: "pieces" }
-        ],
-        request_priority: "critical",
-        request_status: "pending",
-        createdAt: new Date("2024-02-11T12:00:00"),
-        estimated_people_affected: 180
-      },
-      {
-        _id: "r6",
-        camp_name: "Valley Haven Camp",
-        camp_location: "Kottayam, Kerala",
-        request_details: "Baby care supplies and infant formula urgently required",
-        items: [
-          { itemName: "Infant Formula", qty: 50, unit: "cans" },
-          { itemName: "Diapers (various sizes)", qty: 500, unit: "pieces" },
-          { itemName: "Baby Wipes", qty: 100, unit: "packs" },
-          { itemName: "Baby Bottles", qty: 30, unit: "pieces" }
-        ],
-        request_priority: "high",
-        request_status: "pending",
-        createdAt: new Date("2024-02-10T09:30:00"),
-        estimated_people_affected: 90
-      },
-      {
-        _id: "r7",
-        camp_name: "Riverside Emergency Camp",
-        camp_location: "Kollam, Kerala",
-        request_details: "Mosquito nets and anti-malarial supplies due to stagnant water issues",
-        items: [
-          { itemName: "Mosquito Nets", qty: 120, unit: "nets" },
-          { itemName: "Mosquito Repellent", qty: 80, unit: "bottles" },
-          { itemName: "Insecticide Spray", qty: 40, unit: "cans" }
-        ],
-        request_priority: "medium",
-        request_status: "pending",
-        createdAt: new Date("2024-02-09T15:20:00"),
-        estimated_people_affected: 110
-      },
-      {
-        _id: "r8",
-        camp_name: "Sunrise Relief Camp",
-        camp_location: "North District, Kerala",
-        request_details: "Additional kitchen equipment and utensils for community cooking",
-        items: [
-          { itemName: "Large Cooking Pots", qty: 10, unit: "pots" },
-          { itemName: "Plates & Bowls", qty: 300, unit: "sets" },
-          { itemName: "Gas Cylinders", qty: 5, unit: "cylinders" },
-          { itemName: "Cooking Stoves", qty: 3, unit: "stoves" }
-        ],
-        request_priority: "low",
-        request_status: "pending",
-        createdAt: new Date("2024-02-08T11:00:00"),
-        estimated_people_affected: 200
-      }
-    ];
-
+    // Only keeping volunteers for now as I haven't checked the volunteer route
     const sampleVolunteers = [
       { _id: "vol1", volunteer_name: "Anitha Thomas",  volunteer_email: "anitha.t@email.com",  availability: "available", assigned_task: null },
       { _id: "vol2", volunteer_name: "Suresh Babu",    volunteer_email: "suresh.b@email.com",   availability: "available", assigned_task: null },
@@ -171,9 +64,7 @@ const Requests = () => {
       { _id: "vol8", volunteer_name: "Arun Nair",      volunteer_email: "arun.nair@email.com",  availability: "available", assigned_task: null }
     ];
 
-    setRequests(sampleRequests);
     setVolunteers(sampleVolunteers);
-    setLoading(false);
   };
 
   const filteredRequests = requests.filter(request => {
@@ -191,22 +82,36 @@ const Requests = () => {
     setReplyModalOpen(true);
   };
 
-  const handleSubmitReply = () => {
+  const handleSubmitReply = async () => {
     if (!replyMessage.trim()) {
       showNotification("error", "Please enter a reply message");
       return;
     }
-    const actionText = replyAction === "accept" ? "accepted" : "rejected";
-    showNotification("success", `Request ${actionText} successfully`);
-    setRequests(prev => prev.map(req =>
-      req._id === selectedRequest._id
-        ? { ...req, request_status: actionText, admin_reply: replyMessage }
-        : req
-    ));
-    setReplyModalOpen(false);
-    setSelectedRequest(null);
-    setReplyMessage("");
-    setReplyAction("");
+    
+    try {
+      const status = replyAction === "accept" ? "accepted" : "rejected";
+      await axios.put(`http://localhost:5000/center/updateRequest/${selectedRequest._id}`, {
+        status,
+        reply: replyMessage
+      });
+      
+      showNotification("success", `Request ${status === "accepted" ? "accepted" : "rejected"} successfully`);
+      
+      // Update local state
+      setRequests(prev => prev.map(req =>
+        req._id === selectedRequest._id
+          ? { ...req, request_status: status, request_reply: replyMessage }
+          : req
+      ));
+      
+      setReplyModalOpen(false);
+      setSelectedRequest(null);
+      setReplyMessage("");
+      setReplyAction("");
+    } catch (err) {
+      console.error("Failed to update request:", err);
+      showNotification("error", "Failed to update request status");
+    }
   };
 
   const openAssignModal = (request) => {
@@ -215,25 +120,40 @@ const Requests = () => {
     setAssignModalOpen(true);
   };
 
-  const handleAssignVolunteers = () => {
+  const handleAssignVolunteers = async () => {
     if (selectedVolunteers.length === 0) {
       showNotification("error", "Please select at least one volunteer");
       return;
     }
-    showNotification("success", `Assigned ${selectedVolunteers.length} volunteer(s) to this request`);
-    setRequests(prev => prev.map(req =>
-      req._id === selectedRequest._id
-        ? { ...req, request_status: "assigned", assigned_volunteers: selectedVolunteers }
-        : req
-    ));
-    setVolunteers(prev => prev.map(vol =>
-      selectedVolunteers.includes(vol._id)
-        ? { ...vol, availability: "busy", assigned_task: `${selectedRequest.camp_name} Request` }
-        : vol
-    ));
-    setAssignModalOpen(false);
-    setSelectedRequest(null);
-    setSelectedVolunteers([]);
+
+    try {
+      await axios.put(`http://localhost:5000/center/assignVolunteers/${selectedRequest._id}`, {
+        volunteerIds: selectedVolunteers
+      });
+
+      showNotification("success", `Assigned ${selectedVolunteers.length} volunteer(s) to this request`);
+      
+      // Update requests local state
+      setRequests(prev => prev.map(req =>
+        req._id === selectedRequest._id
+          ? { ...req, request_status: "assigned", assigned_volunteers: selectedVolunteers }
+          : req
+      ));
+      
+      // Update volunteers availability in local state
+      setVolunteers(prev => prev.map(vol =>
+        selectedVolunteers.includes(vol._id)
+          ? { ...vol, availability: false }
+          : vol
+      ));
+      
+      setAssignModalOpen(false);
+      setSelectedRequest(null);
+      setSelectedVolunteers([]);
+    } catch (err) {
+      console.error("Failed to assign volunteers:", err);
+      showNotification("error", "Failed to assign volunteers");
+    }
   };
 
   const toggleVolunteerSelection = (volunteerId) => {
@@ -275,13 +195,20 @@ const Requests = () => {
     assigned: { label: "Assigned", dot: "bg-blue-400",    text: "text-blue-400",    bg: "bg-blue-400/10",    ring: "ring-blue-400/20" },
   };
 
-  function PriBadge({ p }) {
+  function PriBadge({ p, isAi }) {
     const c = PRI_BADGE[p] || PRI_BADGE.low;
     return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ring-1 ${c.bg} ${c.text} ${c.ring}`}>
-        <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
-        {c.label}
-      </span>
+      <div className="flex items-center gap-2">
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ring-1 ${c.bg} ${c.text} ${c.ring}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
+          {c.label}
+        </span>
+        {isAi && (
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-tighter bg-amber-400/20 text-amber-500 border border-amber-400/30 animate-pulse">
+            AI Predicted
+          </span>
+        )}
+      </div>
     );
   }
   function StatBadge({ s }) {
@@ -469,7 +396,7 @@ const Requests = () => {
                           </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-2 mt-2.5">
-                          <PriBadge p={request.request_priority} />
+                          <PriBadge p={request.request_priority} isAi={request.isAiGenerated} />
                           <StatBadge s={request.request_status} />
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono text-slate-500 bg-[#21262d] ring-1 ring-[#30363d]">
                             👥 {request.estimated_people_affected}
@@ -512,7 +439,7 @@ const Requests = () => {
                       </div>
 
                       {/* Admin Reply */}
-                      {request.admin_reply && (request.request_status === "accepted" || request.request_status === "rejected") && (
+                      {request.request_reply && (request.request_status === "accepted" || request.request_status === "rejected") && (
                         <div className={`mb-4 p-3.5 rounded-xl border ${
                           request.request_status === "accepted"
                             ? "bg-emerald-400/5 border-emerald-400/20"
@@ -526,7 +453,7 @@ const Requests = () => {
                           <p className={`text-sm leading-relaxed ${
                             request.request_status === "accepted" ? "text-emerald-400" : "text-red-400"
                           }`}>
-                            {request.admin_reply}
+                            {request.request_reply}
                           </p>
                         </div>
                       )}
@@ -655,7 +582,7 @@ const Requests = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-72 overflow-y-auto pr-1 mb-5">
                 {volunteers.map((volunteer) => {
                   const isSelected = selectedVolunteers.includes(volunteer._id);
-                  const isAvailable = volunteer.availability === "available";
+                  const isAvailable = volunteer.availability === true;
                   return (
                     <button
                       key={volunteer._id}
@@ -680,9 +607,6 @@ const Requests = () => {
                             {isSelected && <span className="text-blue-400 text-sm flex-shrink-0">✓</span>}
                           </div>
                           <p className="text-xs text-slate-600 font-mono truncate">{volunteer.volunteer_email}</p>
-                          {!isAvailable && volunteer.assigned_task && (
-                            <p className="text-xs text-red-400 mt-0.5 truncate">↳ {volunteer.assigned_task}</p>
-                          )}
                         </div>
                       </div>
                     </button>
