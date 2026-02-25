@@ -19,10 +19,16 @@ const volunteercallSchema = new mongoose.Schema(
       required: true,
     },
 
+    request_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "tbl_request",
+      required: true,
+    },
+
     task_status: {
       type: String,
-      enum: ["assigned", "accepted", "completed"],
-      default: "assigned",
+      enum: ["pending", "accepted", "completed"],
+      default: "pending",
     },
 
     remarks: {

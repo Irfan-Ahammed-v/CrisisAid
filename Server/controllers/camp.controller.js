@@ -63,10 +63,10 @@ exports.home = async (req, res) => {
 //new disaster reporting
 exports.newdisaster = async (req, res) => {
   try {
-    const { details, placeId } = req.body;
+    const { details, placeId,disasterTypeId } = req.body;
 
-    if (!details || !placeId) {
-      return res.status(400).json({ message: "Missing details or place" });
+    if (!details || !placeId || !disasterTypeId) {
+      return res.status(400).json({ message: "Missing details, place or disaster type" });
     }
 
     if (!req.file) {
@@ -93,6 +93,7 @@ exports.newdisaster = async (req, res) => {
       district_id: req.district_id,
       disaster_status: "active",
       center_id: camp.center_id,
+      disaster_type: disasterTypeId
     });
 
     await newDisaster.save();
@@ -178,7 +179,6 @@ exports.newRequest = async (req, res) => {
         message: "No active disaster found. Please report a disaster first."
       });
     }
-    console.log(disaster);
     
     // Predict priority using AI
     const priority = await aiService.predictPriority(request_details, items);

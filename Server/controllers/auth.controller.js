@@ -60,7 +60,7 @@ exports.login = async (req, res) => {
 
     // CREATE JWT
     let district_id = null;
-
+    let center_id = null;
     if (role === "camp") {
       district_id = user.district_id;
     }
@@ -71,6 +71,7 @@ exports.login = async (req, res) => {
 
     if (role === "volunteer") {
       district_id = user.district_id;
+      center_id = user.center_id;
       // or later: fetch from center if not directly stored
     }
     const token = jwt.sign(
@@ -78,6 +79,7 @@ exports.login = async (req, res) => {
         id: user._id,
         role: role,
         district_id: user.district_id,
+        center_id: center_id,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" },

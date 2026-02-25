@@ -9,7 +9,7 @@ const uploadCampProof = require("../middlewares/uploadCampProof");
 router.post("/register", campRegister);
 router.post("/new-request", campAuth, newRequest);
 router.post(
-  "/disaster",
+  "/report-disaster",
   campAuth,
   upload.single("photo"), // field name MUST match frontend
   newdisaster

@@ -163,7 +163,7 @@ exports.getVolunteers = async (req, res) => {
 exports.updateRequestStatus = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const { status, reply } = req.body;
+    const { status, reply,estimatedVolunteers } = req.body;
 
     const allowed = ["accepted", "rejected", "assigned"];
     if (!allowed.includes(status)) {
@@ -172,7 +172,7 @@ exports.updateRequestStatus = async (req, res) => {
 
     const request = await Request.findByIdAndUpdate(
       requestId,
-      { request_status: status, request_reply: reply },
+      { request_status: status, request_reply: reply , estimated_volunteers: estimatedVolunteers},
       { new: true }
     );
 

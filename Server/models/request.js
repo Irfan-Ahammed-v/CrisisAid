@@ -37,7 +37,7 @@ const requestSchema = new mongoose.Schema(
       enum: ["pending", "accepted", "rejected", "assigned"],
       default: "pending",
     },
-    estimated_people_affected: {
+    estimated_people_affected: {//need to be reviewed
       type: Number,
       default: 0,
     },
@@ -47,6 +47,14 @@ const requestSchema = new mongoose.Schema(
         ref: "tbl_volunteer",
       },
     ],
+    estimated_volunteers: {
+      type: Number,
+      default: 0,
+    },
+    accepted_volunteers: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
