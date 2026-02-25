@@ -31,6 +31,17 @@ const volunteerSchema = new mongoose.Schema(
   default: true,
 }
 ,
+    volunteer_phone: {
+      type: String,
+    },
+    volunteer_address: {
+      type: String,
+    },
+    volunteer_skills: [
+      {
+        type: String,
+      },
+    ],
     district_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "tbl_district",

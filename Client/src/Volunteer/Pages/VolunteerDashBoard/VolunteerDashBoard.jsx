@@ -198,6 +198,13 @@ const VolunteerDashboard = () => {
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <QuickAction 
+                  label="New Requests" 
+                  icon="🤝" 
+                  onClick={() => navigate('/volunteer/requests')} 
+                  color="text-emerald-500"
+                  isDark={isDark}
+                />
+                <QuickAction 
                   label="View Tasks" 
                   icon="📋" 
                   onClick={() => navigate('/volunteer/assignments')} 

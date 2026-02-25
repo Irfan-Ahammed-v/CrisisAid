@@ -15,7 +15,8 @@ exports.volunteerAuth = (req, res, next) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    req.volunteerId = decoded.id; // trusted volunteer id
+    req.volunteerId = decoded.id;
+    req.centerId = decoded.center_id;
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid token" });

@@ -34,6 +34,7 @@ const VolunteerNavbar = () => {
   const navLinks = [
     { name: "Dashboard", path: "/volunteer", end: true, icon: "📊" },
     { name: "Assignments", path: "/volunteer/assignments", icon: "📋" },
+    { name: "New Requests", path: "/volunteer/requests", icon: "🤝" },
     { name: "Disasters", path: "/volunteer/disasters", icon: "🌪️" },
     { name: "Feedback", path: "/volunteer/feedback", icon: "💬" },
     { name: "My Profile", path: "/volunteer/profile", icon: "👤" },
