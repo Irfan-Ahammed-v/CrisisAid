@@ -18,6 +18,7 @@ const Requests = () => {
   const [replyAction, setReplyAction] = useState("");
   const [selectedVolunteers, setSelectedVolunteers] = useState([]);
   const [replyMessage, setReplyMessage] = useState("");
+  const [estimatedVolunteers, setEstimatedVolunteers] = useState(0);
   const [notification, setNotification] = useState({
     show: false,
     type: "",
@@ -51,22 +52,6 @@ const Requests = () => {
     fetchVolunteers();
   }, []);
 
-  const loadSampleData = () => {
-    // Only keeping volunteers for now as I haven't checked the volunteer route
-    const sampleVolunteers = [
-      { _id: "vol1", volunteer_name: "Anitha Thomas",  volunteer_email: "anitha.t@email.com",  availability: "available", assigned_task: null },
-      { _id: "vol2", volunteer_name: "Suresh Babu",    volunteer_email: "suresh.b@email.com",   availability: "available", assigned_task: null },
-      { _id: "vol3", volunteer_name: "Maya Krishnan",  volunteer_email: "maya.k@email.com",     availability: "busy",      assigned_task: "Food Distribution - Green Meadows" },
-      { _id: "vol4", volunteer_name: "Deepak Menon",   volunteer_email: "deepak.m@email.com",   availability: "available", assigned_task: null },
-      { _id: "vol5", volunteer_name: "Kavya Nair",     volunteer_email: "kavya.n@email.com",    availability: "available", assigned_task: null },
-      { _id: "vol6", volunteer_name: "Ravi Kumar",     volunteer_email: "ravi.k@email.com",     availability: "busy",      assigned_task: "Emergency Response - Riverside" },
-      { _id: "vol7", volunteer_name: "Priya Menon",    volunteer_email: "priya.menon@email.com",availability: "available", assigned_task: null },
-      { _id: "vol8", volunteer_name: "Arun Nair",      volunteer_email: "arun.nair@email.com",  availability: "available", assigned_task: null }
-    ];
-
-    setVolunteers(sampleVolunteers);
-  };
-
   const filteredRequests = requests.filter(request => {
     const matchesPriority = filterPriority === "all" || request.request_priority === filterPriority;
     const matchesStatus = filterStatus === "all" || request.request_status === filterStatus;
@@ -92,9 +77,10 @@ const Requests = () => {
       const status = replyAction === "accept" ? "accepted" : "rejected";
       await axios.put(`http://localhost:5000/center/updateRequest/${selectedRequest._id}`, {
         status,
-        reply: replyMessage
+        reply: replyMessage,
+        estimatedVolunteers: status === "accepted" ? estimatedVolunteers : undefined
       });
-      
+       
       showNotification("success", `Request ${status === "accepted" ? "accepted" : "rejected"} successfully`);
       
       // Update local state
@@ -706,6 +692,8 @@ const Requests = () => {
                   className="w-full bg-[#0d1117] border border-[#30363d] hover:border-[#484f58] focus:border-amber-400/50 focus:shadow-[0_0_0_3px_rgba(232,162,62,0.07)] rounded-xl px-4 py-3 text-sm text-slate-300 placeholder-slate-600 outline-none transition-all resize-none leading-relaxed"
                   style={{ fontFamily: "'DM Sans',sans-serif" }}
                 />
+                <input type="number" className="w-full bg-[#0d1117] border border-[#30363d] hover:border-[#484f58] focus:border-amber-400/50 focus:shadow-[0_0_0_3px_rgba(232,162,62,0.07)] rounded-xl px-4 py-3 text-sm text-slate-300 placeholder-slate-600 outline-none transition-all resize-none leading-relaxed" 
+                min="0" placeholder="Estimated Volunteers" value={estimatedVolunteers} onChange={(e) => setEstimatedVolunteers(e.target.value)} />
                 <p className="text-xs text-slate-600 mt-1.5 font-mono">This message will be sent to the camp administrator.</p>
               </div>
             </div>
