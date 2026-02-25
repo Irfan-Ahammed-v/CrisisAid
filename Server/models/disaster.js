@@ -41,6 +41,11 @@ const disasterSchema = new mongoose.Schema(
       ref: "tbl_Place",
       required: true,
     },
+    disaster_type:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "tbl_disaster_type",
+      required:true,
+    },
   },
   {
     timestamps: true,

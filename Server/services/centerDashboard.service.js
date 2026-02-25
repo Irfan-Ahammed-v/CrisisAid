@@ -44,34 +44,50 @@ exports.getCenterOverview = async (centerId) => {
       .lean();
 
     //  Active Disasters
-    const disasters = await Disaster.aggregate([
-      {
-        $match: {
-          center_id: new mongoose.Types.ObjectId(centerId),
-          disaster_status: "active",
-        },
-      },
-      { $sort: { createdAt: -1 } },
-      { $limit: 4 },
-      {
-        $lookup: {
-          from: "tbl_reliefcamps",
-          localField: "reliefcamp_id",
-          foreignField: "_id",
-          as: "camp",
-        },
-      },
-      { $unwind: "$camp" },
-      {
-        $project: {
-          _id: 1,
-          camp_name: "$camp.camp_name",
-          disaster_details: 1,
-          disaster_status: 1,
-          createdAt: 1,
-        },
-      },
-    ]);
+   const disasters = await Disaster.aggregate([
+  {
+    $match: {
+      center_id: new mongoose.Types.ObjectId(centerId),
+      disaster_status: "active",
+    },
+  },
+  { $sort: { createdAt: -1 } },
+  { $limit: 4 },
+
+  // 🔹 Camp lookup
+  {
+    $lookup: {
+      from: "tbl_reliefcamps",
+      localField: "reliefcamp_id",
+      foreignField: "_id",
+      as: "camp",
+    },
+  },
+  { $unwind: { path: "$camp", preserveNullAndEmptyArrays: true } },
+
+  // 🔹 Disaster type lookup
+  {
+    $lookup: {
+      from: "tbl_disaster_types",
+      localField: "disaster_type",
+      foreignField: "_id",
+      as: "disasterType",
+    },
+  },
+  { $unwind: { path: "$disasterType", preserveNullAndEmptyArrays: true } },
+
+  // 🔹 Final shape
+  {
+    $project: {
+      _id: 1,
+      camp_name: "$camp.camp_name",
+      disaster_type_name: "$disasterType.disaster_type_name",
+      disaster_details: 1,
+      disaster_status: 1,
+      createdAt: 1,
+    },
+  },
+]);
 
     //  Pending Requests
     const requests = await Request.aggregate([

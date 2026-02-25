@@ -33,6 +33,8 @@ const ReportDisaster = () => {
   const [photoPreview, setPhotoPreview] = useState(null);
   const [places, setPlaces] = useState([]);
   const [placeId, setPlaceId] = useState("");
+  const [disasterTypes, setDisasterTypes] = useState([]);
+  const [disasterTypeId, setDisasterTypeId] = useState("");
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({
     show: false,
@@ -40,13 +42,20 @@ const ReportDisaster = () => {
     message: "",
   });
 
+
   // Fetch places
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/camp/places")
-      .then((res) => setPlaces(res.data))
-      .catch((err) => console.error(err));
-  }, []);
+useEffect(() => {
+  axios
+    .get("http://localhost:5000/camp/places")
+    .then((res) => setPlaces(res.data))
+    .catch((err) => console.error(err));
+
+  axios
+    .get("http://localhost:5000/admin/disaster-types")
+    .then((res) => setDisasterTypes(res.data.disaster_types)) 
+    .catch((err) => console.error(err));
+
+}, []);
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -75,6 +84,19 @@ const ReportDisaster = () => {
         show: true,
         type: "error",
         message: "Please enter disaster details",
+      });
+      setTimeout(
+        () => setNotification({ show: false, type: "", message: "" }),
+        3000,
+      );
+      return;
+    }
+
+    if (!disasterTypeId) {
+      setNotification({
+        show: true,
+        type: "error",
+        message: "Please select a disaster type",
       });
       setTimeout(
         () => setNotification({ show: false, type: "", message: "" }),
@@ -113,12 +135,13 @@ const ReportDisaster = () => {
     formData.append("details", details);
     formData.append("photo", photo);
     formData.append("placeId", placeId);
+    formData.append("disasterTypeId", disasterTypeId); 
 
     try {
       setLoading(true);
 
       const response = await axios.post(
-        "http://localhost:5000/camp/disaster",
+        "http://localhost:5000/camp/report-disaster",
         formData,
         {
           withCredentials: true,
@@ -211,7 +234,52 @@ const ReportDisaster = () => {
           </p>
         </div>
 
+
+
         <form onSubmit={handleSubmit} className="space-y-6">
+                            {/* Disaster Type Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <svg
+                className="w-6 h-6 text-orange-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              <h2 className="text-xl font-bold text-slate-900">
+                Disaster Type
+              </h2>
+            </div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Select disaster type <span className="text-red-500">*</span>
+            </label>
+            <select
+              required
+              value={disasterTypeId}
+              onChange={(e) => setDisasterTypeId(e.target.value)}
+              className="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+            >
+              <option value="">Select disaster type</option>
+              {disasterTypes.map((disaster) => (
+                <option key={disaster._id} value={disaster._id}>
+                  {disaster.disaster_type_name}
+                </option>
+              ))}
+            </select>
+          </div>
           {/* Disaster Details Card */}
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center gap-2 mb-4">

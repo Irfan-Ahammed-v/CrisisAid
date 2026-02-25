@@ -3,7 +3,7 @@ const Camp = require("../models/reliefcamp");
 const Center = require("../models/centers");
 const Items = require("../models/items");
 const Place = require("../models/place");
-
+const Disaster = require("../models/disaster_type");
 {
   /*=============== POST =================== */
 }
@@ -93,6 +93,55 @@ exports.addItem = async (req, res) => {
   }
 };
 
+exports.addDisaster = async (req, res) => {
+  try {
+    let { disaster_name } = req.body;
+
+    // 🔹 Validate
+    if (!disaster_name || !disaster_name.trim()) {
+      return res.status(400).json({
+        message: "Disaster name is required",
+      });
+    }
+
+    // 🔹 Normalize name (First letter capital)
+    disaster_name = disaster_name.trim().toLowerCase();
+    const formattedDisaster =
+      disaster_name.charAt(0).toUpperCase() + disaster_name.slice(1);
+
+    // 🔹 Check duplicate
+    const exists = await Disaster.findOne({ disaster_type_name: formattedDisaster });
+
+    if (exists) {
+      return res.status(400).json({
+        message: "Disaster already exists!",
+      });
+    }
+
+    const newDisaster = new Disaster({
+      disaster_type_name: formattedDisaster,
+    });
+
+    await newDisaster.save();
+
+    res.status(201).json({
+      message: "Disaster added successfully!",
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    if (err.code === 11000) {
+      return res.status(400).json({
+        message: "Disaster already exists!",
+      });
+    }
+
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
 
 exports.addPlace = async (req, res) => {
   try {
@@ -184,31 +233,6 @@ exports.getDistricts = async (req, res) => {
   }
 };
 
-// exports.getCampsByDistrict = async (req, res) => {
-//   try {
-//     const { districtId } = req.params;
-
-//     if (!districtId) {
-//       return res.status(400).json({
-//         message: "District ID is required",
-//       });
-//     }
-
-//     const camps = await Camp.find({ districtId })
-//       .select("camp_name camp_email camp_address")
-//       .sort({ createdAt: -1 });
-
-//     res.status(200).json({
-//       count: camps.length,
-//       camps,
-//     });
-//   } catch (error) {
-//     console.error("Fetch camps error:", error);
-//     res.status(500).json({
-//       message: "Failed to fetch camps",
-//     });
-//   }
-// };
 
 exports.getCentersByDistrict = async (req, res) => {
   try {
@@ -258,7 +282,19 @@ exports.fetchItems = async (req, res) => {
   }
 };
 
+exports.fetchDisasterTypes = async (req, res) => {
+  try {
+    const disaster_types = await Disaster.find()
+      .select("disaster_type_name")
+      .sort({ disaster_type_name: 1 })
 
+    res.status(200).json({
+      disaster_types});
+
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 exports.fetchPlaces  = async(req,res) =>{
   try{
@@ -473,6 +509,58 @@ exports.deletePlace = async (req, res) => {
       return res.status(500).json({ message: "Deletion Failed" });
     }
     res.status(200).json({ message: "Place Deleted Succesfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.updateDisaster = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let { disaster_name } = req.body;
+
+    if (!disaster_name || !disaster_name.trim()) {
+      return res.status(400).json({ message: "Disaster name is required" });
+    }
+
+    disaster_name = disaster_name.trim().toLowerCase();
+    const formattedDisaster =
+      disaster_name.charAt(0).toUpperCase() + disaster_name.slice(1);
+
+    const exists = await Disaster.findOne({
+      disaster_type_name: formattedDisaster,
+      _id: { $ne: id },
+    });
+
+    if (exists) {
+      return res.status(400).json({ message: "Disaster type already exists" });
+    }
+
+    const updated = await Disaster.findByIdAndUpdate(
+      id,
+      { disaster_type_name: formattedDisaster },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Disaster type not found" });
+    }
+
+    res.status(200).json({ message: "Successfully updated", disaster: updated });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+exports.deleteDisaster = async (req, res) => {
+  try {
+    const deleted = await Disaster.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Disaster type not found" });
+    }
+    res.status(200).json({ message: "Disaster type deleted successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

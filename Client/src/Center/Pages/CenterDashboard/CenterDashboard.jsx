@@ -17,6 +17,8 @@ const CenterDashboard = () => {
     try {
       const res = await axios.get("http://localhost:5000/center/overview");
       setDashboard(res.data);
+      console.log(res.data);
+      
       setLoading(false);
     } catch (err) {
       if (err.response?.status === 401) navigate("/guest/login");
@@ -183,11 +185,7 @@ const CenterDashboard = () => {
                     <div key={d._id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-[#0d1117]/50 rounded-xl border border-[#21262d] hover:border-red-400/30 transition-colors rh">
                       <div className="flex-1">
                         <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <span className="font-semibold text-slate-200">{d.camp_name}</span>
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ring-1 ${getSeverityColor(d.disaster_severity)}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${d.disaster_severity === "critical" ? "bg-red-400" : d.disaster_severity === "high" ? "bg-orange-400" : d.disaster_severity === "medium" ? "bg-amber-400" : "bg-emerald-400"}`} />
-                            {d.disaster_severity?.toUpperCase()}
-                          </span>
+                          <span className="font-semibold text-slate-200">{d.disaster_type_name}</span>                          
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ring-1 ${d.disaster_status === "active" ? "bg-emerald-400/10 text-emerald-400 ring-emerald-400/20" : "bg-slate-700/40 text-slate-400 ring-slate-600/20"}`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${d.disaster_status === "active" ? "bg-emerald-400" : "bg-slate-500"}`} />
                             {d.disaster_status?.toUpperCase()}

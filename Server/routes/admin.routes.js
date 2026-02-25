@@ -1,5 +1,5 @@
 const express = require("express");
-const { addDistrict, getDistricts, updateDistrict, deleteDistrict, getCentersByDistrict, addPlace, fetchPlaces, updatePlace, deletePlace, fetchItems, deleteItem, updateItem, addItem } = require("../controllers/admin.controller");
+const { addDistrict, getDistricts, updateDistrict, deleteDistrict, getCentersByDistrict, addPlace, fetchPlaces, updatePlace, deletePlace, fetchItems, deleteItem, updateItem, addItem, addDisaster, fetchDisasterTypes, updateDisaster, deleteDisaster } = require("../controllers/admin.controller");
 const router = express.Router();
 
 router.post("/addDistrict", addDistrict);
@@ -14,5 +14,9 @@ router.delete("/item/:id",deleteItem);
 router.post("/place/:id",addPlace);
 router.get("/places/:districtId", fetchPlaces);
 router.put("/place/:id", updatePlace);
-router.delete("/place/:districtId",deletePlace)
+router.delete("/place/:districtId",deletePlace);
+router.post("/new-disaster", addDisaster);
+router.get("/disaster-types", fetchDisasterTypes);
+router.put("/disaster-type/:id", updateDisaster);
+router.delete("/disaster-type/:id", deleteDisaster);
 module.exports = router;
