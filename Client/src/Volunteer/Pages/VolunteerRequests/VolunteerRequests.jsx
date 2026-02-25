@@ -44,7 +44,6 @@ const VolunteerRequests = () => {
     try {
       const res = await axios.get("http://localhost:5000/volunteer/active-requests");
       setRequests(res.data);
-      console.log(requests);
       
       setLoading(false);
     } catch (error) {
@@ -108,8 +107,7 @@ const VolunteerRequests = () => {
                     {request.request_priority || 'Urgent'}
                   </span>
                   <span className={`text-xs font-mono ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
-                    Available slots: {request.estimated_volunteers - (request.accepted_volunteers || 0)}
-                  </span>
+                    Available slots: {Math.max(0, request.estimated_volunteers - (request.accepted_volunteers || 0))}                  </span>
                 </div>
                 
                 <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-800'}`}>
