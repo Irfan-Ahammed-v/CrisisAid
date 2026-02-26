@@ -137,7 +137,7 @@ const CenterDashboard = () => {
                           name={c.camp_name}
                           sub={c.place}
                           date={c.createdAt}
-                          onView={() => toast(`Opening camp: ${c.camp_name}`)}
+                          onView={() => navigate("/center/camp-management")}
                         />
                       ))
                     : <EmptyState message="No pending camp approvals" />
@@ -150,7 +150,7 @@ const CenterDashboard = () => {
                           name={v.volunteer_name}
                           sub={v.volunteer_email}
                           date={v.createdAt}
-                          onView={() => toast(`Opening volunteer: ${v.volunteer_name}`)}
+                          onView={() => navigate("/center/pending-approvals")}
                         />
                       ))
                     : <EmptyState message="No pending volunteer approvals" />
@@ -196,7 +196,7 @@ const CenterDashboard = () => {
                           {new Date(d.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                         </p>
                       </div>
-                      <ViewDetailsBtn onClick={() => toast(`Viewing disaster at ${d.camp_name}…`)} />
+                      <ViewDetailsBtn onClick={() => navigate("/center/disaster-reports")} />
                     </div>
                   ))
                 : <EmptyState message="No disaster reports" icon="🌤️" />
@@ -241,7 +241,7 @@ const CenterDashboard = () => {
                         </div>
                         <div className="flex flex-col items-end gap-2 shrink-0">
                           <span className="text-xs font-mono text-slate-500">{new Date(r.createdAt).toLocaleDateString()}</span>
-                          <ViewDetailsBtn onClick={() => toast(`Viewing request from ${r.camp_name}…`)} color="purple" />
+                          <ViewDetailsBtn onClick={() => navigate("/center/requests")} color="purple" />
                         </div>
                       </div>
                     </div>
@@ -273,7 +273,7 @@ const CenterDashboard = () => {
                     </span>
                   </h3>
                   <button
-                    onClick={() => toast("Navigating to all volunteer approvals…")}
+                    onClick={() => navigate("/center/pending-approvals")}
                     className="text-amber-400 hover:text-amber-300 text-sm font-semibold flex items-center gap-1 transition-colors"
                   >
                     View All
@@ -296,7 +296,7 @@ const CenterDashboard = () => {
                           {new Date(v.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                         </span>
                         <button
-                          onClick={() => toast(`Reviewing application: ${v.volunteer_name}`)}
+                          onClick={() => navigate("/center/pending-approvals")}
                           className="inline-flex items-center gap-1 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-black text-xs rounded-lg font-bold transition-colors"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>

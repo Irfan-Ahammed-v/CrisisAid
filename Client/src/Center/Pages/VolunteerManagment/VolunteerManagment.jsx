@@ -18,110 +18,38 @@ const VolunteerManagement = () => {
     message: ""
   });
 
+  const BASE_URL = "http://localhost:5000";
+
   useEffect(() => {
-    loadSampleData();
+    fetchVolunteers();
   }, []);
 
-  const loadSampleData = () => {
-    const sampleVolunteers = [
-      // Pending
-      {
-        _id: "v1",
-        volunteer_name: "Rajesh Kumar",
-        volunteer_email: "rajesh.kumar@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: false,
-        availability: true,
-        createdAt: new Date("2024-02-12T10:30:00"),
-        district_id: { name: "Ernakulam" },
-        center_id: null
-      },
-      {
-        _id: "v2",
-        volunteer_name: "Priya Menon",
-        volunteer_email: "priya.menon@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: false,
-        availability: true,
-        createdAt: new Date("2024-02-12T09:15:00"),
-        district_id: { name: "Thrissur" },
-        center_id: null
-      },
-      {
-        _id: "v3",
-        volunteer_name: "Arun Nair",
-        volunteer_email: "arun.nair@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: false,
-        availability: true,
-        createdAt: new Date("2024-02-11T16:45:00"),
-        district_id: { name: "Kottayam" },
-        center_id: null
-      },
-      {
-        _id: "v4",
-        volunteer_name: "Lakshmi Pillai",
-        volunteer_email: "lakshmi.p@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: false,
-        availability: true,
-        createdAt: new Date("2024-02-11T14:20:00"),
-        district_id: { name: "Alappuzha" },
-        center_id: null
-      },
-      // Approved
-      {
-        _id: "v5",
-        volunteer_name: "Anitha Thomas",
-        volunteer_email: "anitha.thomas@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: true,
-        availability: true,
-        createdAt: new Date("2024-02-10T10:30:00"),
-        district_id: { name: "Ernakulam" },
-        center_id: { name: "Central Relief Center" }
-      },
-      {
-        _id: "v6",
-        volunteer_name: "Suresh Babu",
-        volunteer_email: "suresh.babu@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: true,
-        availability: true,
-        createdAt: new Date("2024-02-09T14:20:00"),
-        district_id: { name: "Thrissur" },
-        center_id: { name: "Central Relief Center" }
-      },
-      {
-        _id: "v7",
-        volunteer_name: "Maya Krishnan",
-        volunteer_email: "maya.krishnan@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: true,
-        availability: false,
-        createdAt: new Date("2024-02-08T09:00:00"),
-        district_id: { name: "Kottayam" },
-        center_id: { name: "Central Relief Center" }
-      }
-    ];
-
-    setVolunteers(sampleVolunteers);
-    setLoading(false);
+  const fetchVolunteers = () => {
+    axios.get(`${BASE_URL}/center/volunteers`)
+      .then(res => {
+        setVolunteers(res.data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error("Error fetching volunteers:", error);
+        setLoading(false);
+      });
   };
 
-  const pendingVolunteers = volunteers.filter(v => !v.profileCompleted);
-  const approvedVolunteers = volunteers.filter(v => v.profileCompleted);
+  const getImageUrl = (path) => {
+    if (!path) return "https://via.placeholder.com/150";
+    const filename = path.split(/[\\/]/).pop();
+    return `${BASE_URL}/uploads/volunteers/${filename}`;
+  };
+
+  const pendingVolunteers = volunteers.filter(v => v.verification_status === "pending");
+  const approvedVolunteers = volunteers.filter(v => v.verification_status === "approved");
 
   const filteredApprovedVolunteers = approvedVolunteers.filter(volunteer => {
-    const matchesSearch = volunteer.volunteer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         volunteer.volunteer_email.toLowerCase().includes(searchTerm.toLowerCase());
+    const name = volunteer.volunteer_name || "";
+    const email = volunteer.volunteer_email || "";
+    const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesAvailability = filterAvailability === "all" || 
                                (filterAvailability === "available" && volunteer.availability) ||
                                (filterAvailability === "busy" && !volunteer.availability);
@@ -135,17 +63,31 @@ const VolunteerManagement = () => {
   };
 
   const handleApprove = (volunteerId) => {
-    setVolunteers(prev => prev.map(v => 
-      v._id === volunteerId ? { ...v, profileCompleted: true, center_id: { name: "Central Relief Center" } } : v
-    ));
-    showNotification("success", "Volunteer approved successfully");
-    setDetailModalOpen(false);
+    axios.put(`${BASE_URL}/center/verify-volunteer/${volunteerId}`, { status: "approved" })
+      .then(() => {
+        setVolunteers(prev => prev.map(v => 
+          v._id === volunteerId ? { ...v, verification_status: "approved" } : v
+        ));
+        showNotification("success", "Volunteer approved successfully");
+        setDetailModalOpen(false);
+      })
+      .catch(err => {
+        console.error("Error approving volunteer:", err);
+        showNotification("error", "Failed to approve volunteer");
+      });
   };
 
   const handleReject = (volunteerId) => {
-    setVolunteers(prev => prev.filter(v => v._id !== volunteerId));
-    showNotification("success", "Volunteer registration rejected");
-    setDetailModalOpen(false);
+    axios.put(`${BASE_URL}/center/verify-volunteer/${volunteerId}`, { status: "rejected" })
+      .then(() => {
+        setVolunteers(prev => prev.filter(v => v._id !== volunteerId));
+        showNotification("success", "Volunteer registration rejected");
+        setDetailModalOpen(false);
+      })
+      .catch(err => {
+        console.error("Error rejecting volunteer:", err);
+        showNotification("error", "Failed to reject volunteer");
+      });
   };
 
   const showNotification = (type, message) => {
@@ -154,7 +96,7 @@ const VolunteerManagement = () => {
   };
 
   const stats = {
-    total: volunteers.length,
+    total: pendingVolunteers.length + approvedVolunteers.length,
     pending: pendingVolunteers.length,
     approved: approvedVolunteers.length,
     available: approvedVolunteers.filter(v => v.availability).length
@@ -206,21 +148,21 @@ const VolunteerManagement = () => {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 flex flex-col items-center justify-center text-center">
-              <div className="text-2xl font-bold text-indigo-400 leading-none mb-1">{stats.total}</div>
-              <div className="text-xs uppercase tracking-widest text-slate-500 font-semibold">Total</div>
+            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 flex flex-col items-center justify-center text-center shadow-lg">
+              <div className="text-3xl font-extrabold text-indigo-400 mb-1">{stats.total}</div>
+              <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">Total</div>
             </div>
-            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 flex flex-col items-center justify-center text-center">
-              <div className="text-2xl font-bold text-amber-400 leading-none mb-1">{stats.pending}</div>
-              <div className="text-xs uppercase tracking-widest text-slate-500 font-semibold">Pending</div>
+            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 flex flex-col items-center justify-center text-center shadow-lg">
+              <div className="text-3xl font-extrabold text-amber-400 mb-1">{stats.pending}</div>
+              <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">Pending</div>
             </div>
-            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 flex flex-col items-center justify-center text-center">
-              <div className="text-2xl font-bold text-emerald-400 leading-none mb-1">{stats.approved}</div>
-              <div className="text-xs uppercase tracking-widest text-slate-500 font-semibold">Approved</div>
+            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 flex flex-col items-center justify-center text-center shadow-lg">
+              <div className="text-3xl font-extrabold text-emerald-400 mb-1">{stats.approved}</div>
+              <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">Approved</div>
             </div>
-            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 flex flex-col items-center justify-center text-center">
-              <div className="text-2xl font-bold text-blue-400 leading-none mb-1">{stats.available}</div>
-              <div className="text-xs uppercase tracking-widest text-slate-500 font-semibold">Available</div>
+            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 flex flex-col items-center justify-center text-center shadow-lg">
+              <div className="text-3xl font-extrabold text-blue-400 mb-1">{stats.available}</div>
+              <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">Available</div>
             </div>
           </div>
 
@@ -250,15 +192,15 @@ const VolunteerManagement = () => {
                         onClick={() => openDetailModal(volunteer)}
                         className="flex items-center gap-4 p-4 bg-amber-400/5 border border-amber-400/20 rounded-xl hover:border-amber-400/40 transition-colors cursor-pointer rh"
                       >
-                        <div className="w-14 h-14 rounded-full border-2 border-amber-400 overflow-hidden flex-shrink-0">
-                          <img src={volunteer.volunteer_photo} alt={volunteer.volunteer_name} className="w-full h-full object-cover" />
+                        <div className="w-14 h-14 rounded-full border-2 border-amber-400 overflow-hidden flex-shrink-0 bg-[#21262d]">
+                          <img src={getImageUrl(volunteer.volunteer_photo)} alt={volunteer.volunteer_name} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold text-slate-200">{volunteer.volunteer_name}</h3>
                           <p className="text-sm text-slate-500 font-mono">{volunteer.volunteer_email}</p>
                           <div className="flex items-center gap-4 mt-1">
                             <span className="text-xs text-slate-600">
-                              <span className="font-semibold">District:</span> {volunteer.district_id?.name}
+                              <span className="font-semibold">District:</span> {volunteer.district_id?.districtName}
                             </span>
                             <span className="text-xs text-slate-600 font-mono">
                               <span className="font-semibold">Registered:</span> {new Date(volunteer.createdAt).toLocaleDateString()}
@@ -297,7 +239,7 @@ const VolunteerManagement = () => {
                 <svg className="w-7 h-7 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                All Volunteers
+                Approved Volunteers
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -350,13 +292,13 @@ const VolunteerManagement = () => {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-full border-2 border-indigo-400/30 overflow-hidden flex-shrink-0 bg-[#21262d]">
-                              <img src={volunteer.volunteer_photo} alt={volunteer.volunteer_name} className="w-full h-full object-cover" />
+                              <img src={getImageUrl(volunteer.volunteer_photo)} alt={volunteer.volunteer_name} className="w-full h-full object-cover" />
                             </div>
                             <div className="font-semibold text-slate-200">{volunteer.volunteer_name}</div>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-slate-400 font-mono">{volunteer.volunteer_email}</td>
-                        <td className="px-6 py-4 text-sm text-slate-300">{volunteer.district_id?.name || "N/A"}</td>
+                        <td className="px-6 py-4 text-sm text-slate-300">{volunteer.district_id?.districtName || "N/A"}</td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ring-1 ${
                             volunteer.availability 
@@ -380,9 +322,20 @@ const VolunteerManagement = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="6" className="px-6 py-12 text-center">
-                        <div className="text-4xl mb-2 opacity-30">🔍</div>
-                        <p className="text-slate-500">No volunteers found</p>
+                      <td colSpan="6" className="px-6 py-16 text-center">
+                        <div className="w-20 h-20 bg-[#21262d] rounded-full flex items-center justify-center mx-auto mb-4 border border-[#30363d]">
+                          <svg className="w-10 h-10 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                          </svg>
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-300 mb-1">No Approved Volunteers</h3>
+                        <p className="text-slate-500 max-w-xs mx-auto mb-6">Once you verify pending applications from the section above, they will appear here in the management roster.</p>
+                        <button 
+                          onClick={() => setSearchTerm("")}
+                          className="px-6 py-2 bg-[#21262d] hover:bg-[#2d333b] text-indigo-400 border border-[#30363d] rounded-xl text-sm font-semibold transition-all"
+                        >
+                          Clear All Filters
+                        </button>
                       </td>
                     </tr>
                   )}
@@ -401,7 +354,7 @@ const VolunteerManagement = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-24 h-24 rounded-full border-4 border-indigo-400 overflow-hidden bg-[#21262d] flex-shrink-0">
-                      <img src={selectedVolunteer.volunteer_photo} alt={selectedVolunteer.volunteer_name} className="w-full h-full object-cover" />
+                      <img src={getImageUrl(selectedVolunteer.volunteer_photo)} alt={selectedVolunteer.volunteer_name} className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <h2 className="text-3xl font-bold mb-2 text-slate-100" style={{ fontFamily: "'Playfair Display',serif" }}>{selectedVolunteer.volunteer_name}</h2>
@@ -414,7 +367,7 @@ const VolunteerManagement = () => {
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {selectedVolunteer.profileCompleted ? (
+                        {selectedVolunteer.verification_status === "approved" ? (
                           <>
                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-bold bg-emerald-400/10 text-emerald-400 ring-1 ring-emerald-400/20">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
@@ -467,7 +420,7 @@ const VolunteerManagement = () => {
                         </div>
                         <div>
                           <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">District</p>
-                          <p className="text-sm text-slate-200">{selectedVolunteer.district_id?.name || "Not specified"}</p>
+                          <p className="text-sm text-slate-200">{selectedVolunteer.district_id?.districtName || "Not specified"}</p>
                         </div>
                         {selectedVolunteer.center_id && (
                           <div>
@@ -490,14 +443,14 @@ const VolunteerManagement = () => {
                         <div>
                           <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Profile Status</p>
                           <p className="text-sm">
-                            {selectedVolunteer.profileCompleted ? (
-                              <span className="text-emerald-400 font-semibold">✓ Profile Completed & Approved</span>
+                            {selectedVolunteer.verification_status === "approved" ? (
+                              <span className="text-emerald-400 font-semibold">✓ Profile Verified & Approved</span>
                             ) : (
-                              <span className="text-amber-400 font-semibold">⏳ Awaiting Approval</span>
+                              <span className="text-amber-400 font-semibold">⏳ Awaiting Verification</span>
                             )}
                           </p>
                         </div>
-                        {selectedVolunteer.profileCompleted && (
+                        {selectedVolunteer.verification_status === "approved" && (
                           <div>
                             <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Current Availability</p>
                             <p className="text-sm">
@@ -540,10 +493,10 @@ const VolunteerManagement = () => {
                           </div>
                           <div className="border-2 border-[#30363d] rounded-xl overflow-hidden bg-[#0d1117]">
                             <img 
-                              src={selectedVolunteer.volunteer_photo} 
+                              src={getImageUrl(selectedVolunteer.volunteer_photo)} 
                               alt="Profile" 
                               className="w-full h-72 object-cover cursor-pointer hover:opacity-90 transition-opacity" 
-                              onClick={() => window.open(selectedVolunteer.volunteer_photo, '_blank')}
+                              onClick={() => window.open(getImageUrl(selectedVolunteer.volunteer_photo), '_blank')}
                             />
                           </div>
                           <p className="text-xs text-slate-600 text-center mt-2">Click image to view full size</p>
@@ -565,10 +518,10 @@ const VolunteerManagement = () => {
                           </div>
                           <div className="border-2 border-indigo-400/30 rounded-xl overflow-hidden bg-indigo-400/5">
                             <img 
-                              src={selectedVolunteer.volunteer_proof} 
+                              src={getImageUrl(selectedVolunteer.volunteer_proof)} 
                               alt="ID Proof" 
                               className="w-full h-72 object-cover cursor-pointer hover:opacity-90 transition-opacity" 
-                              onClick={() => window.open(selectedVolunteer.volunteer_proof, '_blank')}
+                              onClick={() => window.open(getImageUrl(selectedVolunteer.volunteer_proof), '_blank')}
                             />
                           </div>
                           <p className="text-xs text-slate-600 text-center mt-2">Verify identity document carefully</p>
@@ -581,7 +534,7 @@ const VolunteerManagement = () => {
 
               {/* Modal Footer */}
               <div className="p-6 bg-[#0d1117]/50 border-t border-[#30363d] rounded-b-2xl">
-                {!selectedVolunteer.profileCompleted ? (
+                {selectedVolunteer.verification_status === "pending" ? (
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button 
                       onClick={() => handleApprove(selectedVolunteer._id)} 

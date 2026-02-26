@@ -17,111 +17,68 @@ const PendingApprovals = () => {
     message: ""
   });
 
+  const BASE_URL = "http://localhost:5000";
+
   useEffect(() => {
-    loadSampleData();
+    fetchPendingVolunteers();
   }, []);
 
-  const loadSampleData = () => {
-    const samplePendingVolunteers = [
-      {
-        _id: "v1",
-        volunteer_name: "Rajesh Kumar",
-        volunteer_email: "rajesh.kumar@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: false,
-        availability: true,
-        createdAt: new Date("2024-02-12T10:30:00"),
-        district_id: { name: "Ernakulam" },
-        center_id: null
-      },
-      {
-        _id: "v2",
-        volunteer_name: "Priya Menon",
-        volunteer_email: "priya.menon@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: false,
-        availability: true,
-        createdAt: new Date("2024-02-12T09:15:00"),
-        district_id: { name: "Thrissur" },
-        center_id: null
-      },
-      {
-        _id: "v3",
-        volunteer_name: "Arun Nair",
-        volunteer_email: "arun.nair@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: false,
-        availability: true,
-        createdAt: new Date("2024-02-11T16:45:00"),
-        district_id: { name: "Kottayam" },
-        center_id: null
-      },
-      {
-        _id: "v4",
-        volunteer_name: "Lakshmi Pillai",
-        volunteer_email: "lakshmi.p@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: false,
-        availability: true,
-        createdAt: new Date("2024-02-11T14:20:00"),
-        district_id: { name: "Alappuzha" },
-        center_id: null
-      },
-      {
-        _id: "v5",
-        volunteer_name: "Deepak Menon",
-        volunteer_email: "deepak.menon@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: false,
-        availability: true,
-        createdAt: new Date("2024-02-10T18:30:00"),
-        district_id: { name: "Kollam" },
-        center_id: null
-      },
-      {
-        _id: "v6",
-        volunteer_name: "Kavya Nair",
-        volunteer_email: "kavya.nair@email.com",
-        volunteer_photo: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400",
-        volunteer_proof: "https://images.unsplash.com/photo-1633409361618-c73427e4e206?w=400",
-        profileCompleted: false,
-        availability: true,
-        createdAt: new Date("2024-02-10T15:45:00"),
-        district_id: { name: "Ernakulam" },
-        center_id: null
-      }
-    ];
+  const fetchPendingVolunteers = () => {
+    axios.get(`${BASE_URL}/center/pending-volunteers`)
+      .then(res => {
+        setPendingVolunteers(res.data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error("Error fetching pending volunteers:", error);
+        setLoading(false);
+      });
+  };
 
-    setPendingVolunteers(samplePendingVolunteers);
-    setLoading(false);
+  const getImageUrl = (path) => {
+    if (!path) return "https://via.placeholder.com/150";
+    // If it's an absolute path from the DB sample, extract the filename
+    const filename = path.split(/[\\/]/).pop();
+    return `${BASE_URL}/uploads/volunteers/${filename}`;
+  };
+
+  const handleApprove = (volunteerId) => {
+    axios.put(`${BASE_URL}/center/verify-volunteer/${volunteerId}`, { status: "approved" })
+      .then(() => {
+        setPendingVolunteers(prev => prev.filter(v => v._id !== volunteerId));
+        showNotification("success", "Volunteer approved successfully");
+        setDetailModalOpen(false);
+      })
+      .catch(err => {
+        console.error("Error approving volunteer:", err);
+        showNotification("error", "Failed to approve volunteer");
+      });
+  };
+
+  const handleReject = (volunteerId) => {
+    axios.put(`${BASE_URL}/center/verify-volunteer/${volunteerId}`, { status: "rejected" })
+      .then(() => {
+        setPendingVolunteers(prev => prev.filter(v => v._id !== volunteerId));
+        showNotification("success", "Volunteer registration rejected");
+        setDetailModalOpen(false);
+      })
+      .catch(err => {
+        console.error("Error rejecting volunteer:", err);
+        showNotification("error", "Failed to reject volunteer");
+      });
   };
 
   const filteredVolunteers = pendingVolunteers.filter(volunteer => {
-    const matchesSearch = volunteer.volunteer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         volunteer.volunteer_email.toLowerCase().includes(searchTerm.toLowerCase());
+    const name = volunteer.volunteer_name || "";
+    const email = volunteer.volunteer_email || "";
+    const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         email.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
   const openDetailModal = (volunteer) => {
     setSelectedVolunteer(volunteer);
     setDetailModalOpen(true);
-  };
-
-  const handleApprove = (volunteerId) => {
-    setPendingVolunteers(prev => prev.filter(v => v._id !== volunteerId));
-    showNotification("success", "Volunteer approved successfully");
-    setDetailModalOpen(false);
-  };
-
-  const handleReject = (volunteerId) => {
-    setPendingVolunteers(prev => prev.filter(v => v._id !== volunteerId));
-    showNotification("success", "Volunteer registration rejected");
-    setDetailModalOpen(false);
   };
 
   const notificationTimeoutRef = React.useRef(null);
@@ -233,7 +190,7 @@ const PendingApprovals = () => {
                   <div className="bg-gradient-to-r from-amber-400/10 to-amber-400/5 p-5 border-b border-[#30363d]">
                     <div className="flex items-center gap-4">
                       <div className="w-20 h-20 rounded-full border-2 border-amber-400 overflow-hidden flex-shrink-0 bg-[#21262d]">
-                        <img src={volunteer.volunteer_photo} alt={volunteer.volunteer_name} className="w-full h-full object-cover" />
+                        <img src={getImageUrl(volunteer.volunteer_photo)} alt={volunteer.volunteer_name} className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-bold text-slate-100 truncate">{volunteer.volunteer_name}</h3>
@@ -254,7 +211,7 @@ const PendingApprovals = () => {
                       <svg className="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       </svg>
-                      <span className="text-slate-300 font-medium">{volunteer.district_id?.name || "Not specified"}</span>
+                      <span className="text-slate-300 font-medium">{volunteer.district_id?.districtName || "Not specified"}</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm">
@@ -316,7 +273,7 @@ const PendingApprovals = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-24 h-24 rounded-full border-4 border-amber-400 overflow-hidden bg-[#21262d] flex-shrink-0">
-                      <img src={selectedVolunteer.volunteer_photo} alt={selectedVolunteer.volunteer_name} className="w-full h-full object-cover" />
+                      <img src={getImageUrl(selectedVolunteer.volunteer_photo)} alt={selectedVolunteer.volunteer_name} className="w-full h-full object-cover" />
                     </div>
                     <div>
                       <h2 className="text-3xl font-bold mb-2 text-slate-100" style={{ fontFamily: "'Playfair Display',serif" }}>{selectedVolunteer.volunteer_name}</h2>
@@ -363,7 +320,7 @@ const PendingApprovals = () => {
                         </div>
                         <div>
                           <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">District</p>
-                          <p className="text-sm text-slate-200">{selectedVolunteer.district_id?.name || "Not specified"}</p>
+                          <p className="text-sm text-slate-200">{selectedVolunteer.district_id?.districtName || "Not specified"}</p>
                         </div>
                         <div>
                           <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Registration Date</p>
@@ -421,10 +378,10 @@ const PendingApprovals = () => {
                           </div>
                           <div className="border-2 border-[#30363d] rounded-xl overflow-hidden bg-[#0d1117]">
                             <img 
-                              src={selectedVolunteer.volunteer_photo} 
+                              src={getImageUrl(selectedVolunteer.volunteer_photo)} 
                               alt="Profile" 
                               className="w-full h-72 object-cover cursor-pointer hover:opacity-90 transition-opacity" 
-                              onClick={() => window.open(selectedVolunteer.volunteer_photo, '_blank')}
+                              onClick={() => window.open(getImageUrl(selectedVolunteer.volunteer_photo), '_blank')}
                             />
                           </div>
                           <p className="text-xs text-slate-600 text-center mt-2">Click image to view full size</p>
@@ -446,10 +403,10 @@ const PendingApprovals = () => {
                           </div>
                           <div className="border-2 border-amber-400/30 rounded-xl overflow-hidden bg-amber-400/5">
                             <img 
-                              src={selectedVolunteer.volunteer_proof} 
+                              src={getImageUrl(selectedVolunteer.volunteer_proof)} 
                               alt="ID Proof" 
                               className="w-full h-72 object-cover cursor-pointer hover:opacity-90 transition-opacity" 
-                              onClick={() => window.open(selectedVolunteer.volunteer_proof, '_blank')}
+                              onClick={() => window.open(getImageUrl(selectedVolunteer.volunteer_proof), '_blank')}
                             />
                           </div>
                           <p className="text-xs text-slate-600 text-center mt-2">Verify identity document carefully</p>
