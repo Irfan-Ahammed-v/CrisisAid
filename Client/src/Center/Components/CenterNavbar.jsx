@@ -23,7 +23,7 @@ const CenterNavbar = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate("/guest/login");
+      navigate("/guest/login", { replace: true });
     } catch (error) {
       console.error("Logout failed", error);
     }

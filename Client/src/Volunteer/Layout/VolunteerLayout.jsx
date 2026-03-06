@@ -1,11 +1,32 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useVolunteerTheme } from "../../context/VolunteerThemeContext";
 import VolunteerNavbar from "../Components/VolunteerNavbar";
 import VolunteerFooter from "../Components/VolunteerFooter";
-import { Outlet } from "react-router";
+import { Outlet, useNavigate } from "react-router";
+import { useAuth } from "../../context/AuthContext";
 
 const VolunteerLayout = () => {
   const { theme } = useVolunteerTheme();
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/guest/login", { replace: true });
+    }
+  }, [user, loading, navigate]);
+
+  if (loading || !user) {
+    return (
+      <div
+        className={`min-h-screen flex items-center justify-center ${
+          theme === "dark" ? "bg-[#0d1117]" : "bg-slate-50"
+        }`}
+      >
+        <div className="w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div
