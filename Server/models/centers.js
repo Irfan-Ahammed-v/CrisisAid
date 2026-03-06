@@ -43,4 +43,4 @@ const centersSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("tbl_centers", centersSchema);
+module.exports = mongoose.model("tbl_center", centersSchema);

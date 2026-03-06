@@ -17,7 +17,7 @@ exports.login = async (req, res) => {
     let user = null;
     let role = null;
     let hashedPassword = null;
-
+    
     // CHECK USER TYPE
     const camp = await Camp.findOne({ camp_email: email });
     if (camp) {

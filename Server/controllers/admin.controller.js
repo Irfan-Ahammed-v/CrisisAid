@@ -3,7 +3,10 @@ const Camp = require("../models/reliefcamp");
 const Center = require("../models/centers");
 const Items = require("../models/items");
 const Place = require("../models/place");
-const Disaster = require("../models/disaster_type");
+const DisasterType = require("../models/disaster_type");
+const Volunteer = require("../models/volunteer");
+const Disaster = require("../models/disaster");
+
 {
   /*=============== POST =================== */
 }
@@ -110,7 +113,7 @@ exports.addDisaster = async (req, res) => {
       disaster_name.charAt(0).toUpperCase() + disaster_name.slice(1);
 
     // 🔹 Check duplicate
-    const exists = await Disaster.findOne({ disaster_type_name: formattedDisaster });
+    const exists = await DisasterType.findOne({ disaster_type_name: formattedDisaster });
 
     if (exists) {
       return res.status(400).json({
@@ -118,7 +121,7 @@ exports.addDisaster = async (req, res) => {
       });
     }
 
-    const newDisaster = new Disaster({
+    const newDisaster = new DisasterType({
       disaster_type_name: formattedDisaster,
     });
 
@@ -233,7 +236,6 @@ exports.getDistricts = async (req, res) => {
   }
 };
 
-
 exports.getCentersByDistrict = async (req, res) => {
   try {
     const { districtId } = req.params;
@@ -243,11 +245,36 @@ exports.getCentersByDistrict = async (req, res) => {
         message: "District ID is required",
       });
     }
-    const centers = await Center.find({ district_id: districtId })
-      .select(
-        "center_name  center_address center_capacity center_occupancy center_status"
-      )
-      .sort({ createdAt: -1 });
+
+    const mongoose = require("mongoose");
+
+    const centers = await Center.aggregate([
+      {
+        $match: { district_id: new mongoose.Types.ObjectId(districtId) },
+      },
+      {
+        $lookup: {
+          from: "tbl_reliefcamps",
+          localField: "_id",
+          foreignField: "center_id",
+          as: "camps",
+        },
+      },
+      {
+        $addFields: {
+          campCount: { $size: "$camps" },
+        },
+      },
+      {
+        $project: {
+          camps: 0,
+          center_password: 0   // remove password here
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+    ]);
 
     res.status(200).json({
       centers,
@@ -284,7 +311,7 @@ exports.fetchItems = async (req, res) => {
 
 exports.fetchDisasterTypes = async (req, res) => {
   try {
-    const disaster_types = await Disaster.find()
+    const disaster_types = await DisasterType.find()
       .select("disaster_type_name")
       .sort({ disaster_type_name: 1 })
 
@@ -293,6 +320,27 @@ exports.fetchDisasterTypes = async (req, res) => {
 
   } catch (err) {
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getDashboardStats = async (req, res) => {
+  try {
+    const [centers, volunteers, activeDisasters, resolvedDisasters] = await Promise.all([
+      Center.countDocuments(),
+      Volunteer.countDocuments(),
+      Disaster.countDocuments({ disaster_status: "active" }),
+      Disaster.countDocuments({ disaster_status: "resolved" }),
+    ]);
+
+    res.status(200).json({
+      centers,
+      volunteers,
+      activeDisasters,
+      resolvedRequests: resolvedDisasters, // Labeled as resolved requests in frontend
+    });
+  } catch (err) {
+    console.error("Dashboard stats error:", err);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -528,7 +576,7 @@ exports.updateDisaster = async (req, res) => {
     const formattedDisaster =
       disaster_name.charAt(0).toUpperCase() + disaster_name.slice(1);
 
-    const exists = await Disaster.findOne({
+    const exists = await DisasterType.findOne({
       disaster_type_name: formattedDisaster,
       _id: { $ne: id },
     });
@@ -537,7 +585,7 @@ exports.updateDisaster = async (req, res) => {
       return res.status(400).json({ message: "Disaster type already exists" });
     }
 
-    const updated = await Disaster.findByIdAndUpdate(
+    const updated = await DisasterType.findByIdAndUpdate(
       id,
       { disaster_type_name: formattedDisaster },
       { new: true }
@@ -556,7 +604,7 @@ exports.updateDisaster = async (req, res) => {
 
 exports.deleteDisaster = async (req, res) => {
   try {
-    const deleted = await Disaster.findByIdAndDelete(req.params.id);
+    const deleted = await DisasterType.findByIdAndDelete(req.params.id);
     if (!deleted) {
       return res.status(404).json({ message: "Disaster type not found" });
     }
@@ -564,5 +612,79 @@ exports.deleteDisaster = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+exports.getVolunteers = async (req, res) => {
+  try {
+    const { districtId, centerId } = req.params;
+
+    let filter = {};
+
+    if (districtId) {
+      filter.district_id = districtId;
+    }
+
+    if (centerId) {
+      filter.center_id = centerId;
+    }
+
+    let volunteers = await Volunteer.find(filter)
+      .populate("district_id", "districtName")
+      .populate("center_id", "center_name")
+      .sort({ createdAt: -1 });
+
+    // Sanitize photo and proof paths to return only filename if they are absolute paths
+    const sanitizePath = (path) => {
+      if (!path) return path;
+      if (path.includes("\\") || path.includes("/")) {
+        return path.split(/[\\/]/).pop();
+      }
+      return path;
+    };
+
+    volunteers = volunteers.map(v => {
+      const obj = v.toObject();
+      obj.volunteer_photo = sanitizePath(obj.volunteer_photo);
+      obj.volunteer_proof = sanitizePath(obj.volunteer_proof);
+      return obj;
+    });
+
+    res.status(200).json({ volunteers });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+exports.getDisasters = async (req, res) => {
+  try {
+    const { districtId, centerId } = req.params;
+    const mongoose = require("mongoose");
+
+    let filter = {};
+
+    if (districtId) {
+      filter.district_id = new mongoose.Types.ObjectId(districtId);
+    }
+
+    if (centerId) {
+      filter.center_id = new mongoose.Types.ObjectId(centerId);
+    }
+
+    const disasters = await Disaster.find(filter)
+      .populate("district_id", "districtName")
+      .populate("center_id", "center_name")
+      .populate("disaster_type", "disaster_type_name")
+      .populate("reliefcamp_id", "camp_name")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ disasters });
+
+  } catch (err) {
+    console.error("Fetch disasters error:", err);
+    res.status(500).json({ message: "Server Error" });
   }
 };

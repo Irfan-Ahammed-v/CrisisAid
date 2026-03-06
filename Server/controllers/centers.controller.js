@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Centers = require("../models/centers");
@@ -152,7 +153,9 @@ exports.updateCampStatus = async (req, res) => {
 exports.getVolunteers = async (req, res) => {
   try {
     const centerId = req.centerId;
-    const volunteers = await Volunteer.find({ center_id: centerId }).select("-volunteer_password");
+    const volunteers = await Volunteer.find({ center_id: centerId })
+      .populate("district_id", "districtName")
+      .select("-volunteer_password");
     res.status(200).json(volunteers);
   } catch (err) {
     console.error("Get Volunteers Error:", err);
@@ -263,3 +266,87 @@ exports.getRequests = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+exports.VolunteersApproval = async (req, res) => {
+  try {
+    const centerId = req.centerId;
+    const volunteers = await Volunteer.find({ center_id: centerId, verification_status: "pending" })
+      .populate("district_id", "districtName") // Assuming district_id is a ref
+      .select("-volunteer_password");
+    res.status(200).json(volunteers);
+  } catch (err) {
+    console.error("Get Volunteers Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.verifyVolunteer = async (req, res) => {
+  try {
+    const { volunteerId } = req.params;
+    const { status } = req.body; // 'approved' or 'rejected'
+
+    if (!["approved", "rejected"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const volunteer = await Volunteer.findByIdAndUpdate(
+      volunteerId,
+      { verification_status: status },
+      { new: true }
+    );
+
+    if (!volunteer) {
+      return res.status(404).json({ message: "Volunteer not found" });
+    }
+
+    res.status(200).json({ message: `Volunteer ${status} successfully`, volunteer });
+  } catch (err) {
+    console.error("Verify Volunteer Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getAllDisasters = async (req, res) => {
+  try {
+    const disasters = await Disaster.find({ center_id: req.centerId })
+      .populate("district_id", "district_name")
+      .populate("place_id", "place_name")
+      .populate("disaster_type", "disaster_type_name")
+      .sort({ createdAt: -1 });
+
+    res.json(disasters);
+  } catch (err) {
+    console.error("Get Disasters Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.updateDisasterStatus = async (req, res) => {
+  try {
+    const { disasterId } = req.params;
+    const { status } = req.body;
+
+    if (!["active", "rejected", "resolved"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const updatedDisaster = await Disaster.findByIdAndUpdate(
+      disasterId,
+      { disaster_status: status },
+      { new: true },
+    );
+
+    if (!updatedDisaster) {
+      return res.status(404).json({ message: "Disaster not found" });
+    }
+
+    res.status(200).json({
+      message: `Disaster ${status} successfully`,
+      disaster: updatedDisaster,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+

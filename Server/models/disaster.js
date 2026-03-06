@@ -11,11 +11,10 @@ const disasterSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
     disaster_status: {
       type: String,
-      enum: ["active", "resolved"],
-      default: "active",
+      enum: ["active", "resolved","rejected"],
+      default: "null",
     },
     center_id: {
       type: mongoose.Schema.Types.ObjectId,
