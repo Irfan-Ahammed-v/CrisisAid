@@ -658,7 +658,7 @@ const CampDashboard = () => {
             title="Camp Status"
             value={campStatus?.toUpperCase() || "ACTIVE"}
             icon={
-              <FestivalIcon sx={{ width: 38, height: 38, color: "#f5f1f1" }} />
+              <FestivalIcon sx={{ width: 38, height: 38, color: "#dd1919" }} />
             }
             color="blue"
             subtitle="Current operational status"

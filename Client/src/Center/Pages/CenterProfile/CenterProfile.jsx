@@ -1,19 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useCenterToast } from "../../context/CenterToastContext";
 
-// ── Mock Data ─────────────────────────────────────────────────
-const initialCenter = {
-  _id: "6642b1f2e4b09c1a4fd2c001",
-  center_name: "Ernakulam Central Relief Hub",
-  center_address: "Near District Collectorate, MG Road, Ernakulam, Kerala - 682011",
-  center_email: "ernakulam.hub@relief.gov.in",
-  center_capacity: 500,
-  current_occupancy: 318,
-  district: "Ernakulam",
-  center_status: "OPEN",
-  profileCompleted: true,
-  createdAt: "2024-11-15T08:00:00Z",
-  updatedAt: "2025-03-18T14:22:00Z",
-};
+axios.defaults.withCredentials = true;
 
 // ── Status Badge ──────────────────────────────────────────────
 const STATUS_CFG = {
@@ -29,40 +18,6 @@ function StatusBadge({ status }) {
       <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${c.dot}`} />
       {c.label}
     </span>
-  );
-}
-
-// ── Capacity Ring ─────────────────────────────────────────────
-function CapacityRing({ current, max }) {
-  const pct = Math.min((current / max) * 100, 100);
-  const r = 52;
-  const circ = 2 * Math.PI * r;
-  const dash = (pct / 100) * circ;
-
-  const color = pct >= 90 ? "#f87171" : pct >= 70 ? "#fb923c" : "#34d399";
-  const trackColor = "rgba(255,255,255,0.06)";
-
-  return (
-    <div className="relative flex items-center justify-center w-36 h-36">
-      <svg className="absolute inset-0 -rotate-90" width="144" height="144" viewBox="0 0 144 144">
-        <circle cx="72" cy="72" r={r} fill="none" stroke={trackColor} strokeWidth="10" />
-        <circle
-          cx="72" cy="72" r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth="10"
-          strokeLinecap="round"
-          strokeDasharray={`${dash} ${circ}`}
-          style={{ transition: "stroke-dasharray 0.8s cubic-bezier(0.16,1,0.3,1)", filter: `drop-shadow(0 0 6px ${color}55)` }}
-        />
-      </svg>
-      <div className="text-center z-10">
-        <div className="text-2xl font-bold text-slate-100" style={{ fontFamily: "'DM Mono',monospace" }}>
-          {Math.round(pct)}%
-        </div>
-        <div className="text-xs text-slate-500 mt-0.5">capacity</div>
-      </div>
-    </div>
   );
 }
 
@@ -84,23 +39,6 @@ function EditField({ label, value, type = "text", onChange, disabled, placeholde
           }`}
         style={{ fontFamily: type === "email" ? "'DM Mono',monospace" : "'DM Sans',sans-serif", fontSize: type === "email" ? "13px" : undefined }}
       />
-    </div>
-  );
-}
-
-// ── Toast ─────────────────────────────────────────────────────
-function Toast({ toasts }) {
-  return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">
-      {toasts.map((t) => (
-        <div key={t.id}
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium shadow-2xl border backdrop-blur-sm pointer-events-auto
-            ${t.type === "success" ? "bg-emerald-950/90 border-emerald-700/40 text-emerald-300" : "bg-red-950/90 border-red-700/40 text-red-300"}`}
-          style={{ animation: "toastIn 0.3s cubic-bezier(0.16,1,0.3,1)" }}>
-          <span className="text-base flex-shrink-0">{t.type === "success" ? "✅" : "❌"}</span>
-          {t.message}
-        </div>
-      ))}
     </div>
   );
 }
@@ -181,20 +119,33 @@ function InfoRow({ label, value, mono }) {
 
 // ── Main ──────────────────────────────────────────────────────
 export default function CenterProfile() {
-  const [center, setCenter] = useState(initialCenter);
+  const addToast = useCenterToast();
+
+  const [center, setCenter] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showStatus, setShowStatus] = useState(false);
-  const [toasts, setToasts] = useState([]);
 
-  const pct = Math.min(Math.round((center.current_occupancy / center.center_capacity) * 100), 100);
+  // Password Update State
+  const [passwords, setPasswords] = useState({ current: "", new: "", confirm: "" });
+  const [updatingPass, setUpdatingPass] = useState(false);
 
-  function addToast(type, message) {
-    const id = Date.now();
-    setToasts((p) => [...p, { id, type, message }]);
-    setTimeout(() => setToasts((p) => p.filter((t) => t.id !== id)), 3500);
-  }
+  useEffect(() => {
+    fetchCenter();
+  }, []);
+
+  const fetchCenter = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/center/home");
+      setCenter(res.data.center);
+      setLoading(false);
+    } catch (err) {
+      addToast("error", "Failed to load center data.");
+      setLoading(false);
+    }
+  };
 
   function startEdit() {
     setDraft({ ...center });
@@ -210,24 +161,65 @@ export default function CenterProfile() {
     setShowConfirm(true);
   }
 
-  function confirmSave() {
-    // Validate
+  async function confirmSave() {
     if (!draft.center_name?.trim()) { addToast("error", "Center name is required."); setShowConfirm(false); return; }
     if (!draft.center_address?.trim()) { addToast("error", "Address is required."); setShowConfirm(false); return; }
-    if (!draft.center_capacity || draft.center_capacity < 1) { addToast("error", "Capacity must be at least 1."); setShowConfirm(false); return; }
 
-    setCenter({ ...draft, profileCompleted: true, updatedAt: new Date().toISOString() });
-    setEditing(false);
-    setDraft(null);
-    setShowConfirm(false);
-    addToast("success", "Profile updated successfully.");
+    try {
+      const res = await axios.put("http://localhost:5000/center/complete-profile", {
+        name: draft.center_name,
+        address: draft.center_address
+      });
+      setCenter(res.data.center);
+      setEditing(false);
+      setDraft(null);
+      setShowConfirm(false);
+      addToast("success", "Profile updated successfully.");
+    } catch (err) {
+      addToast("error", err.response?.data?.message || "Failed to update profile.");
+      setShowConfirm(false);
+    }
   }
 
-  function handleStatusChange(newStatus) {
-    setCenter((c) => ({ ...c, center_status: newStatus, updatedAt: new Date().toISOString() }));
-    setShowStatus(false);
-    addToast("success", `Status changed to "${STATUS_CFG[newStatus].label}".`);
+  async function handleStatusChange(newStatus) {
+    try {
+      await axios.put("http://localhost:5000/center/update-status", { status: newStatus });
+      setCenter((c) => ({ ...c, center_status: newStatus }));
+      setShowStatus(false);
+      addToast("success", `Status changed to "${STATUS_CFG[newStatus].label}".`);
+    } catch (err) {
+      addToast("error", "Failed to update status.");
+    }
   }
+
+  async function handleUpdatePassword() {
+    if (!passwords.current || !passwords.new || !passwords.confirm) {
+        return addToast("error", "Please fill all password fields.");
+    }
+    if (passwords.new !== passwords.confirm) {
+        return addToast("error", "New passwords do not match.");
+    }
+
+    setUpdatingPass(true);
+    try {
+      await axios.put("http://localhost:5000/center/update-password", {
+        currentPassword: passwords.current,
+        newPassword: passwords.new
+      });
+      addToast("success", "Password updated successfully.");
+      setPasswords({ current: "", new: "", confirm: "" });
+    } catch (err) {
+      addToast("error", err.response?.data?.message || "Failed to update password.");
+    } finally {
+      setUpdatingPass(false);
+    }
+  }
+
+  if (loading) return (
+    <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
 
   const active = editing ? draft : center;
   const setField = (key) => (val) => setDraft((d) => ({ ...d, [key]: val }));
@@ -251,7 +243,6 @@ export default function CenterProfile() {
       `}</style>
 
       <div className="min-h-screen bg-[#0d1117] text-slate-300">
-        {/* Grid texture */}
         <div className="fixed inset-0 pointer-events-none" style={{
           backgroundImage: "linear-gradient(rgba(232,162,62,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(232,162,62,0.025) 1px,transparent 1px)",
           backgroundSize: "44px 44px",
@@ -259,7 +250,6 @@ export default function CenterProfile() {
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 py-10">
 
-          {/* ── Page Title ── */}
           <div className="fu mb-8" style={{ animationDelay: "0ms" }}>
             <h1 className="text-[2rem] font-bold text-slate-100 leading-none" style={{ fontFamily: "'Playfair Display',serif" }}>
               Center Profile
@@ -272,18 +262,14 @@ export default function CenterProfile() {
             {/* ── LEFT COLUMN ───────────────────────────── */}
             <div className="col-span-1 flex flex-col gap-5">
 
-              {/* Identity card */}
               <div className="fu bg-[#161b22] border border-[#30363d] rounded-2xl overflow-hidden shadow-xl" style={{ animationDelay: "40ms" }}>
-                {/* Amber accent stripe */}
                 <div className="h-1 w-full bg-gradient-to-r from-amber-500 via-amber-400 to-transparent" />
                 <div className="p-6 flex flex-col items-center text-center gap-3">
-                  {/* Avatar */}
                   <div className="relative">
                     <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#21262d] to-[#161b22] border border-[#30363d] flex items-center justify-center text-2xl font-bold text-slate-300 shadow-inner"
                       style={{ fontFamily: "'Playfair Display',serif" }}>
                       {initials}
                     </div>
-                    {/* Profile complete dot */}
                     <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-[#161b22] flex items-center justify-center text-xs
                       ${center.profileCompleted ? "bg-emerald-500" : "bg-slate-600"}`}>
                       {center.profileCompleted ? "✓" : "!"}
@@ -294,7 +280,7 @@ export default function CenterProfile() {
                     <h2 className="text-base font-bold text-slate-100 leading-snug" style={{ fontFamily: "'Playfair Display',serif" }}>
                       {center.center_name || "Unnamed Center"}
                     </h2>
-                    <p className="text-xs text-slate-500 font-mono mt-0.5">{center.district}</p>
+                    <p className="text-xs text-slate-500 font-mono mt-0.5">{center.district_id?.district_name || "District Not Set"}</p>
                   </div>
 
                   <StatusBadge status={center.center_status} />
@@ -306,40 +292,6 @@ export default function CenterProfile() {
                 </div>
               </div>
 
-              {/* Capacity card */}
-              <div className="fu bg-[#161b22] border border-[#30363d] rounded-2xl p-6 shadow-xl flex flex-col items-center gap-4" style={{ animationDelay: "70ms" }}>
-                <p className="text-xs uppercase tracking-widest text-slate-500 font-semibold self-start">Occupancy</p>
-                <CapacityRing current={center.current_occupancy} max={center.center_capacity} />
-                <div className="w-full grid grid-cols-2 gap-3">
-                  <div className="bg-[#0d1117] border border-[#21262d] rounded-xl p-3 text-center">
-                    <div className="text-xl font-bold text-slate-100" style={{ fontFamily: "'DM Mono',monospace" }}>{center.current_occupancy}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Current</div>
-                  </div>
-                  <div className="bg-[#0d1117] border border-[#21262d] rounded-xl p-3 text-center">
-                    <div className="text-xl font-bold text-slate-100" style={{ fontFamily: "'DM Mono',monospace" }}>{center.center_capacity}</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Capacity</div>
-                  </div>
-                </div>
-                {/* Capacity bar */}
-                <div className="w-full">
-                  <div className="flex justify-between text-xs text-slate-600 mb-1.5">
-                    <span>0</span><span>{center.center_capacity}</span>
-                  </div>
-                  <div className="w-full h-2 bg-[#21262d] rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{
-                        width: `${pct}%`,
-                        background: pct >= 90 ? "#f87171" : pct >= 70 ? "#fb923c" : "#34d399",
-                        boxShadow: `0 0 8px ${pct >= 90 ? "#f8717155" : pct >= 70 ? "#fb923c55" : "#34d39955"}`,
-                      }}
-                    />
-                  </div>
-                  <p className="text-xs text-slate-600 mt-1.5 text-right font-mono">{center.center_capacity - center.current_occupancy} slots available</p>
-                </div>
-              </div>
-
-              {/* Meta card */}
               <div className="fu bg-[#161b22] border border-[#30363d] rounded-2xl p-5 shadow-xl" style={{ animationDelay: "100ms" }}>
                 <p className="text-xs uppercase tracking-widest text-slate-500 font-semibold mb-3">System Info</p>
                 <div>
@@ -354,9 +306,7 @@ export default function CenterProfile() {
             {/* ── RIGHT COLUMN ──────────────────────────── */}
             <div className="col-span-2 flex flex-col gap-5">
 
-              {/* Profile form card */}
               <div className="fu bg-[#161b22] border border-[#30363d] rounded-2xl shadow-xl overflow-hidden" style={{ animationDelay: "40ms" }}>
-                {/* Card header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-[#21262d]">
                   <div>
                     <h3 className="text-sm font-bold text-slate-200">Center Information</h3>
@@ -392,12 +342,10 @@ export default function CenterProfile() {
                   </div>
                 </div>
 
-                {/* Edit indicator bar */}
                 {editing && (
                   <div className="h-0.5 bg-gradient-to-r from-amber-400/60 via-amber-400/20 to-transparent" />
                 )}
 
-                {/* Fields */}
                 <div className="p-6 grid grid-cols-2 gap-5">
                   <div className="col-span-2">
                     <EditField
@@ -417,42 +365,10 @@ export default function CenterProfile() {
                       placeholder="Enter full address"
                     />
                   </div>
-                  <div>
-                    <EditField
-                      label="Email"
-                      value={active.center_email || ""}
-                      type="email"
-                      onChange={setField("center_email")}
-                      disabled={!editing}
-                      placeholder="center@email.com"
-                    />
-                  </div>
-                  <div>
-                    <EditField
-                      label="Capacity"
-                      value={active.center_capacity || ""}
-                      type="number"
-                      onChange={(v) => setField("center_capacity")(Number(v))}
-                      disabled={!editing}
-                      placeholder="e.g. 500"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-500 font-semibold block mb-1.5">District</label>
-                    <div className="bg-[#0d1117] border border-[#21262d] rounded-xl px-4 py-2.5 text-sm text-slate-500 cursor-not-allowed">
-                      {center.district}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs uppercase tracking-widest text-slate-500 font-semibold block mb-1.5">Current Occupancy</label>
-                    <div className="bg-[#0d1117] border border-[#21262d] rounded-xl px-4 py-2.5 text-sm text-slate-500 cursor-not-allowed font-mono">
-                      {center.current_occupancy} persons
-                    </div>
-                  </div>
+
                 </div>
               </div>
 
-              {/* Change Password card */}
               <div className="fu bg-[#161b22] border border-[#30363d] rounded-2xl shadow-xl overflow-hidden" style={{ animationDelay: "70ms" }}>
                 <div className="flex items-center justify-between px-6 py-4 border-b border-[#21262d]">
                   <div>
@@ -461,62 +377,77 @@ export default function CenterProfile() {
                   </div>
                 </div>
                 <div className="p-6 grid grid-cols-2 gap-5">
-                  <PasswordField label="Current Password" placeholder="Enter current password" />
+                  <PasswordField 
+                    label="Current Password" 
+                    placeholder="Enter current password" 
+                    value={passwords.current}
+                    onChange={(v) => setPasswords(p => ({ ...p, current: v }))}
+                  />
                   <div />
-                  <PasswordField label="New Password" placeholder="Enter new password" />
-                  <PasswordField label="Confirm Password" placeholder="Confirm new password" />
+                  <PasswordField 
+                    label="New Password" 
+                    placeholder="Enter new password" 
+                    value={passwords.new}
+                    onChange={(v) => setPasswords(p => ({ ...p, new: v }))}
+                  />
+                  <PasswordField 
+                    label="Confirm Password" 
+                    placeholder="Confirm new password" 
+                    value={passwords.confirm}
+                    onChange={(v) => setPasswords(p => ({ ...p, confirm: v }))}
+                  />
                   <div className="col-span-2 flex justify-end">
-                    <button className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#21262d] text-slate-300 border border-[#30363d] hover:border-amber-400/40 hover:text-amber-400 transition-all">
-                      Update Password
+                    <button 
+                      onClick={handleUpdatePassword}
+                      disabled={updatingPass}
+                      className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#21262d] text-slate-300 border border-[#30363d] hover:border-amber-400/40 hover:text-amber-400 transition-all disabled:opacity-50">
+                      {updatingPass ? "Updating..." : "Update Password"}
                     </button>
                   </div>
-                </div>
-              </div>
-
-              {/* Danger Zone */}
-              <div className="fu bg-[#161b22] border border-red-900/30 rounded-2xl shadow-xl overflow-hidden" style={{ animationDelay: "100ms" }}>
-                <div className="flex items-center justify-between px-6 py-4 border-b border-red-900/20">
-                  <div>
-                    <h3 className="text-sm font-bold text-red-400">Danger Zone</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">Irreversible actions — proceed with caution</p>
-                  </div>
-                </div>
-                <div className="p-6 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-300">Deactivate Center</p>
-                    <p className="text-xs text-slate-500 mt-0.5">Temporarily close this center and stop all operations</p>
-                  </div>
-                  <button className="flex-shrink-0 px-4 py-2.5 rounded-xl text-xs font-bold bg-red-400/10 text-red-400 ring-1 ring-red-400/20 hover:bg-red-500 hover:text-white hover:ring-red-500 transition-all">
-                    Deactivate
-                  </button>
                 </div>
               </div>
 
             </div>
           </div>
         </div>
+
+        {/* ── Footer ── */}
+        <footer className="relative z-10 border-t border-[#21262d] mt-4">
+          <div className="max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+                <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <span className="text-xs font-semibold text-slate-400" style={{ fontFamily: "'DM Sans',sans-serif" }}>CrisisAid Relief Network</span>
+            </div>
+            <div className="flex items-center gap-6">
+              <span className="text-xs text-slate-600">Center Management Portal</span>
+              <span className="text-xs text-slate-700">·</span>
+              <span className="text-xs text-slate-600">v1.0</span>
+            </div>
+          </div>
+        </footer>
       </div>
 
-      {/* Modals & Toast */}
       <ConfirmModal open={showConfirm} onConfirm={confirmSave} onCancel={() => setShowConfirm(false)} />
       <StatusModal open={showStatus} current={center.center_status} onSelect={handleStatusChange} onCancel={() => setShowStatus(false)} />
-      <Toast toasts={toasts} />
     </>
   );
 }
 
 // ── Password Field ────────────────────────────────────────────
-function PasswordField({ label, placeholder }) {
+function PasswordField({ label, placeholder, value, onChange }) {
   const [show, setShow] = useState(false);
-  const [val, setVal] = useState("");
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-xs uppercase tracking-widest text-slate-500 font-semibold">{label}</label>
       <div className="relative">
         <input
           type={show ? "text" : "password"}
-          value={val}
-          onChange={(e) => setVal(e.target.value)}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           className="w-full bg-[#0d1117] border border-[#30363d] rounded-xl px-4 py-2.5 pr-10 text-sm text-slate-200 outline-none transition-all hover:border-[#484f58] focus:border-amber-400/60 focus:shadow-[0_0_0_3px_rgba(232,162,62,0.07)]"
           style={{ fontFamily: "'DM Sans',sans-serif" }}

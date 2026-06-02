@@ -8,13 +8,6 @@ const centersSchema = new mongoose.Schema(
     center_address: {
       type: String,
     },
-    center_capacity: {
-      type: Number,
-    },
-    current_occupancy: {
-      type: Number,
-      default: 0,
-    },
     center_email: {
       type: String,
       required: true,
@@ -34,11 +27,10 @@ const centersSchema = new mongoose.Schema(
       enum: ["OPEN", "FULL", "CLOSED"],
       default: "OPEN",
     },
-    // NEW FIELD (for profile completeion tracking)
-    // profileCompleted: {
-    //   type: Boolean,
-    //   default: false,
-    // },
+    profileCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

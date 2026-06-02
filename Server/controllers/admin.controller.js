@@ -616,19 +616,127 @@ exports.deleteDisaster = async (req, res) => {
 };
 
 
+exports.getAnalyticsStats = async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    
+    // 1. Disaster by Type
+    const byType = await Disaster.aggregate([
+      {
+        $lookup: {
+          from: "tbl_disaster_types",
+          localField: "disaster_type",
+          foreignField: "_id",
+          as: "type_info",
+        },
+      },
+      { $unwind: "$type_info" },
+      {
+        $group: {
+          _id: "$type_info.disaster_type_name",
+          count: { $sum: 1 },
+        },
+      },
+      { $project: { name: "$_id", value: "$count", _id: 0 } }
+    ]);
+
+    // 2. Disaster by District
+    const byDistrict = await Disaster.aggregate([
+      {
+        $lookup: {
+          from: "tbl_districts",
+          localField: "district_id",
+          foreignField: "_id",
+          as: "district_info",
+        },
+      },
+      { $unwind: "$district_info" },
+      {
+        $group: {
+          _id: "$district_info.districtName",
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { count: -1 } },
+      { $project: { name: "$_id", count: "$count", _id: 0 } }
+    ]);
+
+    // 3. Resolution Status
+    const byStatus = await Disaster.aggregate([
+      {
+        $group: {
+          _id: "$disaster_status",
+          count: { $sum: 1 },
+        },
+      },
+      { $project: { name: "$_id", count: "$count", _id: 0 } }
+    ]);
+
+    res.status(200).json({
+      disasterByType: byType,
+      disasterByDistrict: byDistrict,
+      statusStats: byStatus
+    });
+  } catch (err) {
+    console.error("Analytics stats error:", err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+exports.getCenters = async (req, res) => {
+  try {
+    const { districtId } = req.query;
+    let filter = {};
+    if (districtId) filter.district_id = districtId;
+
+    const centers = await Center.find(filter)
+      .populate("district_id", "districtName")
+      .sort({ createdAt: -1 });
+    res.status(200).json({ centers });
+  } catch (err) {
+    console.error("Fetch all centers error:", err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+exports.getAllRequests = async (req, res) => {
+  try {
+    const requests = await require("../models/request").find()
+      .populate("camp_id", "camp_name")
+      .populate("center_id", "center_name")
+      .sort({ createdAt: -1 });
+    res.status(200).json({ requests });
+  } catch (err) {
+    console.error("Fetch all requests error:", err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+exports.getAllCamps = async (req, res) => {
+  try {
+    const { districtId } = req.query;
+    let filter = {};
+    if (districtId) filter.district_id = districtId;
+
+    const camps = await Camp.find(filter)
+      .populate("district_id", "districtName")
+      .populate("center_id", "center_name")
+      .sort({ createdAt: -1 });
+    res.status(200).json({ camps });
+  } catch (err) {
+    console.error("Fetch all camps error:", err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 exports.getVolunteers = async (req, res) => {
   try {
-    const { districtId, centerId } = req.params;
+    const { districtId, centerId, status } = req.query;
 
     let filter = {};
-
-    if (districtId) {
-      filter.district_id = districtId;
-    }
-
-    if (centerId) {
-      filter.center_id = centerId;
-    }
+    if (districtId) filter.district_id = districtId;
+    if (centerId) filter.center_id = centerId;
+    if (status) filter.verification_status = status;
 
     let volunteers = await Volunteer.find(filter)
       .populate("district_id", "districtName")
@@ -661,18 +769,13 @@ exports.getVolunteers = async (req, res) => {
 
 exports.getDisasters = async (req, res) => {
   try {
-    const { districtId, centerId } = req.params;
+    const { districtId, centerId, status } = req.query;
     const mongoose = require("mongoose");
 
     let filter = {};
-
-    if (districtId) {
-      filter.district_id = new mongoose.Types.ObjectId(districtId);
-    }
-
-    if (centerId) {
-      filter.center_id = new mongoose.Types.ObjectId(centerId);
-    }
+    if (districtId) filter.district_id = new mongoose.Types.ObjectId(districtId);
+    if (centerId) filter.center_id = new mongoose.Types.ObjectId(centerId);
+    if (status) filter.disaster_status = status;
 
     const disasters = await Disaster.find(filter)
       .populate("district_id", "districtName")
@@ -685,6 +788,29 @@ exports.getDisasters = async (req, res) => {
 
   } catch (err) {
     console.error("Fetch disasters error:", err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+
+
+exports.adminRegister = async (req, res) => {
+  try {
+    const { admin_email, admin_password, admin_name } = req.body;  
+    if (!admin_email || !admin_password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    const exists = await require("../models/admin").findOne({ admin_email });
+    if (exists) {
+      return res.status(400).json({ message: "Admin with this email already exists" });
+    }
+
+    const newAdmin = new require("../models/admin")({ admin_email, admin_password, admin_name });
+    await newAdmin.save();  
+    res.status(201).json({ message: "Admin registered successfully" });
+  } catch (err) {
+    console.error("Admin registration error:", err);
     res.status(500).json({ message: "Server Error" });
   }
 };

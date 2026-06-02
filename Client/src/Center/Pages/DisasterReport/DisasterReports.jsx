@@ -1,5 +1,23 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
+import { 
+  AlertTriangle, 
+  Search, 
+  Check, 
+  X, 
+  CheckCircle2, 
+  XCircle, 
+  Clock, 
+  Waves, 
+  Mountain, 
+  Tornado, 
+  Flame, 
+  Activity, 
+  ClipboardList,
+  Eye,
+  CheckCircle,
+  AlertCircle
+} from "lucide-react";
 
 const DisasterReports = () => {
   const [loading, setLoading] = useState(true);
@@ -40,8 +58,8 @@ const DisasterReports = () => {
     const matchesStatus =
       filterStatus === "all" ||
       (filterStatus === "pending"
-        ? disaster.disaster_status === null ||
-          disaster.disaster_status === "null" ||
+        ? disaster.disaster_status === "pending" ||
+
           !disaster.disaster_status
         : disaster.disaster_status === filterStatus);
     const matchesSearch =
@@ -59,7 +77,7 @@ const DisasterReports = () => {
   const handleStatusChange = (disasterId, newStatus) => {
     // Using updateDisasterStatus for all status transitions for consistency
     axios
-      .put(`${BASE_URL}/center/updateDisasterStatus/${disasterId}`, {
+      .put(`${BASE_URL}/center/update-disaster-status/${disasterId}`, {
         status: newStatus,
       })
       .then(() => {
@@ -133,15 +151,15 @@ const DisasterReports = () => {
   }
 
   const getDisasterIcon = (type) => {
-    const icons = {
-      Flood: "🌊",
-      Landslide: "⛰️",
-      Storm: "🌪️",
-      Fire: "🔥",
-      Disease: "🦠",
-      Earthquake: "🫨",
-    };
-    return icons[type] || "⚠️";
+    switch (type) {
+      case "Flood":      return <Waves size={20} className="text-blue-400" />;
+      case "Landslide":  return <Mountain size={20} className="text-orange-400" />;
+      case "Storm":      return <Tornado size={20} className="text-slate-400" />;
+      case "Fire":       return <Flame size={20} className="text-red-400" />;
+      case "Disease":    return <Activity size={20} className="text-emerald-400" />;
+      case "Earthquake": return <Activity size={20} className="text-amber-400" />;
+      default:          return <AlertTriangle size={20} className="text-amber-400" />;
+    }
   };
 
   if (loading) {
@@ -187,7 +205,7 @@ const DisasterReports = () => {
               className="text-[2rem] font-bold text-slate-100 leading-none flex items-center gap-3"
               style={{ fontFamily: "'Playfair Display',serif" }}
             >
-              <span>🚨</span> Disaster Reports
+              <AlertTriangle className="text-amber-400 w-8 h-8" /> Disaster Reports
             </h1>
             <p className="text-slate-500 text-sm mt-1.5">
               Monitor and respond to emergency situations
@@ -201,16 +219,7 @@ const DisasterReports = () => {
                   Search
                 </p>
                 <div className="relative flex items-center">
-                  <svg
-                    className="w-3.5 h-3.5 text-slate-500 absolute left-3 pointer-events-none"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.35-4.35" strokeLinecap="round" />
-                  </svg>
+                  <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 pointer-events-none" />
                   <input
                     type="text"
                     placeholder="Search by place, type, or details…"
@@ -276,8 +285,7 @@ const DisasterReports = () => {
                 const placeName =
                   disaster.place_id?.place_name || "Unknown Place";
                 const isPending =
-                  disaster.disaster_status === null ||
-                  disaster.disaster_status === "null" ||
+                  disaster.disaster_status === "pending" ||
                   !disaster.disaster_status;
 
                 return (
@@ -289,7 +297,7 @@ const DisasterReports = () => {
                     }}
                   >
                     <div className="flex items-start gap-4 p-5 border-b border-[#21262d]">
-                      <div className="w-11 h-11 rounded-xl bg-[#21262d] border border-[#30363d] flex items-center justify-center text-xl flex-shrink-0">
+                      <div className="w-11 h-11 rounded-xl bg-[#21262d] border border-[#30363d] flex items-center justify-center flex-shrink-0">
                         {getDisasterIcon(typeName)}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -325,7 +333,7 @@ const DisasterReports = () => {
                           onClick={() => openDetailModal(disaster)}
                           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-[#21262d] text-slate-400 border border-[#30363d] hover:text-slate-200 hover:border-[#484f58] transition-all"
                         >
-                          View Details
+                          <Eye size={14} /> View Details
                         </button>
 
                         {isPending && (
@@ -344,7 +352,7 @@ const DisasterReports = () => {
                               }
                               className="flex-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-400/10 text-emerald-400 ring-1 ring-emerald-400/20 hover:bg-emerald-500 hover:text-black hover:ring-emerald-500 transition-all font-mono"
                             >
-                              Approve
+                              <CheckCircle2 size={14} /> Approve
                             </button>
                             <button
                               onClick={() =>
@@ -352,7 +360,7 @@ const DisasterReports = () => {
                               }
                               className="flex-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-red-400/10 text-red-400 ring-1 ring-red-400/20 hover:bg-red-500 hover:text-white hover:ring-red-500 transition-all font-mono"
                             >
-                              Reject
+                              <XCircle size={14} /> Reject
                             </button>
                           </>
                         ) : disaster.disaster_status === "active" ? (
@@ -362,7 +370,7 @@ const DisasterReports = () => {
                             }
                             className="w-full px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-400/10 text-blue-400 ring-1 ring-blue-400/20 hover:bg-blue-500 hover:text-white hover:ring-blue-500 transition-all font-mono uppercase tracking-widest"
                           >
-                            Mark Resolved
+                            <CheckCircle size={14} /> Mark Resolved
                           </button>
                         ) : null}
                       </div>
@@ -372,7 +380,7 @@ const DisasterReports = () => {
               })
             ) : (
               <div className="col-span-2 bg-[#161b22] border border-[#30363d] rounded-2xl p-16 text-center">
-                <div className="text-4xl mb-3 opacity-30">📋</div>
+                <ClipboardList className="w-12 h-12 mb-3 opacity-20 text-slate-500 mx-auto" />
                 <div className="text-slate-400 font-semibold text-sm">
                   No disaster reports found
                 </div>
@@ -393,7 +401,7 @@ const DisasterReports = () => {
             style={{ animation: "scaleIn 0.25s cubic-bezier(0.16,1,0.3,1)" }}
           >
             <div className="flex items-start gap-4 p-6 border-b border-[#21262d]">
-              <div className="w-11 h-11 rounded-xl bg-[#21262d] border border-[#30363d] flex items-center justify-center text-xl flex-shrink-0">
+              <div className="w-11 h-11 rounded-xl bg-[#21262d] border border-[#30363d] flex items-center justify-center flex-shrink-0">
                 {getDisasterIcon(
                   selectedDisaster.disaster_type?.disaster_type_name,
                 )}
@@ -413,7 +421,7 @@ const DisasterReports = () => {
                 onClick={() => setDetailModalOpen(false)}
                 className="w-8 h-8 rounded-lg bg-[#21262d] border border-[#30363d] flex items-center justify-center text-slate-500 hover:text-red-400 hover:border-red-400/30 transition-all font-bold"
               >
-                ✕
+                <X size={16} />
               </button>
             </div>
 
@@ -462,8 +470,8 @@ const DisasterReports = () => {
                 Close
               </button>
 
-              {(selectedDisaster.disaster_status === null ||
-                selectedDisaster.disaster_status === "null" ||
+              {(
+                selectedDisaster.disaster_status === "pending" ||
                 !selectedDisaster.disaster_status) && (
                 <>
                   <button
@@ -472,7 +480,7 @@ const DisasterReports = () => {
                     }
                     className="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5 bg-emerald-400/10 text-emerald-400 ring-1 ring-emerald-400/20 hover:bg-emerald-500 hover:text-black hover:ring-emerald-500 transition-all"
                   >
-                    Approve Request
+                    <CheckCircle2 size={14} /> Approve Request
                   </button>
                   <button
                     onClick={() =>
@@ -480,7 +488,7 @@ const DisasterReports = () => {
                     }
                     className="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5 bg-red-400/10 text-red-400 ring-1 ring-red-400/20 hover:bg-red-500 hover:text-white hover:ring-red-500 transition-all font-mono"
                   >
-                    Reject
+                    <XCircle size={14} /> Reject
                   </button>
                 </>
               )}
@@ -492,7 +500,7 @@ const DisasterReports = () => {
                   }
                   className="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5 bg-blue-400/10 text-blue-400 ring-1 ring-blue-400/20 hover:bg-blue-500 hover:text-white hover:ring-blue-500 transition-all"
                 >
-                  Mark Resolved
+                  <CheckCircle size={14} /> Mark Resolved
                 </button>
               )}
             </div>
@@ -512,7 +520,7 @@ const DisasterReports = () => {
             style={{ animation: "toastIn 0.3s cubic-bezier(0.16,1,0.3,1)" }}
           >
             <span className="text-base flex-shrink-0">
-              {notification.type === "success" ? "✅" : "❌"}
+              {notification.type === "success" ? <CheckCircle2 className="text-emerald-400" /> : <AlertCircle className="text-red-400" />}
             </span>
             {notification.message}
           </div>

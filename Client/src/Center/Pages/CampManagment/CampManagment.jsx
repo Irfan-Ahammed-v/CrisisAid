@@ -1,5 +1,20 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import axios from "axios";
+import {
+  FileText,
+  ExternalLink,
+  Search,
+  CheckCircle2,
+  XCircle,
+  Check,
+  X,
+  Tent,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Inbox
+} from "lucide-react";
 axios.defaults.withCredentials = true;
 
 const API_BASE = import.meta.env.VITE_API_BASE;
@@ -52,7 +67,7 @@ function ProofLink({ filename, compact = false }) {
         target="_blank"
         rel="noreferrer"
         className="text-xs text-blue-400 inline-flex items-center gap-1 bg-blue-400/10 ring-1 ring-blue-400/20 px-2.5 py-1 rounded-lg hover:bg-blue-400/20 transition-colors">
-        📄 View
+        <FileText size={14} /> View
       </a>
     );
   }
@@ -63,10 +78,7 @@ function ProofLink({ filename, compact = false }) {
       target="_blank"
       rel="noreferrer"
       className="inline-flex items-center gap-1.5 text-xs text-blue-400 bg-blue-400/10 ring-1 ring-blue-400/20 px-2.5 py-1.5 rounded-lg hover:bg-blue-400/20 transition-colors">
-      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" strokeLinecap="round" strokeLinejoin="round" />
-        <polyline points="14 2 14 8 20 8" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
+      <FileText size={14} />
       {filename}
     </a>
   );
@@ -92,11 +104,7 @@ function SearchBar({ value, onChange, resultCount, total }) {
         ? "border-amber-400/50 shadow-[0_0_0_3px_rgba(232,162,62,0.07)] w-80"
         : "border-[#30363d] hover:border-[#484f58] w-64"}`}>
       <div className="absolute left-3.5 pointer-events-none">
-        <svg className={`w-3.5 h-3.5 transition-colors duration-150 ${focused ? "text-amber-400" : "text-slate-500"}`}
-          fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.35-4.35" strokeLinecap="round" />
-        </svg>
+        <Search className={`w-3.5 h-3.5 transition-colors duration-150 ${focused ? "text-amber-400" : "text-slate-500"}`} />
       </div>
       <input
         ref={inputRef}
@@ -117,9 +125,7 @@ function SearchBar({ value, onChange, resultCount, total }) {
             <button
               onMouseDown={(e) => { e.preventDefault(); onChange(""); }}
               className="flex items-center justify-center w-4 h-4 rounded-full bg-[#30363d] hover:bg-[#484f58] transition-colors">
-              <svg className="w-2.5 h-2.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
-              </svg>
+              <X className="w-2.5 h-2.5 text-slate-400" strokeWidth={3} />
             </button>
           </>
         ) : (
@@ -159,7 +165,7 @@ function Toast({ toasts }) {
               ? "bg-emerald-950/90 border-emerald-700/40 text-emerald-300"
               : "bg-red-950/90 border-red-700/40 text-red-300"}`}
           style={{ animation: "toastIn 0.3s cubic-bezier(0.16,1,0.3,1)" }}>
-          <span className="text-base flex-shrink-0">{t.type === "success" ? "✅" : "❌"}</span>
+          <span className="text-base flex-shrink-0">{t.type === "success" ? <CheckCircle2 className="text-emerald-400" size={18} /> : <XCircle className="text-red-400" size={18} />}</span>
           {t.message}
         </div>
       ))}
@@ -177,10 +183,7 @@ function ConfirmModal({ open, type, campName, onConfirm, onCancel }) {
       <div className="bg-[#161b22] border border-[#30363d] rounded-2xl w-full max-w-sm p-7 text-center shadow-2xl"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "scaleIn 0.22s cubic-bezier(0.16,1,0.3,1)" }}>
-        <div className={`w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl
-          ${isApprove ? "bg-emerald-400/10" : "bg-red-400/10"}`}>
-          {isApprove ? "✅" : "❌"}
-        </div>
+          {isApprove ? <CheckCircle2 className="text-emerald-400" size={28} /> : <XCircle className="text-red-400" size={28} />}
         <h3 className="font-bold text-xl text-slate-100 mb-2" style={{ fontFamily: "'Playfair Display',serif" }}>
           {isApprove ? "Approve Camp?" : "Reject Camp?"}
         </h3>
@@ -199,7 +202,7 @@ function ConfirmModal({ open, type, campName, onConfirm, onCancel }) {
               ${isApprove
                 ? "bg-emerald-500 hover:bg-emerald-400 text-black shadow-emerald-500/25"
                 : "bg-red-500 hover:bg-red-400 text-white shadow-red-500/25"}`}>
-            {isApprove ? "✓ Approve" : "✕ Reject"}
+            {isApprove ? <><Check size={16} strokeWidth={3} /> Approve</> : <><X size={16} strokeWidth={3} /> Reject</>}
           </button>
         </div>
       </div>
@@ -220,7 +223,7 @@ function DetailModal({ camp, open, onClose, onApprove, onReject }) {
 
         {/* Header */}
         <div className="flex items-start gap-4 p-6 border-b border-[#21262d]">
-          <div className="w-11 h-11 rounded-xl bg-amber-400/10 flex items-center justify-center text-xl flex-shrink-0">🏕️</div>
+          <div className="w-11 h-11 rounded-xl bg-amber-400/10 flex items-center justify-center text-amber-400 flex-shrink-0"><Tent size={20} /></div>
           <div className="flex-1 min-w-0">
             <h2 className="text-xl font-bold text-slate-100 truncate" style={{ fontFamily: "'Playfair Display',serif" }}>
               {camp.camp_name}
@@ -229,7 +232,7 @@ function DetailModal({ camp, open, onClose, onApprove, onReject }) {
           </div>
           <button onClick={onClose}
             className="w-8 h-8 rounded-lg bg-[#21262d] border border-[#30363d] flex items-center justify-center text-slate-500 hover:text-red-400 hover:border-red-400/30 hover:bg-red-400/10 transition-all flex-shrink-0 text-sm">
-            ✕
+            <X size={18} />
           </button>
         </div>
 
@@ -284,18 +287,14 @@ function DetailModal({ camp, open, onClose, onApprove, onReject }) {
           {camp.verification_status !== "rejected" && (
             <button onClick={onReject}
               className="px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5 bg-red-400/10 text-red-400 ring-1 ring-red-400/20 hover:bg-red-500 hover:text-white hover:ring-red-500 transition-all">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
-              </svg>
+              <X size={14} />
               Reject
             </button>
           )}
           {camp.verification_status !== "approved" && (
             <button onClick={onApprove}
               className="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-1.5 bg-emerald-500 text-black hover:bg-emerald-400 shadow-lg shadow-emerald-500/20 transition-all">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <Check size={14} strokeWidth={3} />
               Approve
             </button>
           )}
@@ -503,7 +502,7 @@ export default function CampManagement() {
                     {filtered.length === 0 ? (
                       <tr>
                         <td colSpan={TH.length} className="text-center py-16">
-                          <div className="text-4xl mb-3 opacity-30">⛺</div>
+                          <Tent className="w-10 h-10 text-slate-600 mb-3 mx-auto opacity-30" />
                           <div className="text-slate-400 font-semibold text-sm">No camps found</div>
                           <div className="text-slate-600 text-xs mt-1">Try adjusting your filters or search query</div>
                         </td>
@@ -561,18 +560,18 @@ export default function CampManagement() {
                             <div className="flex items-center gap-1.5">
                               <button onClick={() => setDetailCamp(camp)}
                                 className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#21262d] text-slate-400 border border-[#30363d] hover:text-slate-200 hover:border-[#484f58] transition-all">
-                                👁 View
+                                <Eye size={14} /> View
                               </button>
                               {camp.verification_status !== "approved" && (
                                 <button onClick={() => promptAction(camp._id, "approve")}
                                   className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-400/10 text-emerald-400 ring-1 ring-emerald-400/20 hover:bg-emerald-500 hover:text-black hover:ring-emerald-500 transition-all">
-                                  ✓
+                                  <Check size={14} strokeWidth={3} />
                                 </button>
                               )}
                               {camp.verification_status !== "rejected" && (
                                 <button onClick={() => promptAction(camp._id, "reject")}
                                   className="px-3 py-1.5 rounded-lg text-xs font-bold bg-red-400/10 text-red-400 ring-1 ring-red-400/20 hover:bg-red-500 hover:text-white hover:ring-red-500 transition-all">
-                                  ✕
+                                  <X size={14} strokeWidth={3} />
                                 </button>
                               )}
                             </div>
@@ -590,9 +589,9 @@ export default function CampManagement() {
                   Showing {filtered.length} of {camps.length} camps
                 </span>
                 <div className="flex items-center gap-1">
-                  <button className="w-7 h-7 rounded-lg bg-[#21262d] border border-[#30363d] text-slate-500 text-xs hover:text-slate-300 hover:border-[#484f58] transition-all flex items-center justify-center">‹</button>
+                  <button className="w-7 h-7 rounded-lg bg-[#21262d] border border-[#30363d] text-slate-500 text-xs hover:text-slate-300 hover:border-[#484f58] transition-all flex items-center justify-center"><ChevronLeft size={14} /></button>
                   <button className="w-7 h-7 rounded-lg bg-amber-400/15 border border-amber-400/30 text-amber-400 text-xs flex items-center justify-center font-semibold">1</button>
-                  <button className="w-7 h-7 rounded-lg bg-[#21262d] border border-[#30363d] text-slate-500 text-xs hover:text-slate-300 hover:border-[#484f58] transition-all flex items-center justify-center">›</button>
+                  <button className="w-7 h-7 rounded-lg bg-[#21262d] border border-[#30363d] text-slate-500 text-xs hover:text-slate-300 hover:border-[#484f58] transition-all flex items-center justify-center"><ChevronRight size={14} /></button>
                 </div>
               </div>
             </div>

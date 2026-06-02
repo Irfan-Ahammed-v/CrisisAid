@@ -39,7 +39,7 @@ const RequestView = () => {
       { key: "pending", label: "Pending", icon: <HourglassTopTwoToneIcon sx={{ width: 24, height: 24, color: "#5d2626" }} /> },
       { key: "accepted", label: "Accepted", icon: <CheckCircleOutlineTwoToneIcon sx={{ width: 24, height: 24, color: "#169925" }} /> },
       { key: "assigned", label: "Assigned", icon: <VisibilityIcon sx={{ width: 24, height: 24, color: "#303992" }} /> },
-      { key: "fulfilled", label: "Fulfilled", icon: <LocalShippingIcon sx={{ width: 24, height: 24, color: "#169925" }} /> },
+      { key: "completed", label: "Completed", icon: <LocalShippingIcon sx={{ width: 24, height: 24, color: "#169925" }} /> },
     ];
 
     const statusIndex = statuses.findIndex(
@@ -421,5 +421,4 @@ const RequestView = () => {
     </div>
   );
 };
-
 export default RequestView;

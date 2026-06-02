@@ -14,7 +14,9 @@ const {
   VolunteersApproval,
   verifyVolunteer,
   getAllDisasters,
-  updateDisasterStatus
+  updateDisasterStatus,
+  updateCenterStatus,
+  updateCenterPassword
 } = require("../controllers/centers.controller");
 
 const { centerAuth } = require("../middlewares/centerAuth");
@@ -39,5 +41,7 @@ router.put("/assignVolunteers/:requestId", centerAuth, assignVolunteers);
 router.put("/updateCamp/:campId",centerAuth, updateCampStatus);
 router.put("/verify-volunteer/:volunteerId", centerAuth, verifyVolunteer);
 router.get("/disasters",centerAuth,getAllDisasters);
-router.put("/updateDisasterStatus/:disasterId",centerAuth, updateDisasterStatus);
+router.put("/update-disaster-status/:disasterId",centerAuth, updateDisasterStatus);
+router.put("/update-status", centerAuth, updateCenterStatus);
+router.put("/update-password", centerAuth, updateCenterPassword);
 module.exports = router;

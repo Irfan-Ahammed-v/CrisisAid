@@ -38,11 +38,11 @@ export default function Login() {
       await fetchMe(); // Update auth context with user info
 
       alert(res.data.message);
-      if (res.data.role === "admin") navigate("/Admin");
-      else if (res.data.role === "volunteer") navigate("/Volunteer");
-      else if (res.data.role === "center") navigate("/center/");
-      else if (res.data.role === "camp") navigate("/camp");
-      else navigate("/");
+      if (res.data.role === "admin") navigate("/Admin", { replace: true });
+      else if (res.data.role === "volunteer") navigate("/Volunteer", { replace: true });
+      else if (res.data.role === "center") navigate("/center/", { replace: true });
+      else if (res.data.role === "camp") navigate("/camp", { replace: true });
+      else navigate("/", { replace: true });
     } catch (err) {
       alert("Invalid email or password");
     } finally {

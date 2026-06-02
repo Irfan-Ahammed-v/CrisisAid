@@ -13,8 +13,8 @@ const disasterSchema = new mongoose.Schema(
     },
     disaster_status: {
       type: String,
-      enum: ["active", "resolved","rejected"],
-      default: "null",
+      enum: ["pending","active", "resolved","rejected"],
+      default: "pending",
     },
     center_id: {
       type: mongoose.Schema.Types.ObjectId,

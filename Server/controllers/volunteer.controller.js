@@ -66,13 +66,17 @@ exports.completeProfile = async (req, res) => {
       });
     }
 
+    const { volunteer_phone, volunteer_address } = req.body;
     const photoPath = req.files.volunteer_photo[0].path;
     const proofPath = req.files.volunteer_proof[0].path;
 
     await Volunteer.findByIdAndUpdate(req.volunteerId, {
       volunteer_photo: photoPath,
       volunteer_proof: proofPath,
+      volunteer_phone,
+      volunteer_address,
       profileCompleted: true,
+      verification_status: "pending",
     });
 
     res.json({ message: "Profile completed successfully" });
@@ -92,17 +96,19 @@ exports.completeProfile = async (req, res) => {
 exports.toggleAvailability = async (req, res) => {
   try {
     const volunteer = await Volunteer.findById(req.volunteerId);
-
     if (!volunteer) {
       return res.status(404).json({ message: "Volunteer not found" });
     }
 
-    volunteer.availability = !volunteer.availability;
-    await volunteer.save();
+    const updatedVolunteer = await Volunteer.findByIdAndUpdate(
+      req.volunteerId,
+      { availability: !volunteer.availability },
+      { new: true }
+    );
 
     res.json({
       message: "Availability updated",
-      availability: volunteer.availability,
+      availability: updatedVolunteer.availability,
     });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
@@ -147,8 +153,20 @@ exports.acceptTask = async (req, res) => {
     task.task_status = "accepted";
     await task.save();
 
+    const updatedRequest = await Request.findByIdAndUpdate(
+      task.request_id,
+      { $inc: { accepted_volunteers: 1 } },
+      { new: true }
+    );
+
+    if (updatedRequest && updatedRequest.accepted_volunteers >= updatedRequest.estimated_volunteers) {
+      updatedRequest.request_status = "assigned";
+      await updatedRequest.save();
+    }
+
     res.json({ message: "Task accepted" });
   } catch (err) {
+    console.error("Accept Task Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -174,6 +192,13 @@ exports.completeTask = async (req, res) => {
     task.task_status = "completed";
     task.proof_image = req.file.filename;
     await task.save();
+
+    const request = await Request.findById(task.request_id);
+    if (request) {
+      request.request_status = "completed";
+      await request.save();
+    }
+    
 
     res.json({ message: "Task completed successfully" });
   } catch (err) {
@@ -298,7 +323,16 @@ exports.acceptRequest = async (req, res) => {
 
     await volunteerCall.save();
 
-    Request.findByIdAndUpdate(id, { $inc: { accepted_volunteers: 1 } }).exec();
+    const updatedRequest = await Request.findByIdAndUpdate(
+      id,
+      { $inc: { accepted_volunteers: 1 } },
+      { new: true }
+    );
+
+    if (updatedRequest && updatedRequest.accepted_volunteers >= updatedRequest.estimated_volunteers) {
+      updatedRequest.request_status = "assigned";
+      await updatedRequest.save();
+    }
 
     res.json({ message: "Task accepted successfully" });
   } catch (err) {

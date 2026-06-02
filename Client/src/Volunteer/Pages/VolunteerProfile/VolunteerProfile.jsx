@@ -1,29 +1,22 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
-import { useVolunteerTheme } from "../../../context/VolunteerThemeContext";
-
-/* ─── tiny icon components (no extra deps) ─────────────────────────── */
-const Icon = ({ d, size = 16, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth={1.8} strokeLinecap="round"
-    strokeLinejoin="round" className={className}>
-    <path d={d} />
-  </svg>
-);
-const IconUser    = (p) => <Icon {...p} d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />;
-const IconPhone   = (p) => <Icon {...p} d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.15 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.06 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 17z" />;
-const IconMail    = (p) => <Icon {...p} d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6" />;
-const IconPin     = (p) => <Icon {...p} d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0zM12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />;
-const IconShield  = (p) => <Icon {...p} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />;
-const IconHome    = (p) => <Icon {...p} d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10" />;
-const IconEdit    = (p) => <Icon {...p} d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />;
-const IconKey     = (p) => <Icon {...p} d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4" />;
-const IconCheck   = (p) => <Icon {...p} d="M20 6L9 17l-5-5" />;
-const IconX       = (p) => <Icon {...p} d="M18 6L6 18M6 6l12 12" />;
-const IconBuilding= (p) => <Icon {...p} d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18zM2 22h20M14 22v-4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v4M10 7h4M10 11h4" />;
-const IconEye     = (p) => <Icon {...p} d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />;
-const IconEyeOff  = (p) => <Icon {...p} d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22" />;
+import { 
+  User, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Shield, 
+  Home, 
+  Edit, 
+  Key, 
+  Check, 
+  X, 
+  Building2, 
+  Eye, 
+  EyeOff,
+  CheckCircle2
+} from "lucide-react";
 
 /* ─── helpers ───────────────────────────────────────────────────────── */
 const cx = (...args) => args.filter(Boolean).join(" ");
@@ -61,7 +54,7 @@ const PasswordInput = ({ name, value, onChange, placeholder, isDark }) => {
           isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-600"
         )}
       >
-        {show ? <IconEyeOff size={15}/> : <IconEye size={15}/>}
+        {show ? <EyeOff size={15}/> : <Eye size={15}/>}
       </button>
     </div>
   );
@@ -161,7 +154,7 @@ const Toast = ({ toast, isDark }) => {
           ? "bg-rose-500/10 border-rose-500/30 text-rose-300"
           : "bg-rose-50 border-rose-200 text-rose-700"
     )}>
-      {toast.type === "success" ? <IconCheck size={14}/> : <IconX size={14}/>}
+      {toast.type === "success" ? <CheckCircle2 size={14}/> : <X size={14}/>}
       {toast.msg}
     </div>
   );
@@ -187,7 +180,7 @@ const ActionBtn = ({ onClick, active, activeClass, children, isDark, icon: IconC
 
 /* ─── Main Component ────────────────────────────────────────────────── */
 const VolunteerProfile = () => {
-  const { theme } = useVolunteerTheme();
+  // const { theme } = useVolunteerTheme();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -209,7 +202,8 @@ const VolunteerProfile = () => {
   });
 
   const API_BASE = import.meta.env.VITE_API_BASE;
-  const isDark = theme === "dark";
+  // const isDark = theme === "dark";
+  const isDark = "dark";
 
   useEffect(() => { fetchProfile(); }, []);
 
@@ -369,9 +363,9 @@ const VolunteerProfile = () => {
                 </div>
 
                 {/* Verified badge */}
-                {profile?.profileCompleted && (
+                {profile?.verification_status === "approved" && (
                   <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 border-2 border-inherit">
-                    <IconCheck size={12} className="text-white stroke-[3]" />
+                    <Check size={12} className="text-white stroke-[3]" />
                   </div>
                 )}
               </div>
@@ -405,12 +399,14 @@ const VolunteerProfile = () => {
                   {/* Certified badge */}
                   <div className={cx(
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest",
-                    profile?.profileCompleted
+                    profile?.verification_status === "approved"
                       ? isDark ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                      : isDark ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" : "bg-amber-50 text-amber-700 border border-amber-100"
+                      : profile?.verification_status === "pending"
+                        ? isDark ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" : "bg-amber-50 text-amber-700 border border-amber-100"
+                        : isDark ? "bg-rose-500/10 text-rose-400 border border-rose-500/20" : "bg-rose-50 text-rose-700 border border-rose-100"
                   )}>
-                    <IconShield size={10} />
-                    {profile?.profileCompleted ? "Certified Responder" : "Provisional"}
+                    <Shield size={10} />
+                    {profile?.verification_status === "approved" ? "Certified Responder" : profile?.verification_status === "pending" ? "Under Review" : "Clearance Denied"}
                   </div>
                 </div>
               </div>
@@ -422,7 +418,7 @@ const VolunteerProfile = () => {
                   isDark={isDark}
                   active={profile?.availability}
                   activeClass="bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
-                  icon={profile?.availability ? IconEyeOff : IconEye}
+                  icon={profile?.availability ? EyeOff : Eye}
                 >
                   {profile?.availability ? "Go Offline" : "Go Online"}
                 </ActionBtn>
@@ -430,7 +426,7 @@ const VolunteerProfile = () => {
                   onClick={() => { setIsEditing(!isEditing); setIsChangingPass(false); }}
                   isDark={isDark}
                   active={isEditing}
-                  icon={isEditing ? IconX : IconEdit}
+                  icon={isEditing ? X : Edit}
                 >
                   {isEditing ? "Cancel" : "Edit Profile"}
                 </ActionBtn>
@@ -439,7 +435,7 @@ const VolunteerProfile = () => {
                   isDark={isDark}
                   active={isChangingPass}
                   activeClass="bg-rose-500 text-white shadow-lg shadow-rose-500/20"
-                  icon={isChangingPass ? IconX : IconKey}
+                  icon={isChangingPass ? X : Key}
                 >
                   {isChangingPass ? "Cancel" : "Change Password"}
                 </ActionBtn>
@@ -454,7 +450,7 @@ const VolunteerProfile = () => {
                 <div className="max-w-2xl mx-auto space-y-8">
                   <div className="flex items-center gap-3 mb-6">
                     <div className={cx("w-8 h-8 rounded-xl flex items-center justify-center", isDark ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-50 text-emerald-600")}>
-                      <IconEdit size={13}/>
+                      <Edit size={13}/>
                     </div>
                     <div>
                       <h3 className={cx("text-sm font-black", isDark ? "text-white" : "text-slate-900")}>Edit Profile</h3>
@@ -502,7 +498,7 @@ const VolunteerProfile = () => {
                     >
                       {savingProfile ? (
                         <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      ) : <IconCheck size={12} />}
+                      ) : <Check size={12} />}
                       {savingProfile ? "Saving..." : "Save Changes"}
                     </button>
                   </div>
@@ -514,7 +510,7 @@ const VolunteerProfile = () => {
                 <div className="max-w-sm mx-auto space-y-6">
                   <div className="flex items-center gap-3 mb-6">
                     <div className={cx("w-8 h-8 rounded-xl flex items-center justify-center", isDark ? "bg-rose-500/10 text-rose-400" : "bg-rose-50 text-rose-600")}>
-                      <IconKey size={13}/>
+                      <Key size={13}/>
                     </div>
                     <div>
                       <h3 className={cx("text-sm font-black", isDark ? "text-white" : "text-slate-900")}>Change Password</h3>
@@ -556,10 +552,8 @@ const VolunteerProfile = () => {
                       "flex items-center gap-2 text-[11px] font-semibold -mt-3",
                       passwordData.newPassword === passwordData.confirmPassword ? "text-emerald-500" : "text-rose-500"
                     )}>
-                      {passwordData.newPassword === passwordData.confirmPassword
-                        ? <><IconCheck size={11}/> Passwords match</>
-                        : <><IconX size={11}/> Passwords don't match</>
-                      }
+                        {passwordData.newPassword === passwordData.confirmPassword ? <Check size={11}/> : <X size={11}/>}
+                        {passwordData.newPassword === passwordData.confirmPassword ? "Passwords match" : "Passwords don't match"}
                     </div>
                   )}
 
@@ -570,7 +564,7 @@ const VolunteerProfile = () => {
                   >
                     {savingPass ? (
                       <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : <IconKey size={12} />}
+                      ) : <Key size={12} />}
                     {savingPass ? "Updating..." : "Update Password"}
                   </button>
                 </div>
@@ -580,9 +574,9 @@ const VolunteerProfile = () => {
               <div className="space-y-10">
                 {/* Info Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  <DataCard icon={IconMail}     label="Email Address"   value={profile?.volunteer_email}                                      isDark={isDark} />
-                  <DataCard icon={IconPhone}    label="Contact Number"  value={profile?.volunteer_phone || "Not set"}                         isDark={isDark} />
-                  <DataCard icon={IconBuilding} label="Assigned Center" value={profile?.center_id?.center_name || "Unassigned"} subValue={profile?.district_id?.district_name} isDark={isDark} highlight />
+                  <DataCard icon={Mail}     label="Email Address"   value={profile?.volunteer_email}                                      isDark={isDark} />
+                  <DataCard icon={Phone}    label="Contact Number"  value={profile?.volunteer_phone || "Not set"}                         isDark={isDark} />
+                  <DataCard icon={Building2} label="Assigned Center" value={profile?.center_id?.center_name || "Unassigned"} subValue={profile?.district_id?.district_name} isDark={isDark} highlight />
                 </div>
 
                 {/* Address */}
@@ -595,7 +589,7 @@ const VolunteerProfile = () => {
                       "mt-0.5 w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0",
                       isDark ? "bg-slate-800 text-slate-400" : "bg-white text-slate-500 shadow-sm border border-slate-100"
                     )}>
-                      <IconHome size={14}/>
+                      <Home size={14}/>
                     </div>
                     <div>
                       <Label isDark={isDark}>Residential Address</Label>
@@ -615,7 +609,7 @@ const VolunteerProfile = () => {
                     <Divider isDark={isDark} />
                     <div className="space-y-4">
                       <div className="flex items-center gap-2">
-                        <IconShield size={13} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
+                        <Shield size={13} className={isDark ? "text-emerald-400" : "text-emerald-600"} />
                         <SectionTitle isDark={isDark}>Verification Document</SectionTitle>
                       </div>
                       <div className="max-w-sm">
@@ -632,7 +626,7 @@ const VolunteerProfile = () => {
                             "px-4 py-2.5 flex items-center gap-2",
                             isDark ? "bg-[#0d1117]" : "bg-slate-50"
                           )}>
-                            <IconCheck size={11} className="text-emerald-500"/>
+                             <Check size={11} className="text-emerald-500"/>
                             <span className={cx("text-[10px] font-black uppercase tracking-widest", isDark ? "text-slate-400" : "text-slate-500")}>
                               Identity Verified
                             </span>
@@ -655,7 +649,7 @@ const VolunteerProfile = () => {
           {[
             { label: "Member Since", value: profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString("en-IN", { month: "short", year: "numeric" }) : "—" },
             { label: "Status",       value: profile?.availability ? "Active" : "Offline", highlight: profile?.availability },
-            { label: "Profile",      value: profile?.profileCompleted ? "Verified" : "Pending", highlight: profile?.profileCompleted },
+            { label: "Profile",      value: profile?.verification_status === "approved" ? "Verified" : profile?.verification_status === "pending" ? "Under Review" : "Rejected", highlight: profile?.verification_status === "approved" },
           ].map(({ label, value, highlight }) => (
             <div key={label} className="px-6 py-5 text-center">
               <Label isDark={isDark}>{label}</Label>

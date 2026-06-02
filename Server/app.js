@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Routes
-app.use("/Admin", adminRoutes);
+app.use("/admin", adminRoutes);
 app.use("/camp", campRoutes);
 app.use("/center",centerRoutes);
 app.use("/volunteer", volunteerRoutes);

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router";
 import CenterNavbar from "./CenterNavbar";
 import { useAuth } from "../../context/AuthContext";
+import { CenterToastProvider } from "../context/CenterToastContext";
 
 const CenterLayout = () => {
   const { user, loading } = useAuth();
@@ -22,12 +23,14 @@ const CenterLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1117] flex flex-col font-sans selection:bg-amber-500/30">
-      <CenterNavbar />
-      <div className="flex-1 w-full bg-[#0d1117] relative">
-        <Outlet />
+    <CenterToastProvider>
+      <div className="min-h-screen bg-[#0d1117] flex flex-col font-sans selection:bg-amber-500/30">
+        <CenterNavbar />
+        <div className="flex-1 w-full bg-[#0d1117] relative">
+          <Outlet />
+        </div>
       </div>
-    </div>
+    </CenterToastProvider>
   );
 };
 

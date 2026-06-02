@@ -23,7 +23,7 @@ const fetchMe = async () => {
 };
 
 
-  // run once on app load
+  // run once on app load + handle BF Cache (back button)
   useEffect(() => {
     const init = async () => {
       try {
@@ -34,7 +34,18 @@ const fetchMe = async () => {
         setLoading(false);
       }
     };
+
     init();
+
+    // Re-verify session when user clicks "Back" or "Forward"
+    const handlePageShow = (event) => {
+      if (event.persisted) {
+        init();
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
   }, []);
 
   const logout = async () => {

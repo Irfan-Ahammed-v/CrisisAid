@@ -87,16 +87,19 @@ exports.getOverview = async (req, res) => {
 exports.completeCenterProfile = async (req, res) => {
   try {
     const centerId = req.centerId;
-    const { name, address, capacity } = req.body;
+    const { name, address } = req.body;
 
-    await Centers.findByIdAndUpdate(centerId, {
-      center_name: name,
-      center_address: address,
-      center_capacity: capacity,
-      profileCompleted: true,
-    });
+    const center = await Centers.findByIdAndUpdate(
+      centerId,
+      {
+        center_name: name,
+        center_address: address,
+        profileCompleted: true,
+      },
+      { new: true }
+    );
 
-    res.json({ message: "Profile completed successfully" });
+    res.json({ message: "Profile updated successfully", center });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -180,8 +183,17 @@ exports.updateRequestStatus = async (req, res) => {
     );
 
     if (!request) return res.status(404).json({ message: "Request not found" });
-
+    if(status === "accepted") {
+      // If accepted and estimated volunteers provided, set status to assigned directly
+      request.request_status = "accepted";
+      await request.save();
+    }
+    if(status === "rejected") {
+      request.request_status = "rejected";
+      await request.save();
+    }
     res.status(200).json({ message: `Request ${status} successfully`, request });
+
   } catch (err) {
     console.error("Update Request Status Error:", err);
     res.status(500).json({ message: "Server error" });
@@ -213,6 +225,18 @@ exports.assignVolunteers = async (req, res) => {
       { _id: { $in: volunteerIds } },
       { availability: false }
     );
+
+    // Create VolunteerCall records for each volunteer
+    const VolunteerCall = require("../models/volunteercall");
+    const calls = volunteerIds.map((vId) => ({
+      volunteer_id: vId,
+      request_id: requestId,
+      center_id: request.center_id,
+      disaster_id: request.disaster_id,
+      task_status: "assigned",
+    }));
+
+    await VolunteerCall.insertMany(calls);
 
     res.status(200).json({ message: "Volunteers assigned successfully", request });
   } catch (err) {
@@ -349,4 +373,47 @@ exports.updateDisasterStatus = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+exports.updateCenterStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const centerId = req.centerId;
+
+    if (!["OPEN", "FULL", "CLOSED"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    await Centers.findByIdAndUpdate(centerId, { center_status: status });
+
+    res.json({ message: `Status updated to ${status}` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.updateCenterPassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const centerId = req.centerId;
+
+    const center = await Centers.findById(centerId);
+    if (!center) return res.status(404).json({ message: "Center not found" });
+
+    const isMatch = await bcrypt.compare(currentPassword, center.center_password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Incorrect current password" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    center.center_password = hashedPassword;
+    await center.save();
+
+    res.json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 

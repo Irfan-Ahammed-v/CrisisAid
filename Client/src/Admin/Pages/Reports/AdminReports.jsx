@@ -1,22 +1,24 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { 
-  AlertTriangle, 
-  MapPin, 
-  Building2, 
-  Calendar, 
-  Search, 
-  Filter, 
-  ChevronRight, 
-  Clock, 
-  Info,
+  Building2,
   Layers,
   LayoutGrid,
-  Tent
+  Tent,
+  AlertTriangle,
+  ChevronRight,
+  Clock,
+  Info,
+  Calendar,
+  Search,
+  Filter,
+  MapPin
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const BASE_URL = "http://localhost:5000/api";
+const BASE_URL = "http://localhost:5000";
+
+const COLORS = ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#ec4899'];
 
 export default function AdminReports() {
   const [disasters, setDisasters] = useState([]);
@@ -31,8 +33,8 @@ export default function AdminReports() {
   const [types, setTypes] = useState([]);
 
   useEffect(() => {
-    fetchData();
     fetchMetadata();
+    fetchData();
   }, []);
 
   const fetchData = async () => {
@@ -47,14 +49,15 @@ export default function AdminReports() {
     }
   };
 
+
   const fetchMetadata = async () => {
     try {
       const [distRes, typeRes] = await Promise.all([
         axios.get(`${BASE_URL}/admin/districts`),
         axios.get(`${BASE_URL}/admin/disaster-types`)
       ]);
-      setDistricts(distRes.data || []);
-      setTypes(typeRes.data || []);
+      setDistricts(distRes.data.districts);
+      setTypes(typeRes.data.disaster_types || []);
     } catch (err) {
       console.error("Metadata fetch error:", err);
     }
@@ -92,18 +95,21 @@ export default function AdminReports() {
             </p>
           </div>
 
-          <div className="flex items-center gap-4 bg-[#161b22] p-2 rounded-2xl border border-[#30363d] shadow-2xl">
-            <div className="px-6 py-2 border-r border-[#30363d]/50">
-               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Total Logs</p>
-               <p className="text-xl font-black text-white leading-none">{disasters.length}</p>
-            </div>
-            <div className="px-6 py-2">
-               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Active Alerts</p>
-               <p className="text-xl font-black text-red-500 leading-none">{disasters.filter(d => d.disaster_status !== 'resolved').length}</p>
+          <div className="flex flex-col items-end gap-4">
+            <div className="flex items-center gap-4 bg-[#161b22] p-2 rounded-2xl border border-[#30363d] shadow-2xl">
+              <div className="px-6 py-2 border-r border-[#30363d]/50">
+                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Total Logs</p>
+                 <p className="text-xl font-black text-white leading-none">{disasters.length}</p>
+              </div>
+              <div className="px-6 py-2">
+                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Active Alerts</p>
+                 <p className="text-xl font-black text-red-500 leading-none">{disasters.filter(d => d.disaster_status !== 'resolved').length}</p>
+              </div>
             </div>
           </div>
         </div>
       </header>
+
 
       {/* Control Bar */}
       <div className="max-w-[1400px] mx-auto mb-8 grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -149,7 +155,7 @@ export default function AdminReports() {
         </div>
 
         <button 
-          onClick={fetchData}
+          onClick={() => fetchData()}
           className="md:col-span-2 bg-[#161b22] border border-[#30363d] rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:border-red-500/40 transition-all font-black text-xs uppercase tracking-widest"
         >
           Refresh Feed

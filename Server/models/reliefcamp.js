@@ -31,7 +31,7 @@ const reliefecampSchema = new mongoose.Schema(
     },
     center_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "tbl_centers",
+      ref: "tbl_center",
     },
     place: {
       type: String,

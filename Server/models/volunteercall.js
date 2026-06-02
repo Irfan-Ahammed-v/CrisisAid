@@ -10,7 +10,7 @@ const volunteercallSchema = new mongoose.Schema(
 
     center_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "tbl_centers",
+      ref: "tbl_center",
     },
 
     disaster_id: {
@@ -27,8 +27,8 @@ const volunteercallSchema = new mongoose.Schema(
 
     task_status: {
       type: String,
-      enum: ["pending", "accepted", "completed"],
-      default: "pending",
+      enum: ["assigned", "accepted", "completed", "rejected"],
+      default: "assigned",
     },
 
     remarks: {

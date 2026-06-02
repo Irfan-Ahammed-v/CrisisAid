@@ -9,7 +9,7 @@ const requestSchema = new mongoose.Schema(
     },
     center_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "tbl_centers",
+      ref: "tbl_center",
       required: true,
     },
     request_details: {
@@ -34,19 +34,9 @@ const requestSchema = new mongoose.Schema(
     },
     request_status: {
       type: String,
-      enum: ["pending", "accepted", "rejected", "assigned"],
+      enum: ["pending", "accepted", "rejected", "assigned","completed"],
       default: "pending",
     },
-    estimated_people_affected: {//need to be reviewed
-      type: Number,
-      default: 0,
-    },
-    assigned_volunteers: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "tbl_volunteer",
-      },
-    ],
     estimated_volunteers: {
       type: Number,
       default: 0,

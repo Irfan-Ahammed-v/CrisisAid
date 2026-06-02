@@ -1,6 +1,20 @@
-import React, { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
+import { 
+  Building2, 
+  User, 
+  LogOut, 
+  LayoutDashboard, 
+  ClipboardList, 
+  AlertTriangle, 
+  Users, 
+  Tent, 
+  Clock,
+  Shield,
+  Menu,
+  X
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 const CenterNavbar = () => {
   const navigate = useNavigate();
@@ -30,12 +44,12 @@ const CenterNavbar = () => {
   };
 
   const navLinks = [
-    { name: "Dashboard", path: "/center", end: true, icon: "📊" },
-    { name: "Requests", path: "/center/requests", icon: "📋" },
-    { name: "Disasters", path: "/center/disaster-reports", icon: "🚨" },
-    { name: "Volunteers", path: "/center/volunteer-management", icon: "🤝" },
-    { name: "Camps", path: "/center/camp-management", icon: "🏕️" },
-    { name: "Approvals", path: "/center/pending-approvals", icon: "⏳" },
+    { name: "Dashboard", path: "/center", end: true },
+    { name: "Requests", path: "/center/requests" },
+    { name: "Disasters", path: "/center/disaster-reports" },
+    { name: "Volunteers", path: "/center/volunteer-management" },
+    { name: "Camps", path: "/center/camp-management" },
+    { name: "Approvals", path: "/center/pending-approvals" },
   ];
 
   const centerName = user?.center_name || user?.name || "Center Portal";
@@ -62,8 +76,8 @@ const CenterNavbar = () => {
                 onClick={() => navigate("/center")}
                 aria-label="Go to Center Dashboard"
               >
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-black font-bold text-lg shadow-lg shadow-amber-400/20 group-hover:scale-105 transition-transform">
-                  🏛️
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-black shadow-lg shadow-amber-400/20 group-hover:scale-105 transition-transform">
+                  <Shield size={20} weight="bold" />
                 </div>
                 <div className="flex flex-col">
                   <span
@@ -84,14 +98,13 @@ const CenterNavbar = () => {
                     to={link.path}
                     end={link.end}
                     className={({ isActive }) =>
-                      `px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                      `px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                         isActive
                           ? "bg-amber-400/10 text-amber-400 ring-1 ring-amber-400/20 shadow-sm"
                           : "text-slate-400 hover:text-slate-100 hover:bg-[#21262d]"
                       }`
                     }
                   >
-                    <span className="opacity-70">{link.icon}</span>
                     {link.name}
                   </NavLink>
                 ))}
@@ -139,7 +152,7 @@ const CenterNavbar = () => {
                         }`
                       }
                     >
-                      <span>👤</span> Profile Settings
+                      <User size={16} className="opacity-70" /> Profile Settings
                     </NavLink>
                     
                     <div className="h-px bg-[#21262d] my-1" />
@@ -148,7 +161,7 @@ const CenterNavbar = () => {
                       onClick={handleLogout}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-400 hover:bg-red-400/10 hover:text-red-300 transition-colors text-left"
                     >
-                      <span>🚪</span> Sign Out
+                      <LogOut size={16} className="opacity-70" /> Sign Out
                     </button>
                   </div>
                 )}
@@ -162,33 +175,9 @@ const CenterNavbar = () => {
                 >
                   <span className="sr-only">Open main menu</span>
                   {!isMobileMenuOpen ? (
-                    <svg
-                      className="block h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 6h16M4 12h16M4 18h16"
-                      />
-                    </svg>
+                    <Menu className="block h-6 w-6" />
                   ) : (
-                    <svg
-                      className="block h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
+                    <X className="block h-6 w-6" />
                   )}
                 </button>
               </div>
@@ -214,7 +203,6 @@ const CenterNavbar = () => {
                     }`
                   }
                 >
-                  <span className="text-xl opacity-80">{link.icon}</span>
                   {link.name}
                 </NavLink>
               ))}

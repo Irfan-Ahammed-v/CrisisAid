@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useVolunteerTheme } from "../../../context/VolunteerThemeContext";
+import { Inbox, CheckCircle, Hand } from "lucide-react";
 
 axios.defaults.withCredentials = true;
 
@@ -90,7 +91,7 @@ const VolunteerRequests = () => {
 
         {requests.length === 0 ? (
           <div className={`border rounded-2xl p-16 text-center transition-colors duration-300 ${isDark ? 'bg-[#161b22] border-[#30363d]' : 'bg-white border-slate-200 shadow-sm'}`}>
-            <div className="text-6xl mb-4">🏠</div>
+            <Inbox size={48} className="mx-auto mb-4 opacity-20" />
             <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>All caught up!</h3>
             <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>There are no active requests in your area at the moment. Keep an eye out!</p>
           </div>

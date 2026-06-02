@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../../context/AuthContext";
 import { useVolunteerTheme } from "../../../context/VolunteerThemeContext";
+import { CheckCircle2, MessageSquare, Send } from "lucide-react";
 
 axios.defaults.withCredentials = true;
 
@@ -38,8 +39,8 @@ const VolunteerFeedback = () => {
                 <div className={`border rounded-2xl p-10 text-center max-w-md w-full shadow-2xl transition-all duration-300 ${
                     isDark ? 'bg-[#161b22] border-emerald-500/30' : 'bg-white border-emerald-200'
                 }`}>
-                    <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">
-                        ✅
+                    <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle2 size={40} className="text-emerald-500" />
                     </div>
                     <h2 className={`text-2xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Thank You!</h2>
                     <p className={`${isDark ? 'text-slate-400' : 'text-slate-600'} mb-8`}>
@@ -95,13 +96,13 @@ const VolunteerFeedback = () => {
                         <button
                             type="submit"
                             disabled={submitting || !content.trim()}
-                            className={`px-8 py-3 rounded-xl font-bold transition-all transform hover:scale-[1.02] ${
+                            className={`px-8 py-3 rounded-xl font-bold transition-all transform hover:scale-[1.02] flex items-center gap-2 ${
                                 submitting || !content.trim()
                                     ? "bg-slate-700 text-slate-500 cursor-not-allowed"
                                     : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/20"
                             }`}
                         >
-                            {submitting ? "Sending..." : "Submit Feedback"}
+                            {submitting ? "Sending..." : <><Send size={18} /> Submit Feedback</>}
                         </button>
                     </div>
                 </form>

@@ -27,10 +27,8 @@ const volunteerSchema = new mongoose.Schema(
     },
     availability: {
       type: Boolean,
-  enum: [true, false],
-  default: true,
-}
-,
+      default: true,
+    },
     volunteer_phone: {
       type: String,
     },
@@ -48,7 +46,7 @@ const volunteerSchema = new mongoose.Schema(
     },
     center_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "tbl_centers",
+      ref: "tbl_center",
     },
     verification_status: {
       type: String,

@@ -41,7 +41,7 @@ exports.login = async (req, res) => {
     }
 
     const admin = await Admin.findOne({ admin_email: email });
-    if (!user && admin) {
+    if (!user && admin) { 
       user = admin;
       role = "admin";
       hashedPassword = admin.admin_password;

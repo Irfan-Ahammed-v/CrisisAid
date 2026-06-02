@@ -2,6 +2,20 @@ import React, { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import { useVolunteerTheme } from "../../context/VolunteerThemeContext";
+import { 
+  BarChart3, 
+  ClipboardList, 
+  Hand, 
+  Waves, 
+  MessageSquare, 
+  User, 
+  Shield, 
+  LogOut, 
+  Sun, 
+  Moon, 
+  Menu, 
+  X 
+} from "lucide-react";
 
 const VolunteerNavbar = () => {
   const navigate = useNavigate();
@@ -32,12 +46,12 @@ const VolunteerNavbar = () => {
   };
 
   const navLinks = [
-    { name: "Dashboard", path: "/volunteer", end: true, icon: "📊" },
-    { name: "Assignments", path: "/volunteer/assignments", icon: "📋" },
-    { name: "New Requests", path: "/volunteer/requests", icon: "🤝" },
-    { name: "Disasters", path: "/volunteer/disasters", icon: "🌪️" },
-    { name: "Feedback", path: "/volunteer/feedback", icon: "💬" },
-    { name: "My Profile", path: "/volunteer/profile", icon: "👤" },
+    { name: "Dashboard", path: "/volunteer", end: true, icon: <BarChart3 size={18} /> },
+    { name: "Assignments", path: "/volunteer/assignments", icon: <ClipboardList size={18} /> },
+    { name: "New Requests", path: "/volunteer/requests", icon: <Hand size={18} /> },
+    { name: "Disasters", path: "/volunteer/disasters", icon: <Waves size={18} /> },
+    { name: "Feedback", path: "/volunteer/feedback", icon: <MessageSquare size={18} /> },
+    { name: "My Profile", path: "/volunteer/profile", icon: <User size={18} /> },
   ];
 
   const volunteerName = user?.name || "Volunteer";
@@ -66,8 +80,8 @@ const VolunteerNavbar = () => {
                 onClick={() => navigate("/volunteer")}
                 aria-label="Go to Volunteer Dashboard"
               >
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-black font-bold text-lg shadow-lg shadow-emerald-400/20 group-hover:scale-105 transition-transform">
-                  🤝
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-black shadow-lg shadow-emerald-400/20 group-hover:scale-105 transition-transform">
+                  <Shield size={20} fill="currentColor" />
                 </div>
                 <div className="flex flex-col text-left">
                   <span
@@ -117,15 +131,7 @@ const VolunteerNavbar = () => {
                 }`}
                 title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
               >
-                {isDark ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                  </svg>
-                )}
+                {isDark ? <Sun size={20} /> : <Moon size={20} />}
               </button>
 
               {/* Profile Dropdown */}
@@ -176,7 +182,7 @@ const VolunteerNavbar = () => {
                         }`
                       }
                     >
-                      <span>👤</span> Overview
+                      <User size={16} /> Overview
                     </NavLink>
                     
                     <div className={`h-px my-1 ${isDark ? 'bg-[#21262d]' : 'bg-slate-100'}`} />
@@ -185,7 +191,7 @@ const VolunteerNavbar = () => {
                       onClick={handleLogout}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors text-left"
                     >
-                      <span>🚪</span> Sign Out
+                      <LogOut size={16} /> Sign Out
                     </button>
                   </div>
                 )}
@@ -202,35 +208,7 @@ const VolunteerNavbar = () => {
                   }`}
                 >
                   <span className="sr-only">Open main menu</span>
-                  {!isMobileMenuOpen ? (
-                    <svg
-                      className="block h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 6h16M4 12h16M4 18h16"
-                      />
-                    </svg>
-                  ) : (
-                    <svg
-                      className="block h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  )}
+                  {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
               </div>
             </div>

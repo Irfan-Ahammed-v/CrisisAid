@@ -34,7 +34,7 @@ const LandingPage = () => {
               to="/Guest/camp" 
               className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-7 py-3 rounded-full text-base font-medium transition-colors"
             >
-              Request Help <ArrowForwardIcon sx={{ fontSize: 20 }} />
+              Register Camp 
             </Link>
             
             <Link 
@@ -48,7 +48,7 @@ const LandingPage = () => {
               to="/Guest/center" 
               className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-7 py-3 rounded-full text-base font-medium transition-colors"
             >
-              Request Help <ArrowForwardIcon sx={{ fontSize: 20 }} />
+              Register center 
             </Link>
           </div>
 

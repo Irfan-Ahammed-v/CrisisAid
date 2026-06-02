@@ -48,4 +48,4 @@ router.get("/disasters", volunteerAuth, getAllActiveDisasters);
 router.post("/feedback", volunteerAuth, submitFeedback);
 router.get("/active-requests",volunteerAuth,getActiveRequests);
 router.post("/accept-request/:id",volunteerAuth,acceptRequest)
-module.exports = router;
+module.exports = router; 

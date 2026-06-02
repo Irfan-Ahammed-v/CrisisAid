@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useVolunteerTheme } from "../../../context/VolunteerThemeContext";
+import { 
+  ClipboardList, 
+  MapPin, 
+  Building2, 
+  CheckCircle2, 
+  Clock, 
+  Info, 
+  Calendar, 
+  Shield, 
+  FileText, 
+  ArrowRight, 
+  AlertTriangle,
+  X
+} from "lucide-react";
 
 axios.defaults.withCredentials = true;
 
@@ -77,18 +91,31 @@ const VolunteerAssignments = () => {
   const getStatusColor = (status) => {
     if (isDark) {
       switch (status) {
-        case "pending": return "text-amber-400 bg-amber-400/10 border-amber-400/20";
+        case "assigned": return "text-amber-400 bg-amber-400/10 border-amber-400/20";
         case "accepted": return "text-blue-400 bg-blue-400/10 border-blue-400/20";
         case "completed": return "text-emerald-400 bg-emerald-400/10 border-emerald-400/20";
         default: return "text-slate-400 bg-slate-400/10 border-slate-400/20";
       }
     } else {
       switch (status) {
-        case "pending": return "text-amber-700 bg-amber-50 border-amber-200";
+        case "assigned": return "text-amber-700 bg-amber-50 border-amber-200";
         case "accepted": return "text-blue-700 bg-blue-50 border-blue-200";
         case "completed": return "text-emerald-700 bg-emerald-50 border-emerald-200";
         default: return "text-slate-600 bg-slate-50 border-slate-200";
       }
+    }
+  };
+
+  const handleAcceptTask = async (taskId) => {
+    setUpdating(true);
+    try {
+      await axios.patch(`http://localhost:5000/volunteer/tasks/${taskId}/accept`);
+      alert("Mission accepted successfully!");
+      fetchTasks();
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to accept mission");
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -130,7 +157,7 @@ const VolunteerAssignments = () => {
           </div>
           
           <div className={`flex border rounded-lg p-1 transition-colors duration-300 ${isDark ? 'bg-[#161b22] border-[#30363d]' : 'bg-white border-slate-200 shadow-sm'}`}>
-            {["all", "accepted", "completed"].map((f) => (
+            {["all", "assigned", "accepted", "completed"].map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
@@ -140,7 +167,7 @@ const VolunteerAssignments = () => {
                     : isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-600"
                 }`}
               >
-                {f.charAt(0).toUpperCase() + f.slice(1)}
+                {f === "assigned" ? "New" : f.charAt(0).toUpperCase() + f.slice(1)}
               </button>
             ))}
           </div>
@@ -148,7 +175,7 @@ const VolunteerAssignments = () => {
 
         {filteredTasks.length === 0 ? (
           <div className={`border rounded-2xl p-16 text-center transition-colors duration-300 ${isDark ? 'bg-[#161b22] border-[#30363d]' : 'bg-white border-slate-200 shadow-sm'}`}>
-            <div className="text-6xl mb-4">📝</div>
+            <ClipboardList size={48} className="mx-auto mb-4 opacity-20" />
             <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>No assignments found</h3>
             <p className={isDark ? 'text-slate-400' : 'text-slate-500'}>You don't have any tasks matching this filter.</p>
           </div>
@@ -181,8 +208,9 @@ const VolunteerAssignments = () => {
                 </h3>
                 <div className={`text-xs mb-3 flex flex-col gap-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   {(task.request_id?.camp_id?.camp_address || task.request_id?.camp_id?.place) && (
-                    <div className="flex items-center gap-1 opacity-80 italic">
-                      <span>📍 {task.request_id?.camp_id?.camp_address}</span>
+                    <div className="flex items-center gap-1 opacity-80">
+                      <MapPin size={12} className="text-emerald-500" />
+                      <span>{task.request_id?.camp_id?.camp_address}</span>
                       {task.request_id?.camp_id?.place && <span>{task.request_id?.camp_id?.camp_address ? `, ${task.request_id?.camp_id?.place}` : task.request_id?.camp_id.place}</span>}
                     </div>
                   )}
@@ -196,21 +224,35 @@ const VolunteerAssignments = () => {
                 
                 <div className={`mt-4 pt-4 border-t flex justify-between items-center ${isDark ? 'border-[#30363d]' : 'border-slate-100'}`}>
                    <div className="flex items-center gap-2">
-                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${isDark ? 'bg-slate-700' : 'bg-slate-100'}`}>🏛️</div>
+                     <Building2 size={14} className={isDark ? 'text-slate-500' : 'text-slate-400'} />
                      <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                        {task.center_id?.center_name || "Assigned by Center"}
                      </span>
                    </div>
                    
-                   <button 
-                     onClick={() => {
-                        setSelectedTask(task);
-                        setRemark(task.remarks || "");
-                        setIsModalOpen(true);
-                     }}
-                     className={`text-sm font-medium transition-colors ${isDark ? 'text-emerald-400 hover:text-emerald-300' : 'text-emerald-600 hover:text-emerald-700'}`}>
-                     View Details →
-                   </button>
+                   {task.task_status === "assigned" ? (
+                     <button 
+                       disabled={updating}
+                       onClick={() => handleAcceptTask(task._id)}
+                       className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                         isDark 
+                           ? 'bg-emerald-500 text-black hover:bg-emerald-400' 
+                           : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                       }`}
+                     >
+                       {updating ? "..." : "Accept Mission"}
+                     </button>
+                   ) : (
+                     <button 
+                       onClick={() => {
+                          setSelectedTask(task);
+                          setRemark(task.remarks || "");
+                          setIsModalOpen(true);
+                       }}
+                       className={`text-sm font-medium transition-colors flex items-center gap-1 ${isDark ? 'text-emerald-400 hover:text-emerald-300' : 'text-emerald-600 hover:text-emerald-700'}`}>
+                       View Details <ArrowRight size={14} />
+                     </button>
+                   )}
                 </div>
               </div>
             ))}
@@ -224,7 +266,9 @@ const VolunteerAssignments = () => {
               {/* Modal Header */}
               <div className={`px-6 py-4 border-b flex justify-between items-center ${isDark ? 'border-[#30363d] bg-slate-900/50' : 'border-slate-100 bg-slate-50'}`}>
                 <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>Mission Details</h2>
-                <button onClick={() => setIsModalOpen(false)} className={`text-2xl ${isDark ? 'text-slate-500 hover:text-white' : 'text-slate-400 hover:text-slate-600'}`}>&times;</button>
+                <button onClick={() => setIsModalOpen(false)} className={`p-1 rounded-lg transition-colors ${isDark ? 'hover:bg-slate-800 text-slate-500 hover:text-white' : 'hover:bg-slate-200 text-slate-400 hover:text-slate-600'}`}>
+                  <X size={20} />
+                </button>
               </div>
 
               {/* Modal Content */}
@@ -333,7 +377,7 @@ const VolunteerAssignments = () => {
                   <div className="space-y-6">
                     <div className={`mt-6 p-4 rounded-xl border ${isDark ? 'bg-emerald-400/10 border-emerald-400/20 text-emerald-400' : 'bg-emerald-50 border-emerald-100 text-emerald-700'}`}>
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-xl">✅</span>
+                        <CheckCircle2 size={20} />
                         <span className="text-sm font-bold tracking-tight">Mission successfully completed</span>
                       </div>
                       {selectedTask.remarks && (

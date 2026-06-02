@@ -1,6 +1,22 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import axios from "axios";
+import { 
+  ClipboardList, 
+  Search, 
+  MapPin, 
+  Package, 
+  Check, 
+  Users, 
+  X, 
+  Inbox, 
+  CheckCircle2, 
+  XCircle,
+  AlertTriangle,
+  Info,
+  Clock,
+  ArrowRight
+} from "lucide-react";
 
 axios.defaults.withCredentials = true;
 
@@ -292,8 +308,13 @@ const Requests = () => {
   }
 
   const getPriorityIcon = (priority) => {
-    const icons = { critical: "🚨", high: "⚠️", medium: "📌", low: "ℹ️" };
-    return icons[priority?.toLowerCase()] || "📋";
+    switch (priority?.toLowerCase()) {
+      case "critical": return <AlertTriangle size={16} className="text-red-400" />;
+      case "high":     return <AlertTriangle size={16} className="text-orange-400" />;
+      case "medium":   return <Info size={16} className="text-amber-400" />;
+      case "low":      return <Info size={16} className="text-emerald-400" />;
+      default:        return <ClipboardList size={16} />;
+    }
   };
 
   if (loading) {
@@ -352,7 +373,7 @@ const Requests = () => {
               className="text-[2rem] font-bold text-slate-100 leading-none flex items-center gap-3"
               style={{ fontFamily: "'Playfair Display',serif" }}
             >
-              <span>📋</span> Requests Management
+              <ClipboardList className="w-8 h-8 text-amber-400" /> Requests Management
             </h1>
             <p className="text-slate-500 text-sm mt-1.5">
               Review, approve, and assign relief requests
@@ -371,16 +392,7 @@ const Requests = () => {
                   Search
                 </p>
                 <div className="relative flex items-center">
-                  <svg
-                    className="w-3.5 h-3.5 text-slate-500 absolute left-3 pointer-events-none"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="m21 21-4.35-4.35" strokeLinecap="round" />
-                  </svg>
+                  <Search className="w-4 h-4 text-slate-500 absolute left-3 pointer-events-none" />
                   <input
                     type="text"
                     placeholder="Search by camp name or details…"
@@ -508,19 +520,7 @@ const Requests = () => {
                               {request.camp_name}
                             </h3>
                             <p className="text-xs text-slate-500 font-mono mt-0.5 flex items-center gap-1">
-                              <svg
-                                className="w-3 h-3"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                                />
-                              </svg>
+                              <MapPin className="w-3 h-3" />
                               {request.camp_location}
                             </p>
                           </div>
@@ -574,9 +574,7 @@ const Requests = () => {
                                   </span>
                                 </div>
                               </div>
-                              <span className="text-base ml-1.5 flex-shrink-0">
-                                📦
-                              </span>
+                                <Package size={16} className="text-amber-400 opacity-60" />
                             </div>
                           ))}
                         </div>
@@ -624,57 +622,21 @@ const Requests = () => {
                               onClick={() => openReplyModal(request, "accept")}
                               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-400/10 text-emerald-400 ring-1 ring-emerald-400/20 hover:bg-emerald-500 hover:text-black hover:ring-emerald-500 transition-all"
                             >
-                              <svg
-                                className="w-3.5 h-3.5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M20 6 9 17l-5-5"
-                                />
-                              </svg>
+                              <Check className="w-3.5 h-3.5" />
                               Accept
                             </button>
                             <button
                               onClick={() => openAssignModal(request)}
                               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-400/10 text-blue-400 ring-1 ring-blue-400/20 hover:bg-blue-500 hover:text-white hover:ring-blue-500 transition-all"
                             >
-                              <svg
-                                className="w-3.5 h-3.5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
-                              </svg>
+                              <Users className="w-3.5 h-3.5" />
                               Assign Volunteers
                             </button>
                             <button
                               onClick={() => openReplyModal(request, "reject")}
                               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-red-400/10 text-red-400 ring-1 ring-red-400/20 hover:bg-red-500 hover:text-white hover:ring-red-500 transition-all"
                             >
-                              <svg
-                                className="w-3.5 h-3.5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M18 6 6 18M6 6l12 12"
-                                />
-                              </svg>
+                              <X className="w-3.5 h-3.5" />
                               Reject
                             </button>
                           </>
@@ -684,19 +646,7 @@ const Requests = () => {
                             onClick={() => openAssignModal(request)}
                             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-400/10 text-blue-400 ring-1 ring-blue-400/20 hover:bg-blue-500 hover:text-white hover:ring-blue-500 transition-all"
                           >
-                            <svg
-                              className="w-3.5 h-3.5"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                            </svg>
+                            <Users className="w-3.5 h-3.5" />
                             Assign Volunteers
                           </button>
                         )}
@@ -719,7 +669,7 @@ const Requests = () => {
               })
             ) : (
               <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-16 text-center">
-                <div className="text-4xl mb-3 opacity-30">📭</div>
+                <Inbox className="w-12 h-12 mb-3 opacity-20 text-slate-500 mx-auto" />
                 <div className="text-slate-400 font-semibold text-sm">
                   No requests found
                 </div>
@@ -747,8 +697,8 @@ const Requests = () => {
 
             {/* Header */}
             <div className="flex items-start gap-4 p-6 border-b border-[#21262d]">
-              <div className="w-11 h-11 rounded-xl bg-blue-400/10 border border-blue-400/20 flex items-center justify-center text-xl flex-shrink-0">
-                👥
+              <div className="w-11 h-11 rounded-xl bg-blue-400/10 border border-blue-400/20 flex items-center justify-center text-blue-400 flex-shrink-0">
+                <Users size={20} />
               </div>
               <div className="flex-1 min-w-0">
                 <h2
@@ -838,9 +788,7 @@ const Requests = () => {
                               {volunteer.volunteer_name}
                             </p>
                             {isSelected && (
-                              <span className="text-blue-400 text-sm flex-shrink-0">
-                                ✓
-                              </span>
+                              <Check className="w-4 h-4 text-blue-400 flex-shrink-0" />
                             )}
                           </div>
                           <p className="text-xs text-slate-600 font-mono truncate">
@@ -871,19 +819,7 @@ const Requests = () => {
                     : "bg-[#21262d] text-slate-600 cursor-not-allowed border border-[#30363d]"
                 }`}
               >
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M20 6 9 17l-5-5"
-                  />
-                </svg>
+                <Check className="w-3.5 h-3.5" strokeWidth={3} />
                 Assign{" "}
                 {selectedVolunteers.length > 0 ? selectedVolunteers.length : ""}{" "}
                 Volunteer{selectedVolunteers.length !== 1 ? "s" : ""}
@@ -917,7 +853,7 @@ const Requests = () => {
                     : "bg-red-400/10"
                 }`}
               >
-                {replyAction === "accept" ? "✅" : "❌"}
+                {replyAction === "accept" ? <CheckCircle2 size={24} className="text-emerald-400" /> : <XCircle size={24} className="text-red-400" />}
               </div>
               <div className="flex-1 min-w-0">
                 <h2
@@ -995,9 +931,7 @@ const Requests = () => {
                       <span className="ml-1 text-slate-500 font-normal"></span>
                     </p>
                     <div className="relative flex items-center">
-                      <span className="absolute left-4 text-slate-500 pointer-events-none">
-                        👥
-                      </span>
+                        <Users size={16} />
                       <input
                         type="number"
                         className="w-full bg-[#0d1117] border border-[#30363d] hover:border-[#484f58] focus:border-emerald-400/50 focus:shadow-[0_0_0_3px_rgba(16,185,129,0.07)] rounded-xl pl-10 pr-4 py-3 text-sm text-slate-300 placeholder-slate-600 outline-none transition-all"
@@ -1031,28 +965,7 @@ const Requests = () => {
                     : "bg-red-500 hover:bg-red-400 text-white shadow-red-500/25"
                 }`}
               >
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  {replyAction === "accept" ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={3}
-                      d="M20 6 9 17l-5-5"
-                    />
-                  ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M18 6 6 18M6 6l12 12"
-                    />
-                  )}
-                </svg>
+                {replyAction === "accept" ? <Check size={14} strokeWidth={3} /> : <X size={14} strokeWidth={2} />}
                 {replyAction === "accept" ? "Accept & Send" : "Reject & Send"}
               </button>
             </div>
@@ -1073,7 +986,7 @@ const Requests = () => {
             style={{ animation: "toastIn 0.3s cubic-bezier(0.16,1,0.3,1)" }}
           >
             <span className="text-base flex-shrink-0">
-              {notification.type === "success" ? "✅" : "❌"}
+              {notification.type === "success" ? <CheckCircle2 className="text-emerald-400" /> : <XCircle className="text-red-400" />}
             </span>
             {notification.message}
           </div>

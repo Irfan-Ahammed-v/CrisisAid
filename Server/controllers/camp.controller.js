@@ -14,7 +14,7 @@ exports.home = async (req, res) => {
   try {
     //Camp basic info
     const camp = await Camp.findById(req.campId)
-      .select("camp_name camp_status verification_status");
+      .select("camp_name camp_status verification_status current_occupancy");
 
     if (!camp) {
       return res.status(404).json({ message: "Camp not found" });
@@ -91,7 +91,6 @@ exports.newdisaster = async (req, res) => {
       disaster_photo: req.file.filename,
       reliefcamp_id: req.campId,
       district_id: req.district_id,
-      disaster_status: "active",
       center_id: camp.center_id,
       disaster_type: disasterTypeId
     });
@@ -260,7 +259,7 @@ exports.getCentersByDistrict = async (req, res) => {
       return res.status(400).json({ message: "District ID is required" });
     }
 
-    const centers = await Center.find({ district_id: districtId })
+    const centers = await Center.find({ district_id: districtId, center_status: "OPEN" })
       .select(
         "center_name"
       )

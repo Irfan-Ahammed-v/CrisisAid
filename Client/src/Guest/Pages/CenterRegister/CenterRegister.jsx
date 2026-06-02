@@ -1,21 +1,36 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { ArrowLeft } from "lucide-react";
+import { 
+  Building2, 
+  Mail, 
+  Lock, 
+  MapPin, 
+  ArrowLeft, 
+  ChevronRight, 
+  ShieldCheck, 
+  ArrowRight,
+  AlertCircle,
+  Loader2,
+  Info
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const CenterRegister = () => {
   const navigate = useNavigate();
+  const BASE_URL = "http://localhost:5000";
 
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [districts, setDistricts] = useState([]);
   const [districtId, setDistrictId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   /* ---------------- FETCH DISTRICTS ---------------- */
   const fetchDistricts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/admin/districts");
+      const res = await axios.get(`${BASE_URL}/admin/districts`);
       setDistricts(res.data?.districts || []);
     } catch (err) {
       console.error(err);
@@ -31,11 +46,37 @@ const CenterRegister = () => {
     setDistrictId("");
     setEmail("");
     setPass("");
+    setErrors({});
+  };
+
+  /* ---------------- VALIDATION LOGIC ---------------- */
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!districtId) newErrors.districtId = "Please select a district";
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!email) newErrors.email = "Email is required";
+    else if (!emailRegex.test(email)) newErrors.email = "Please enter a valid email address";
+    else {
+      const [username, domainPart] = email.split('@');
+      const domainName = domainPart.split('.')[0];
+      if (username.length < 3) newErrors.email = "Username part must be at least 3 characters";
+      else if (domainName.length < 3) newErrors.email = "Domain name must be at least 3 characters";
+    }
+
+    if (!pass) newErrors.password = "Password is required";
+    else if (pass.length < 6) newErrors.password = "Password must be at least 6 characters";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     setIsLoading(true);
 
     const payload = {
@@ -46,7 +87,7 @@ const CenterRegister = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/center/register",
+        `${BASE_URL}/center/register`,
         payload
       );
 
@@ -62,120 +103,161 @@ const CenterRegister = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-6 lg:px-8">
-      <div className="max-w-md w-full mx-auto">
-        {/* Back button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8"
+    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center py-12 px-6 lg:px-8 font-sans">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-10 text-center text-3xl font-black tracking-tight text-white uppercase">
+          CrisisAid
+        </h2>
+        <h2 className="mt-2 text-center text-lg font-medium tracking-tight text-gray-400">
+          Establish a new regional coordination hub
+        </h2>
+      </div>
+
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-white/5 border border-white/10 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm"
         >
-          <ArrowLeft size={20} />
-          <span>Back</span>
-        </button>
+          <div className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* District Select */}
+              <div className="space-y-2">
+                <label className="block text-xs font-black uppercase tracking-widest text-gray-400">
+                  Primary District
+                </label>
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-indigo-500 transition-colors z-10">
+                    <MapPin size={18} />
+                  </div>
+                  <select
+                    value={districtId}
+                    onChange={(e) => { setDistrictId(e.target.value); if(errors.districtId) setErrors({...errors, districtId: ""}) }}
+                    className={`
+                      w-full rounded-xl bg-white/5 px-4 pl-12 py-3 text-white outline-none border transition-all sm:text-sm appearance-none cursor-pointer
+                      ${errors.districtId ? 'border-red-500/50' : 'border-white/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'}
+                    `}
+                  >
+                    <option value="" className="bg-gray-800 text-gray-400">Select administrative district</option>
+                    {districts.map((d) => (
+                      <option key={d._id} value={d._id} className="bg-gray-800">
+                        {d.districtName}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 text-[10px]">
+                    ▼
+                  </div>
+                </div>
+                {errors.districtId && (
+                  <motion.p 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="text-xs text-red-400 mt-1 flex items-center gap-1.5"
+                  >
+                    <AlertCircle size={12} />
+                    {errors.districtId}
+                  </motion.p>
+                )}
+              </div>
 
-        {/* Header */}
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-gray-900 mb-3">
-            Center Registration
-          </h2>
-          <p className="text-gray-600">
-            Register a new center for disaster response coordination
-          </p>
-        </div>
+              {/* Email */}
+              <div className="space-y-2">
+                <label className="block text-xs font-black uppercase tracking-widest text-gray-400">
+                  Access Email
+                </label>
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-indigo-500 transition-colors">
+                    <Mail size={18} />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); if(errors.email) setErrors({...errors, email: ""}) }}
+                    placeholder="center@service.gov"
+                    className={`
+                      w-full rounded-xl bg-white/5 px-4 pl-12 py-3 text-white outline-none border transition-all sm:text-sm
+                      ${errors.email ? 'border-red-500/50' : 'border-white/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'}
+                      placeholder:text-gray-600
+                    `}
+                  />
+                </div>
+                {errors.email && (
+                  <motion.p 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="text-xs text-red-400 mt-1 flex items-center gap-1.5"
+                  >
+                    <AlertCircle size={12} />
+                    {errors.email}
+                  </motion.p>
+                )}
+              </div>
 
-        {/* Form */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* District Select */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                District
-              </label>
-              <select
-                value={districtId}
-                onChange={(e) => setDistrictId(e.target.value)}
-                required
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all outline-none"
+              {/* Password */}
+              <div className="space-y-2">
+                <label className="block text-xs font-black uppercase tracking-widest text-gray-400">
+                  Security Password
+                </label>
+                <div className="relative group">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-indigo-500 transition-colors">
+                    <Lock size={18} />
+                  </div>
+                  <input
+                    type="password"
+                    value={pass}
+                    onChange={(e) => { setPass(e.target.value); if(errors.password) setErrors({...errors, password: ""}) }}
+                    placeholder="Create a secure gateway code"
+                    className={`
+                      w-full rounded-xl bg-white/5 px-4 pl-12 py-3 text-white outline-none border transition-all sm:text-sm
+                      ${errors.password ? 'border-red-500/50' : 'border-white/10 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500'}
+                      placeholder:text-gray-600
+                    `}
+                  />
+                </div>
+                {errors.password && (
+                  <motion.p 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="text-xs text-red-400 mt-1 flex items-center gap-1.5"
+                  >
+                    <AlertCircle size={12} />
+                    {errors.password}
+                  </motion.p>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="flex w-full justify-center rounded-xl bg-indigo-600 px-4 py-3 text-sm font-black uppercase tracking-widest text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-50 transition-all active:scale-95 shadow-lg shadow-indigo-600/20"
+                >
+                  {isLoading ? (
+                    <Loader2 className="animate-spin" size={20} />
+                  ) : (
+                    <>
+                      Register Center
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+
+            <p className="mt-10 text-center text-sm text-gray-400">
+              Already a member?{' '}
+              <button 
+                onClick={() => navigate("/guest/login")} 
+                className="font-bold text-indigo-400 hover:text-indigo-300"
               >
-                <option value="">Select district</option>
-                {districts.map((d) => (
-                  <option key={d._id} value={d._id}>
-                    {d.districtName}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all outline-none"
-                placeholder="center@example.com"
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <input
-                type="password"
-                value={pass}
-                onChange={(e) => setPass(e.target.value)}
-                required
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all outline-none"
-                placeholder="••••••••"
-              />
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-full font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Registering...</span>
-                </>
-              ) : (
-                "Register Center"
-              )}
-            </button>
-          </form>
-
-          {/* Login Link */}
-          <div className="mt-8 pt-6 border-t border-gray-200 text-center">
-            <p className="text-gray-600">
-              Already have an account?{" "}
-              <button
-                onClick={() => navigate("/guest/login")}
-                className="text-red-600 hover:text-red-700 font-medium"
-              >
-                Login here
+                Sign In
               </button>
             </p>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Info Box */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-5">
-          <h3 className="font-semibold text-blue-800 mb-2">About Center Registration</h3>
-          <p className="text-blue-700 text-sm">
-            Centers coordinate disaster relief operations within their district. 
-            After registration, you'll need to verify your email before accessing 
-            the dashboard.
-          </p>
-        </div>
       </div>
     </div>
   );

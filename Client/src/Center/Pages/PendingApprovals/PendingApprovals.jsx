@@ -1,6 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import axios from "axios";
+import { 
+  Clock, 
+  Search, 
+  Circle, 
+  MapPin, 
+  Calendar, 
+  ShieldCheck, 
+  CheckCircle2, 
+  Mail, 
+  X, 
+  User, 
+  AlertTriangle, 
+  FileText, 
+  ExternalLink, 
+  XCircle,
+  AlertCircle
+} from "lucide-react";
 
 axios.defaults.withCredentials = true;
 
@@ -147,7 +164,9 @@ const PendingApprovals = () => {
           {/* Stats Bar */}
           <div className="fu bg-[#161b22] border border-[#30363d] rounded-xl p-4 mb-8 flex items-center justify-between" style={{ animationDelay: "50ms" }}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-amber-400/10 rounded-lg flex items-center justify-center text-xl">⏳</div>
+              <div className="w-10 h-10 bg-amber-400/10 rounded-lg flex items-center justify-center text-xl text-amber-400">
+                <Clock size={20} />
+              </div>
               <div>
                 <div className="text-sm font-bold text-slate-200">Pending Actions</div>
                 <div className="text-xs text-slate-500">Items requiring your attention</div>
@@ -170,9 +189,7 @@ const PendingApprovals = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-[#0d1117] border border-[#30363d] text-slate-200 placeholder-slate-600 rounded-xl focus:ring-2 focus:ring-amber-400/50 focus:border-amber-400/50 outline-none transition-all"
                 />
-                <svg className="w-5 h-5 text-slate-500 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+                <Search className="w-5 h-5 text-slate-500 absolute left-3 top-3.5" />
               </div>
             </div>
           </div>
@@ -197,7 +214,7 @@ const PendingApprovals = () => {
                         <p className="text-sm text-slate-500 font-mono truncate">{volunteer.volunteer_email}</p>
                         <div className="mt-2">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ring-1 bg-amber-400/10 text-amber-400 ring-amber-400/20">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                            <Circle className="w-1.5 h-1.5 fill-current text-amber-400" />
                             Pending Review
                           </span>
                         </div>
@@ -208,16 +225,12 @@ const PendingApprovals = () => {
                   {/* Card Body */}
                   <div className="p-5 space-y-3">
                     <div className="flex items-center gap-2 text-sm">
-                      <svg className="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      </svg>
+                      <MapPin size={16} className="text-slate-500 flex-shrink-0" />
                       <span className="text-slate-300 font-medium">{volunteer.district_id?.districtName || "Not specified"}</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm">
-                      <svg className="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
+                      <Calendar size={16} className="text-slate-500 flex-shrink-0" />
                       <span className="text-slate-500 font-mono text-xs">
                         {new Date(volunteer.createdAt).toLocaleDateString("en-US", {
                           month: "short",
@@ -228,9 +241,7 @@ const PendingApprovals = () => {
                     </div>
 
                     <div className="flex items-center gap-2 text-sm">
-                      <svg className="w-4 h-4 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
+                      <Clock size={16} className="text-slate-500 flex-shrink-0" />
                       <span className="text-slate-500 font-mono text-xs">
                         {new Date(volunteer.createdAt).toLocaleTimeString("en-US", {
                           hour: "2-digit",
@@ -246,9 +257,7 @@ const PendingApprovals = () => {
                       onClick={() => openDetailModal(volunteer)}
                       className="w-full px-5 py-3 bg-amber-500 hover:bg-amber-400 text-black rounded-xl font-bold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                      </svg>
+                      <ShieldCheck size={20} />
                       Review & Verify
                     </button>
                   </div>
@@ -257,7 +266,9 @@ const PendingApprovals = () => {
             </div>
           ) : (
             <div className="fu bg-[#161b22] rounded-2xl shadow-2xl border border-[#30363d] p-12 text-center" style={{ animationDelay: "100ms" }}>
-              <div className="text-6xl mb-4 opacity-30">✅</div>
+              <div className="text-6xl mb-4 opacity-30 text-amber-400 flex justify-center">
+                <CheckCircle2 size={48} />
+              </div>
               <h3 className="text-xl font-bold text-slate-100 mb-2" style={{ fontFamily: "'Playfair Display',serif" }}>No Pending Approvals</h3>
               <p className="text-slate-500">All volunteer registrations have been processed</p>
             </div>
@@ -279,20 +290,18 @@ const PendingApprovals = () => {
                       <h2 className="text-3xl font-bold mb-2 text-slate-100" style={{ fontFamily: "'Playfair Display',serif" }}>{selectedVolunteer.volunteer_name}</h2>
                       <div className="flex items-center gap-3 mb-2">
                         <span className="text-slate-400 flex items-center gap-1 text-sm font-mono">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                          </svg>
+                          <Mail size={16} />
                           {selectedVolunteer.volunteer_email}
                         </span>
                       </div>
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-bold bg-amber-400/10 text-amber-400 ring-1 ring-amber-400/20">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                        <Circle className="w-1.5 h-1.5 fill-current text-amber-400" />
                         Pending Approval
                       </span>
                     </div>
                   </div>
                   <button onClick={() => setDetailModalOpen(false)} className="w-8 h-8 rounded-lg bg-[#21262d] border border-[#30363d] flex items-center justify-center text-slate-500 hover:text-red-400 hover:border-red-400/30 hover:bg-red-400/10 transition-all flex-shrink-0 text-sm">
-                    ✕
+                    <X size={16} />
                   </button>
                 </div>
               </div>
@@ -304,9 +313,7 @@ const PendingApprovals = () => {
                   <div className="lg:col-span-1 space-y-6">
                     <div>
                       <h3 className="text-lg font-bold text-slate-100 mb-4 flex items-center gap-2 border-b border-[#30363d] pb-2">
-                        <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
+                        <User className="w-5 h-5 text-amber-400" />
                         Personal Information
                       </h3>
                       <div className="space-y-3">
@@ -337,9 +344,7 @@ const PendingApprovals = () => {
                         <div className="pt-4">
                           <div className="bg-amber-400/10 border border-amber-400/20 rounded-xl p-4">
                             <p className="text-xs font-semibold text-amber-400 mb-2 flex items-center gap-1">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                              </svg>
+                              <AlertTriangle size={16} className="text-amber-400" />
                               Action Required
                             </p>
                             <p className="text-sm text-amber-400/80">
@@ -355,9 +360,7 @@ const PendingApprovals = () => {
                   <div className="lg:col-span-2 space-y-6">
                     <div>
                       <h3 className="text-lg font-bold text-slate-100 mb-4 flex items-center gap-2 border-b border-[#30363d] pb-2">
-                        <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+                        <FileText className="w-5 h-5 text-amber-400" />
                         Verification Documents
                       </h3>
                       
@@ -370,9 +373,7 @@ const PendingApprovals = () => {
                               onClick={() => window.open(selectedVolunteer.volunteer_photo, '_blank')}
                               className="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1 transition-colors"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
+                              <ExternalLink size={16} />
                               Open Full Size
                             </button>
                           </div>
@@ -395,9 +396,7 @@ const PendingApprovals = () => {
                               onClick={() => window.open(selectedVolunteer.volunteer_proof, '_blank')}
                               className="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1 transition-colors"
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
+                              <ExternalLink size={16} />
                               Open Full Size
                             </button>
                           </div>
@@ -424,18 +423,14 @@ const PendingApprovals = () => {
                     onClick={() => handleApprove(selectedVolunteer._id)} 
                     className="flex-1 px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-black rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-emerald-500/20"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <CheckCircle2 size={20} />
                     Approve Volunteer
                   </button>
                   <button 
                     onClick={() => handleReject(selectedVolunteer._id)} 
                     className="flex-1 px-6 py-3 bg-red-500 hover:bg-red-400 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-red-500/20"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <XCircle size={20} />
                     Reject Application
                   </button>
                   <button 
@@ -462,9 +457,7 @@ const PendingApprovals = () => {
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                   notification.type === "success" ? "bg-emerald-400/20" : "bg-red-400/20"
                 }`}>
-                  <svg className={`w-6 h-6 ${notification.type === "success" ? "text-emerald-400" : "text-red-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={notification.type === "success" ? "M5 13l4 4L19 7" : "M6 18L18 6M6 6l12 12"} />
-                  </svg>
+                  {notification.type === "success" ? <CheckCircle2 size={24} className="text-emerald-400" /> : <AlertCircle size={24} className="text-red-400" />}
                 </div>
                 <div className="flex-1">
                   <h3 className="text-sm font-bold mb-1">{notification.type === "success" ? "Success!" : "Error"}</h3>
@@ -474,9 +467,7 @@ const PendingApprovals = () => {
                   onClick={() => setNotification({ show: false, type: "", message: "" })}
                   className="text-current hover:opacity-70 transition-opacity"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <X size={20} />
                 </button>
               </div>
             </div>

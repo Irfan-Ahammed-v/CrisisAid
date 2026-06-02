@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useVolunteerTheme } from "../../../context/VolunteerThemeContext";
+import { 
+  Waves, 
+  MapPin, 
+  Calendar, 
+  Eye, 
+  AlertTriangle, 
+  CheckCircle2, 
+  Tornado, 
+  Flame, 
+  Activity,
+  Navigation
+} from "lucide-react";
 
 axios.defaults.withCredentials = true;
 
@@ -107,7 +119,7 @@ const DisasterGallery = () => {
                 : "bg-white border-slate-200 shadow-slate-200/50"
             }`}
           >
-            <div className="text-7xl mb-6">🌪️</div>
+            <AlertTriangle size={72} className="mx-auto mb-6 opacity-20" />
             <h3
               className={`text-2xl font-black mb-3 ${isDark ? "text-white" : "text-slate-900"}`}
             >
@@ -158,7 +170,7 @@ const DisasterGallery = () => {
                     <div
                       className={`flex items-center gap-3 text-sm font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}
                     >
-                      <span className="text-lg">📍</span>
+                      <MapPin size={18} className="text-emerald-500" />
                       <span className="truncate">
                         {disaster.place_id?.place_name || "Unknown Location"},{" "}
                         {disaster.district_id?.district_name}
@@ -167,7 +179,7 @@ const DisasterGallery = () => {
                     <div
                       className={`flex items-center gap-3 text-sm font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}
                     >
-                      <span className="text-lg">🗓️</span>
+                      <Calendar size={18} className="text-emerald-500" />
                       <span>
                         {new Date(disaster.createdAt).toLocaleDateString(
                           "en-IN",
@@ -177,15 +189,15 @@ const DisasterGallery = () => {
                     </div>
                   </div>
 
-                  <button
+                    <button
                     onClick={() => openReport(disaster)}
-                    className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border shadow-lg ${
+                    className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border shadow-lg flex items-center justify-center gap-2 ${
                       isDark
                         ? "bg-[#0d1117] hover:bg-emerald-500 hover:text-black border-[#30363d] text-slate-300"
                         : "bg-slate-50 hover:bg-emerald-600 hover:text-white text-slate-700 border-slate-200"
                     }`}
                   >
-                    View Situation Report
+                    <Eye size={14} /> View Situation Report
                   </button>
                 </div>
               </div>
